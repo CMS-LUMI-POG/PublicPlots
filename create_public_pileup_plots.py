@@ -23,7 +23,7 @@ from matplotlib import pyplot as plt
 # FIX FIX FIX
 # This fixes a well-know bug with stepfilled logarithmic histograms in
 # Matplotlib.
-#IR from RecoLuminosity.LumiDB.mpl_axes_hist_fix import hist
+#IR from mpl_axes_hist_fix import hist
 #IR if matplotlib.__version__ != '1.0.1':
 #IR     print >> sys.stderr, \
 #IR           "ERROR The %s script contains a hard-coded bug-fix " \
@@ -39,16 +39,16 @@ from ROOT import PyConfig
 PyConfig.IgnoreCommandLineOptions = True
 from ROOT import TFile
 
-from RecoLuminosity.LumiDB.public_plots_tools import ColorScheme
-from RecoLuminosity.LumiDB.public_plots_tools import LatexifyUnits
-from RecoLuminosity.LumiDB.public_plots_tools import AddLogo
-from RecoLuminosity.LumiDB.public_plots_tools import InitMatplotlib
-from RecoLuminosity.LumiDB.public_plots_tools import RoundAwayFromZero
-from RecoLuminosity.LumiDB.public_plots_tools import SavePlot
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_SUPTITLE
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TITLE
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_AX_TITLE
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TICK_LABEL
+from public_plots_tools import ColorScheme
+from public_plots_tools import LatexifyUnits
+from public_plots_tools import AddLogo
+from public_plots_tools import InitMatplotlib
+from public_plots_tools import RoundAwayFromZero
+from public_plots_tools import SavePlot
+from public_plots_tools import FONT_PROPS_SUPTITLE
+from public_plots_tools import FONT_PROPS_TITLE
+from public_plots_tools import FONT_PROPS_AX_TITLE
+from public_plots_tools import FONT_PROPS_TICK_LABEL
 
 try:
     import debug_hook

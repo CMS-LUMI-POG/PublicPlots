@@ -24,7 +24,7 @@ from matplotlib import pyplot as plt
 # FIX FIX FIX
 # This fixes a well-know bug with stepfilled logarithmic histograms in
 # Matplotlib.
-from RecoLuminosity.LumiDB.mpl_axes_hist_fix import hist
+from mpl_axes_hist_fix import hist
 if matplotlib.__version__ != '1.0.1':
     print >> sys.stderr, \
           "ERROR The %s script contains a hard-coded bug-fix " \
@@ -34,15 +34,15 @@ if matplotlib.__version__ != '1.0.1':
 matplotlib.axes.Axes.hist = hist
 # FIX FIX FIX end
 
-from RecoLuminosity.LumiDB.public_plots_tools import ColorScheme
-from RecoLuminosity.LumiDB.public_plots_tools import LatexifyUnits
-from RecoLuminosity.LumiDB.public_plots_tools import AddLogo
-from RecoLuminosity.LumiDB.public_plots_tools import InitMatplotlib
-from RecoLuminosity.LumiDB.public_plots_tools import SavePlot
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_SUPTITLE
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TITLE
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_AX_TITLE
-from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TICK_LABEL
+from public_plots_tools import ColorScheme
+from public_plots_tools import LatexifyUnits
+from public_plots_tools import AddLogo
+from public_plots_tools import InitMatplotlib
+from public_plots_tools import SavePlot
+from public_plots_tools import FONT_PROPS_SUPTITLE
+from public_plots_tools import FONT_PROPS_TITLE
+from public_plots_tools import FONT_PROPS_AX_TITLE
+from public_plots_tools import FONT_PROPS_TICK_LABEL
 
 try:
     import debug_hook

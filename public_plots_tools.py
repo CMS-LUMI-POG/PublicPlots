@@ -210,7 +210,7 @@ class ColorScheme(object):
         # NOTE: This is a little fragile, I think.
         logo_path = os.path.realpath(os.path.dirname(__file__))
         self.logo_name = os.path.join(logo_path,
-                                      "../plotdata/%s" % self.logo_name)
+                                      "./%s" % self.logo_name)
 
         # End of __init__().
 

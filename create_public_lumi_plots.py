@@ -1075,7 +1075,7 @@ if __name__ == "__main__":
                 # DEBUG DEBUG DEBUG end
 
                 for line in lines[istart:]:
-                    print line
+                    #print line
                     if not line.startswith("Run"):
                     	ldp=LumiDataPoint(line, json_file_name)
                     #lumi_data_day.add(LumiDataPoint(line, json_file_name))

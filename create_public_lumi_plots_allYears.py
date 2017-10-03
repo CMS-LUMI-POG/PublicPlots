@@ -933,7 +933,7 @@ if __name__ == "__main__":
     # plots.
     print "Running lumiCalc for all requested days"
     for day in days:
-        print "  %s" % day.isoformat()
+        # print "  %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
         cache_file_path = CacheFilePath(cache_file_dir, day)
         cache_file_tmp = cache_file_path.replace(".csv", "_tmp.csv")
@@ -1065,7 +1065,7 @@ if __name__ == "__main__":
                 # DEBUG DEBUG DEBUG end
 
                 for line in lines[istart:]:
-                    print line
+                    #print line
                     if not line.startswith("Run"):
                     	ldp=LumiDataPoint(line, json_file_name)
                     #lumi_data_day.add(LumiDataPoint(line, json_file_name))

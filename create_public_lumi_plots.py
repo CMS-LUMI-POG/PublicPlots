@@ -685,7 +685,8 @@ if __name__ == "__main__":
         "beam_fluctuation" : None,
         "verbose" : False,
         "oracle_connection" : None,
-        "json_file" : None
+        "json_file" : None,
+        "file_suffix": ""
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -701,6 +702,8 @@ if __name__ == "__main__":
     cache_file_dir = cfg_parser.get("general", "cache_dir")
     # Flag to turn on verbose output.
     verbose = cfg_parser.getboolean("general", "verbose")
+    # Suffix to append to all file names.
+    file_suffix2 = cfg_parser.get("general", "file_suffix")
 
     # Some details on how to invoke lumiCalc.
     lumicalc_script = cfg_parser.get("general", "lumicalc_script")
@@ -1281,7 +1284,6 @@ if __name__ == "__main__":
             color_line_peak = color_scheme.color_line_peak
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
-            file_suffix2 = "OnlineLumi"
 
             fig = plt.figure()
 
@@ -1587,7 +1589,6 @@ if __name__ == "__main__":
             color_line_peak = color_scheme.color_line_peak
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
-            file_suffix2 = "OnlineLumi"
             fig = plt.figure()
 
             #----------
@@ -1816,7 +1817,6 @@ if __name__ == "__main__":
                 color_by_year = color_scheme.color_by_year
                 logo_name = color_scheme.logo_name
                 file_suffix = color_scheme.file_suffix
-                file_suffix2 = "OnlineLumi"
                 for type in ["lin", "log"]:
                     is_log = (type == "log")
 
@@ -2013,7 +2013,6 @@ if __name__ == "__main__":
             color_by_year = color_scheme.color_by_year
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
-            file_suffix2 = "OnlineLumi"
             for type in ["lin", "log"]:
                 is_log = (type == "log")
 

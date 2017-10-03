@@ -1,4 +1,5 @@
 *.pdf
 *.png
 *.pyc
+*~
 public_lumi_plots_cache

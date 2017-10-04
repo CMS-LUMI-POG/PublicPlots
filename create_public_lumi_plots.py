@@ -426,7 +426,7 @@ def GetUnits(year, accel_mode, mode):
 
 ######################################################################
 
-def GetLabel(year, accel_mode, mode):
+def GetLabel(year, accel_mode):
 
     # If a label was specified in the config file, use that. Otherwise,
     # use some sensible default.
@@ -436,104 +436,32 @@ def GetLabel(year, accel_mode, mode):
 
     label_spec = {
         "PROTPHYS" : {
-        2010 : {
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "pb^{-1}",
-        "cum_year" : "pb^{-1}",
-        "max_inst" : "Hz/ub",
-        },
-        2011 : {
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "pb^{-1}",
-        "cum_year" : "fb^{-1}",
-        "max_inst" : "Hz/nb",
-        },
-        2012 : {
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "fb^{-1}",
-        "cum_year" : "fb^{-1}",
-        "max_inst" : "Hz/nb",
-        },
-        2013 : {
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "pb^{-1}",
-        "cum_year" : "pb^{-1}",
-        "max_inst" : "Hz/ub",
-        },
-        2014 : {
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "pb^{-1}",
-        "cum_year" : "pb^{-1}",
-        "max_inst" : "Hz/ub",
-        },
-        2015 : {
-        "cum_day" : "Offline Luminosity",
-        "cum_week" : "Offline Luminosity",
-        "cum_year" : "Offline Luminosity",
-        "max_inst" : "Offline Luminosity",
-        },
-        2016 : {
-        "cum_day" : "CMS Online Luminosity",
-        "cum_week" : "CMS Online Luminosity",
-        "cum_year" : "CMS Online Luminosity",
-        "max_inst" : "CMS Online Luminosity",
-        },
-        2017 : {
-        "cum_day" : "CMS Online Luminosity",
-        "cum_week" : "CMS Online Luminosity",
-        "cum_year" : "CMS Online Luminosity",
-        "max_inst" : "CMS Online Luminosity",
-        }
+        2010 : "",
+        2011 : "",
+        2012 : "",
+        2013 : "",
+        2014 : "",
+        2015 : "Offline Luminosity",
+        2016 : "CMS Online Luminosity",
+        2017 : "CMS Online Luminosity",
         },
         "IONPHYS" : {
-        2011 : {
-        "cum_day" : "ub^{-1}",
-        "cum_week" : "ub^{-1}",
-        "cum_year" : "ub^{-1}",
-        "max_inst" : "Hz/mb",
-        },
-        2015 : { #brilcalc is coming in giving barn instead of microbarn
-        "cum_day" : "Preliminary Offline Luminosity",
-        "cum_week" : "Preliminary Offline Luminosity",
-        "cum_year" : "Preliminary Offline Luminosity",
-        "max_inst" : "Preliminary Offline Luminosity",
-        },
-        2016 : { #brilcalc is coming in giving barn instead of microbarn
-        "cum_day" : "CMS Online Luminosity",
-        "cum_week" : "CMS Online Luminosity",
-        "cum_year" : "CMS Online Luminosity",
-        "max_inst" : "CMS Online Luminosity",
-        }
+        2011 : "",
+        2015 : "Preliminary Offline Luminosity",
+        2016 : "CMS Online Luminosity"
         },
         "PAPHYS" : {
-        2013 : {
-        "cum_day" : "nb^{-1}",
-        "cum_week" : "nb^{-1}",
-        "cum_year" : "nb^{-1}",
-        "max_inst" : "Hz/mb",
-        },
-        2016 : {
-        "cum_day" : "CMS Online Luminosity",
-        "cum_week" : "CMS Online Luminosity",
-        "cum_year" : "CMS Online Luminosity",
-        "max_inst" : "CMS Online Luminosity",
-        }
+        2013 : "",
+        2016 : "CMS Online Luminosity"
         }
         }
 
     label = None
 
     try:
-        label = label_spec[accel_mode][year][mode]
+        label = label_spec[accel_mode][year]
     except KeyError:
-        if mode == "cum_day":
-            label = "pb^{-1}"
-        elif mode == "cum_week":
-            label = "pb^{-1}"
-        elif mode == "cum_year":
-            label = "fb^{-1}"
-        elif mode == "max_inst":
-            label = "Hz/ub"
+        label = ""
 
     # DEBUG DEBUG DEBUG
     assert not label is None
@@ -1345,7 +1273,7 @@ if __name__ == "__main__":
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
                     if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode, "max_inst"),
+                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
 #                        ax.text(0.02, 0.7, "Offline Luminosity",
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
@@ -1416,7 +1344,7 @@ if __name__ == "__main__":
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode, "cum_day"),
+                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -1503,7 +1431,7 @@ if __name__ == "__main__":
 #                                transform = ax.transAxes, fontsize=15)
 
                     if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode, "cum_year"),
+                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -1647,7 +1575,7 @@ if __name__ == "__main__":
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
                     if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode, "cum_week"),
+                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -1716,7 +1644,7 @@ if __name__ == "__main__":
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode, "cum_week"),
+                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
                     # Add the logo.
@@ -1784,7 +1712,7 @@ if __name__ == "__main__":
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
                     if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode, "cum_year"),
+                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 		    # Add the logo.
@@ -1967,7 +1895,7 @@ if __name__ == "__main__":
 
                    #SET OFFLINE LUMI LABEL
                    # if year == 2015 :
-                   #     ax.text(0.02, 0.7, GetLabel(year, accel_mode, "cum_year"),
+                   #     ax.text(0.02, 0.7, GetLabel(year, accel_mode),
                    #             verticalalignment="center", horizontalalignment="left",
                    #             transform = ax.transAxes, color='red', fontsize=15)
 
@@ -2139,7 +2067,7 @@ if __name__ == "__main__":
 
                 ## SET OFFLINE LUMI LABEL
 		#if year == 2015 :
-                #        ax.text(0.02, 0.7, GetLabel(year, accel_mode, "max_inst"),
+                #        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
                 #                verticalalignment="center", horizontalalignment="left",
                 #                transform = ax.transAxes, color='red', fontsize=15)
 

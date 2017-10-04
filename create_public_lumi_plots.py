@@ -428,6 +428,12 @@ def GetUnits(year, accel_mode, mode):
 
 def GetLabel(year, accel_mode, mode):
 
+    # If a label was specified in the config file, use that. Otherwise,
+    # use some sensible default.
+    cfg_label_tmp = cfg_parser.get("general", "plot_label")
+    if cfg_label_tmp:
+        return cfg_label_tmp
+
     label_spec = {
         "PROTPHYS" : {
         2010 : {
@@ -533,7 +539,7 @@ def GetLabel(year, accel_mode, mode):
     assert not label is None
     # DEBUG DEBUG DEBUG end
 
-    # End of GetUnits().
+    # End of GetLabel().
     return label
 
 ######################################################################
@@ -686,7 +692,8 @@ if __name__ == "__main__":
         "verbose" : False,
         "oracle_connection" : None,
         "json_file" : None,
-        "file_suffix": ""
+        "file_suffix": "",
+        "plot_label": None
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):

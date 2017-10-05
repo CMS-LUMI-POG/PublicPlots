@@ -322,6 +322,13 @@ def AtMidWeek(datetime_in):
 
 def GetUnits(year, accel_mode, mode):
 
+    # First check to see if units were specified in the config file.
+    # If so, use them!
+    if (cfg_parser.get("general", "units")):
+        cfg_units = cjson.decode(cfg_parser.get("general", "units"))
+        if mode in cfg_units:
+            return cfg_units[mode]
+
     units_spec = {
         "PROTPHYS" : {
         2010 : {
@@ -621,7 +628,8 @@ if __name__ == "__main__":
         "oracle_connection" : None,
         "json_file" : None,
         "file_suffix": "",
-        "plot_label": None
+        "plot_label": None,
+        "units": None
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):

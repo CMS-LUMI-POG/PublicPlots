@@ -619,14 +619,14 @@ if __name__ == "__main__":
     ignore_cache = options.ignore_cache
 
     cfg_defaults = {
-        "lumicalc_flags" : "",
-        "date_end" : None,
-        "color_schemes" : "Joe, Greg",
-        "beam_energy" : None,
-        "beam_fluctuation" : None,
-        "verbose" : False,
-        "oracle_connection" : None,
-        "json_file" : None,
+        "lumicalc_flags": "",
+        "date_end": None,
+        "color_schemes": "Joe, Greg",
+        "beam_energy": None,
+        "beam_fluctuation": None,
+        "verbose": False,
+        "oracle_connection": "",
+        "json_file": None,
         "file_suffix": "",
         "plot_label": None,
         "units": None
@@ -875,10 +875,9 @@ if __name__ == "__main__":
 
     # Figure out the last day we want to read back from the cache.
     # NOTE: The above checking ensures that date_end is <= today, so
-    # the below only assumes that we're never more than two days
+    # the below only assumes that we're never more than three days
     # behind on our luminosity numbers.
-    last_day_from_cache = min(today - datetime.timedelta(days=2), date_end)
-    last_day_from_cache = date_end-datetime.timedelta(days=3)
+    last_day_from_cache = min(today - datetime.timedelta(days=3), date_end)
     if verbose:
         print "Last day for which the cache will be used: %s" % \
               last_day_from_cache.isoformat()

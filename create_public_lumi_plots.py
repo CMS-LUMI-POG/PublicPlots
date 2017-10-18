@@ -669,11 +669,12 @@ if __name__ == "__main__":
               (date_end.isoformat(), date_begin.isoformat())
         sys.exit(1)
 
-    # If an Oracle connection string is specified, use direct Oracle
-    # access. Otherwise access passes through the Frontier
-    # cache. (Fine, but much slower to receive the data.)
-    oracle_connection_string = cfg_parser.get("general", "oracle_connection")
-    use_oracle = (len(oracle_connection_string) != 0)
+    # Oracle connection strings are no longer supported in brilcalc.
+    # (If you really want to specify a specific service use the
+    # -c option directly in the flags.)
+    if cfg_parser.get("general", "oracle_connection"):
+        print >> sys.stderr, "WARNING: You have specified an Oracle connection string but these are no longer supported by brilcalc."
+        print >> sys.stderr, "If you want to specify a particular database service, add the -c option to lumicalc_flags."
 
     # If a JSON file is specified, use the JSON file to add in the
     # plot data certified as good for physics.
@@ -742,12 +743,6 @@ if __name__ == "__main__":
 
     ##########
 
-    # Environment parameter for access to the Oracle DB.
-    if use_oracle:
-        os.putenv("TNS_ADMIN", "/afs/cern.ch/cms/lumi/DB")
-
-    ##########
-
     # Tell the user what's going to happen.
     print "Using configuration from file '%s'" % config_file_name
     if ignore_cache:
@@ -773,10 +768,6 @@ if __name__ == "__main__":
         print "Using default beam energy fluctuation for '%s' from:" % accel_mode
         for (key, val) in beam_fluctuation_defaults[accel_mode].iteritems():
             print "  %d : +/- %.0f%%" % (key, 100. * val)
-    if use_oracle:
-        print "Using direct access to the Oracle luminosity database"
-    else:
-        print "Using access to the luminosity database through the Frontier cache"
 
     ##########
 
@@ -887,8 +878,7 @@ if __name__ == "__main__":
 
             lumicalc_flags = lumicalc_flags.strip()
             lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
-            if use_oracle and not ( beam_energy ==6500 or beam_energy ==2510 or  beam_energy == 6369) :
-                lumicalc_cmd = "%s %s" % (lumicalc_cmd, oracle_connection_string)
+
             cmd = "%s --begin '%s' --end '%s' -o %s" % \
                   (lumicalc_cmd, date_previous_str, date_end_str, cache_file_tmp)
             if verbose:

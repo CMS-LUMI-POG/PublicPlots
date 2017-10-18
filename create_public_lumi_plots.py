@@ -433,52 +433,6 @@ def GetUnits(year, accel_mode, mode):
 
 ######################################################################
 
-def GetLabel(year, accel_mode):
-
-    # If a label was specified in the config file, use that. Otherwise,
-    # use some sensible default.
-    cfg_label_tmp = cfg_parser.get("general", "plot_label")
-    if cfg_label_tmp:
-        return cfg_label_tmp
-
-    label_spec = {
-        "PROTPHYS" : {
-        2010 : "",
-        2011 : "",
-        2012 : "",
-        2013 : "",
-        2014 : "",
-        2015 : "Offline Luminosity",
-        2016 : "CMS Online Luminosity",
-        2017 : "CMS Online Luminosity",
-        },
-        "IONPHYS" : {
-        2011 : "",
-        2015 : "Preliminary Offline Luminosity",
-        2016 : "CMS Online Luminosity"
-        },
-        "PAPHYS" : {
-        2013 : "",
-        2016 : "CMS Online Luminosity"
-        }
-        }
-
-    label = None
-
-    try:
-        label = label_spec[accel_mode][year]
-    except KeyError:
-        label = ""
-
-    # DEBUG DEBUG DEBUG
-    assert not label is None
-    # DEBUG DEBUG DEBUG end
-
-    # End of GetLabel().
-    return label
-
-######################################################################
-
 def GetEnergyPerNucleonScaleFactor(amodetag):
     # DEBUG DEBUG DEBUG
     assert amodetag in ["IONPHYS", "PAPHYS"]
@@ -1279,9 +1233,9 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
-                    if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
-#                        ax.text(0.02, 0.7, "Offline Luminosity",
+
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -1350,8 +1304,8 @@ if __name__ == "__main__":
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
-                    if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -1437,8 +1391,8 @@ if __name__ == "__main__":
                         #        verticalalignment="center", horizontalalignment="left",
 #                                transform = ax.transAxes, fontsize=15)
 
-                    if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -1581,8 +1535,9 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
-                    if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
+
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -1650,8 +1605,8 @@ if __name__ == "__main__":
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
-                    if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
                     # Add the logo.
@@ -1718,8 +1673,9 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
-                    if year >= 2015 :
-                        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
+
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 		    # Add the logo.
@@ -1901,8 +1857,8 @@ if __name__ == "__main__":
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                    #SET OFFLINE LUMI LABEL
-                   # if year == 2015 :
-                   #     ax.text(0.02, 0.7, GetLabel(year, accel_mode),
+                   # if cfg_parser.get("general", "plot_label"):
+                   #     ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                    #             verticalalignment="center", horizontalalignment="left",
                    #             transform = ax.transAxes, color='red', fontsize=15)
 
@@ -2073,8 +2029,8 @@ if __name__ == "__main__":
                               fontproperties=FONT_PROPS_AX_TITLE)
 
                 ## SET OFFLINE LUMI LABEL
-		#if year == 2015 :
-                #        ax.text(0.02, 0.7, GetLabel(year, accel_mode),
+                #    if cfg_parser.get("general", "plot_label"):
+                #        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                 #                verticalalignment="center", horizontalalignment="left",
                 #                transform = ax.transAxes, color='red', fontsize=15)
 

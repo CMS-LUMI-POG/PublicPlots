@@ -577,7 +577,6 @@ if __name__ == "__main__":
         "date_end": None,
         "color_schemes": "Joe, Greg",
         "beam_energy": None,
-        "beam_fluctuation": None,
         "verbose": False,
         "oracle_connection": "",
         "json_file": None,
@@ -631,19 +630,6 @@ if __name__ == "__main__":
     else:
         beam_energy_from_cfg = True
         beam_energy = float(beam_energy_tmp)
-
-    beam_fluctuation_tmp = cfg_parser.get("general", "beam_fluctuation")
-    # If no beam energy fluctuation specified, use the default for
-    # this accelerator mode.
-    beam_fluctuation = None
-    beam_fluctuation_from_cfg = None
-    if not beam_fluctuation_tmp:
-        print "No beam energy fluctuation specified --> using the defaults to '%s'" % \
-              accel_mode
-        beam_fluctuation_from_cfg = False
-    else:
-        beam_fluctuation_from_cfg = True
-        beam_fluctuation = float(beam_fluctuation_tmp)
 
     # Overall begin and end dates of all data to include.
     tmp = cfg_parser.get("general", "date_begin")
@@ -725,21 +711,6 @@ if __name__ == "__main__":
         "PAPHYS" : {2013 : 4000.,
                     2016 : 2500}
         }
-    beam_fluctuation_defaults = {
-        "PROTPHYS" : {2010 : .15,
-                      2011 : .15,
-                      2012 : .15,
-                      2013 : .15,
-                      2015 : .15,
-		      2016 : .15,
-                      2017 : .15},
-        "IONPHYS" : {2010 : .15,
-                     2011 : .15,
-                     2015 : .15,
-		     2016 : .15},
-        "PAPHYS" : {2013 : .15,
-                    2016 : .15}
-        }
 
     ##########
 
@@ -761,13 +732,6 @@ if __name__ == "__main__":
         print "Selecting data for default beam energy for '%s' from:" % accel_mode
         for (key, val) in beam_energy_defaults[accel_mode].iteritems():
             print "  %d : %.1f GeV" % (key, val)
-    if beam_fluctuation_from_cfg:
-        print "Using beam energy fluctuation of +/- %.0f%%" % \
-              (100. * beam_fluctuation)
-    else:
-        print "Using default beam energy fluctuation for '%s' from:" % accel_mode
-        for (key, val) in beam_fluctuation_defaults[accel_mode].iteritems():
-            print "  %d : +/- %.0f%%" % (key, 100. * val)
 
     ##########
 
@@ -844,9 +808,6 @@ if __name__ == "__main__":
           if year != 2014:
             if not beam_energy_from_cfg:
                 beam_energy = beam_energy_defaults[accel_mode][year]
-            if not beam_fluctuation_from_cfg:
-                beam_fluctuation = beam_fluctuation_defaults[accel_mode][year]
-
 
             # WORKAROUND WORKAROUND WORKAROUND
             # Trying to work around the issue with the unfilled
@@ -857,20 +818,18 @@ if __name__ == "__main__":
                 #lumicalc_flags = "%s --without-checkforupdate " \
 		lumicalc_flags = "%s " \
                                  "--beamenergy %.1f " \
-                                 "--beamfluctuation %.2f " \
                                  "lumibyls" % \
                                  (lumicalc_flags_from_cfg,
-                                  beam_energy, beam_fluctuation)
+                                  beam_energy)
             else:
                 # This is the way things should be.
                 #lumicalc_flags = "%s --without-checkforupdate " \
 		lumicalc_flags = "%s " \
                                  "--beamenergy %.1f " \
-                                 "--beamfluctuation %.2f " \
                                  "--amodetag %s " \
                                  "lumibyls" % \
                                  (lumicalc_flags_from_cfg,
-                                  beam_energy, beam_fluctuation,
+                                  beam_energy,
                                   accel_mode)
             # WORKAROUND WORKAROUND WORKAROUND end
 	    if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:

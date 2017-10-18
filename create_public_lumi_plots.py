@@ -603,6 +603,14 @@ if __name__ == "__main__":
 
     # Some details on how to invoke lumiCalc.
     lumicalc_script = cfg_parser.get("general", "lumicalc_script")
+    # Don't let people try to use lumiCalc2.py or pixelLumiCalc.py or lcr2.py or
+    # really anything other than brilcalc -- sadness will ensue.
+    if not "brilcalc" in lumicalc_script:
+        print >> sys.stderr, \
+            "ERROR: Lumi calculation scripts other than brilcalc are no longer supported."
+        print >> sys.stderr, "Please update your config file appropriately."
+        sys.exit(1)
+
     lumicalc_flags_from_cfg = cfg_parser.get("general", "lumicalc_flags")
     accel_mode = cfg_parser.get("general", "accel_mode")
     # Check if we know about this accelerator mode.

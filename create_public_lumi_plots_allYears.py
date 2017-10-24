@@ -1125,7 +1125,10 @@ if __name__ == "__main__":
 
     ##########
 
-    # Now dump a lot of info to the user.
+    # Now dump a lot of info to the user. Also create the .csv file with the daily data.
+    csv_output = open("lumiByDay.csv", "w")
+    csv_output.write("Date,Delivered(/ub),Recorded(/ub)\n")
+
     sep_line = 50 * "-"
     print sep_line
     units = GetUnits(years[-1], accel_mode, "cum_day")
@@ -1139,8 +1142,11 @@ if __name__ == "__main__":
             if (tmp < .1) and (tmp > 0.):
                 helper_str = " (non-zero but very small)"
             tmp_str = "%8.3f%s nLS %d" % (tmp, helper_str,lumi_data_by_day[day].len())
+            csv_output.write("%s,%.3f,%.3f\n" % (day.isoformat(),
+                                                 lumi_data_by_day[day].lum_del_tot("ub^{-1}"),
+                                                 lumi_data_by_day[day].lum_rec_tot("ub^{-1}")))
         except KeyError:
-            pass
+            csv_output.write("%s,%.3f,%.3f\n" % (day.isoformat(), 0, 0))
         print "  %s: %s" % (day.isoformat(), tmp_str)
     print sep_line
     units = GetUnits(years[-1], accel_mode, "cum_week")
@@ -1174,6 +1180,7 @@ if __name__ == "__main__":
         print "  %4d: %s" % \
               (year, tmp_str)
     print sep_line
+    csv_output.close()
 
     ##########
 

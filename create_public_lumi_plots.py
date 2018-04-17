@@ -840,8 +840,8 @@ if __name__ == "__main__":
                                   beam_energy,
                                   accel_mode)
             # WORKAROUND WORKAROUND WORKAROUND end
-	    if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:
-			lumicalc_flags=lumicalc_flags_from_cfg
+	    #if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:
+            lumicalc_flags=lumicalc_flags_from_cfg
 
             lumicalc_flags = lumicalc_flags.strip()
             lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)

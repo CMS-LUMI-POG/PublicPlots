@@ -3,6 +3,13 @@
 # Overall run script for 2018. This is basically the same as the 2017
 # run script but doesn't do normtags yet (just online).
 
+# Update the normtag repository. Since the cvmfs version only updates once a week,
+# we instead keep our own copy of the git repository which we can pull now! Note:
+# this now has to be done before setting up the environment since the git version
+# in CMSSW_7_4_0 is now no longer compatible.
+cd ~/Normtags
+git pull
+
 # Set up the environment. First we need to set up brilconda and then CMSSW.
 # I want to get rid of the CMSSW dependence but it doesn't quite work yet.
 
@@ -10,11 +17,6 @@ export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.0.3/bin:$PATH
 cd /afs/cern.ch/user/l/lumipro/lumiplotmachinery/internal/CMSSW_7_4_0_pre9/src/
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
-
-# Update the normtag repository. Since the cvmfs version only updates once a week,
-# we instead keep our own copy of the git repository which we can pull now!
-cd ~/Normtags
-git pull
 
 # Make the plots!
 cd ~/PublicPlots

@@ -372,6 +372,12 @@ def GetUnits(year, accel_mode, mode):
         "cum_week" : "fb^{-1}",
         "cum_year" : "fb^{-1}",
         "max_inst" : "Hz/nb",
+        },
+        2018 : {
+        "cum_day" : "pb^{-1}",
+        "cum_week" : "fb^{-1}",
+        "cum_year" : "fb^{-1}",
+        "max_inst" : "Hz/nb",
         }
         },
         "IONPHYS" : {

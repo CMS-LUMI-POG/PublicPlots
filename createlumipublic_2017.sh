@@ -17,7 +17,7 @@ eval `scramv1 runtime -sh`
 cd ~/PublicPlots
 
 # 1a) create the plots for this year, online luminosity, and copy them to plot area
-python create_public_lumi_plots.py public_brilcalc_plots_pp_2017_internal.cfg
+python create_public_lumi_plots.py public_brilcalc_plots_pp_2017_online.cfg
 cp *2017*OnlineLumi*png *2017*OnlineLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
 
 # 1b) same, with normtag luminosity

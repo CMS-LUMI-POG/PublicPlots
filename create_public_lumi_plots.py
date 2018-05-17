@@ -831,23 +831,21 @@ if __name__ == "__main__":
                 # works for the moment.
                 #lumicalc_flags = "%s --without-checkforupdate " \
 		lumicalc_flags = "%s " \
-                                 "--beamenergy %.1f " \
-                                 "lumibyls" % \
+                                 "--beamenergy %.0f "% \
                                  (lumicalc_flags_from_cfg,
                                   beam_energy)
             else:
                 # This is the way things should be.
                 #lumicalc_flags = "%s --without-checkforupdate " \
 		lumicalc_flags = "%s " \
-                                 "--beamenergy %.1f " \
-                                 "--amodetag %s " \
-                                 "lumibyls" % \
+                                 "--beamenergy %.0f " \
+                                 "--amodetag %s " % \
                                  (lumicalc_flags_from_cfg,
                                   beam_energy,
                                   accel_mode)
             # WORKAROUND WORKAROUND WORKAROUND end
 	    #if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:
-            lumicalc_flags=lumicalc_flags_from_cfg
+            #lumicalc_flags=lumicalc_flags_from_cfg
 
             lumicalc_flags = lumicalc_flags.strip()
             lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)

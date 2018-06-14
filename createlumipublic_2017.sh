@@ -9,7 +9,7 @@ git pull
 # I want to get rid of the CMSSW dependence but it doesn't quite work yet.
 
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.0.3/bin:$PATH
-cd /afs/cern.ch/user/l/lumipro/lumiplotmachinery/internal/CMSSW_7_4_0_pre9/src/
+cd /afs/cern.ch/user/l/lumipro/CMSSW_7_4_16/src/
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 

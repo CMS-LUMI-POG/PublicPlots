@@ -4,17 +4,23 @@ This repository contains the tools for creating the public luminosity plots. Thi
 in https://github.com/cms-sw/RecoLuminosity-LumiDB/plotdata and is currently in the process of being cleaned up and documented.
 
 The basic procedure is:
-python create_public_lumi_plots.py <cfg file>
+python create_public_lumi_plots.py [cfg file]
 where the config file is hopefully self-explanatory.
 
-However be aware that most of the config files are out of date. I have updated the config files for:
-* 2017 pp normtag
-* 2017 pp online
-* 2016 pPb 5 TeV (online)
-* 2016 pPb 8 TeV (online)
-* 2015 pp 5 TeV
+However, be aware that many of the config files are out of date. The following config files should work and
+reproduce the plots currently on the page:
 
-and confirmed that they reproduce the results currently on the page. The others are in progress.
+* 2018 pp 13 TeV (online)
+* 2017 pp 13 TeV (online & normtag)
+* 2017 pp 5 TeV (online & normtag)
+* 2016 pPb 5 TeV (online)
+* 2016 pPb 8 TeV (online & normtag)
+* 2015 pp 5 TeV (normtag)
+
+The rest are in progress.
+
+There are also various run scripts which perform the task of setting up the environment, running the actual
+script, copying the plots to the final plot location, etc. Check out createlumipublic_2017.sh for an example.
 
 ## Todo list
 * Figure out disrepancies in 2016 pp run

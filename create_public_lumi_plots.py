@@ -588,7 +588,8 @@ if __name__ == "__main__":
         "json_file": None,
         "file_suffix": "",
         "plot_label": None,
-        "units": None
+        "units": None,
+        "display_units": None
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -675,6 +676,14 @@ if __name__ == "__main__":
     if cfg_parser.get("general", "oracle_connection"):
         print >> sys.stderr, "WARNING: You have specified an Oracle connection string but these are no longer supported by brilcalc."
         print >> sys.stderr, "If you want to specify a particular database service, add the -c option to lumicalc_flags."
+
+    # Check if display units are specified. This is to work around the fact that in the PbPb runs
+    # everything is scaled by 1e6, so using the units as is will give wrong values. If display_units is set,
+    # then we do all of our calculations in the regular units but display the display units so everything
+    # works out correctly (albeit annoyingly).
+    display_units = None
+    if (cfg_parser.get("general", "display_units")):
+        display_units = cjson.decode(cfg_parser.get("general", "display_units"))
 
     # If a JSON file is specified, use the JSON file to add in the
     # plot data certified as good for physics.
@@ -1163,11 +1172,10 @@ if __name__ == "__main__":
 
                 # Figure out the maximum instantaneous luminosity.
                 max_inst = max(weights_del_inst)
+                if (display_units and display_units["max_inst"]):
+                    units=display_units["max_inst"]
 
                 if sum(weights_del) > 0.:
-		    if beam_energy == 6369 :
-			units="Hz/mb"
-
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
                             log=log_setting,
@@ -1227,8 +1235,8 @@ if __name__ == "__main__":
                 ax = fig.add_subplot(111)
 
                 units = GetUnits(year, accel_mode, "cum_day")
-                if beam_energy == 6369 :
-                       units="ub^{-1}"
+                if (display_units and display_units["cum_day"]):
+                    units=display_units["cum_day"]
 
                 #Figure out the maximum delivered and recorded luminosities.
                 max_del = max(weights_del)
@@ -1285,8 +1293,8 @@ if __name__ == "__main__":
 
             # Now for the cumulative plot.
             units = GetUnits(year, accel_mode, "cum_year")
-            if beam_energy == 6369 :
-                       units="nb^{-1}"
+            if (display_units and display_units["cum_year"]):
+                units=display_units["cum_year"]
 
             # Figure out the totals.
             min_del = min(weights_del_for_cum)
@@ -1463,6 +1471,8 @@ if __name__ == "__main__":
                 ax = fig.add_subplot(111)
 
                 units = GetUnits(year, accel_mode, "max_inst")
+                if (display_units and display_units["max_inst"]):
+                    units=display_units["max_inst"]
 
                 # Figure out the maximum instantaneous luminosity.
                 max_inst = max(weights_del_inst)
@@ -1529,6 +1539,8 @@ if __name__ == "__main__":
                 ax = fig.add_subplot(111)
 
                 units = GetUnits(year, accel_mode, "cum_week")
+                if (display_units and display_units["cum_week"]):
+                    units=display_units["cum_week"]
 
                 # Figure out the maximum delivered and recorded luminosities.
                 max_del = max(weights_del)
@@ -1585,6 +1597,8 @@ if __name__ == "__main__":
 
             # Now for the cumulative plot.
             units = GetUnits(year, accel_mode, "cum_year")
+            if (display_units and display_units["cum_year"]):
+                units=display_units["cum_year"]
 
             # Figure out the totals.
             min_del = min(weights_del_for_cum)

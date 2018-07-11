@@ -37,4 +37,4 @@ cd ~/PublicPlots
 
 # 5) create the pileup plots
 python create_public_pileup_plots.py public_pileup_plots_pp_2017.cfg
-python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017.cfg
+python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017.cfg --ignore-cache

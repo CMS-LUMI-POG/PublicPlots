@@ -225,7 +225,10 @@ if __name__ == "__main__":
             log_setting = False
             if is_log:
                 min_val = min(weights)
-                exp = RoundAwayFromZero(math.log10(min_val))
+                if min_val == 0.:
+                    exp = 0.
+                else:
+                    exp = RoundAwayFromZero(math.log10(min_val))
                 log_setting = math.pow(10., exp)
 
             fig.clear()

@@ -2,7 +2,7 @@
 
 # Update the normtag repository. Since the cvmfs version only updates once a week,
 # we instead keep our own copy of the git repository which we can pull now!
-cd ~/Normtags
+cd ~/public/Normtags
 git pull
 
 # Set up the environment. First we need to set up brilconda and then CMSSW.

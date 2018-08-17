@@ -9,7 +9,8 @@ git pull
 # I want to get rid of the CMSSW dependence but it doesn't quite work yet.
 
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
-cd /afs/cern.ch/user/l/lumipro/CMSSW_7_4_16/src/
+#cd /afs/cern.ch/user/l/lumipro/CMSSW_7_4_16/src/
+cd /afs/cern.ch/user/l/lumipro/CMSSW_10_1_0/src/
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 
@@ -36,4 +37,7 @@ cd ~/PublicPlots
 #cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /afs/cern.ch/cms/lumi/www/publicplots/
 
 # 5) create the pileup plots
-python create_public_pileup_plots.py public_pileup_plots_pp_2018.cfg --ignore-cache
+#python create_public_pileup_plots.py public_pileup_plots_pp_2018.cfg --ignore-cache
+
+# 6) Run the all years plotting script for pileup
+python create_public_pileup_plots_allYears.py public_pileup_plots_pp_allyears.cfg

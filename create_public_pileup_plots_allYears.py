@@ -81,6 +81,79 @@ def TweakPlot(fig, ax, add_extra_head_room=False):
 
     # End of TweakPlot().
 
+######################################################################
+
+def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
+
+    print "Selected is_stacked = ", is_stacked
+    print "Selected only_run2 = ", only_run2
+    if is_stacked & only_run2:
+        print "Selected both is_stacked and only_run2, which is not expected. Exit!"
+        return
+
+    print "Drawing things..."
+
+    fig = plt.figure()
+    log_setting = False
+    fig.clear()
+
+    ax = fig.add_subplot(111)
+
+    histo_type="step"
+    stack_suffix = ""
+    run2_suffix = ""
+    run2_label = ""
+    transparency = 1
+    if is_stacked:
+        histo_type="stepfilled"
+        stack_suffix = "_stack"
+    if only_run2:
+        transparency = 0.5
+        histo_type="stepfilled"
+        run2_suffix = "_run2"
+#        run2_label = "(pp, #sqrt{s}=13 TeV)"
+        run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 TeV)"
+        
+    ax.hist(xvalues, bins=bin_edges, 
+            weights=yvalues,
+            log=log_setting,
+            histtype=histo_type, stacked=is_stacked,
+            color=color_fill_histos,
+            alpha=transparency,
+            label=labels
+            )
+    ax.legend(prop=FONT_PROPS_AX_TITLE, frameon=False)
+    
+    fig.suptitle(r"CMS Average Pileup %s" % run2_label, 
+                 fontproperties=FONT_PROPS_SUPTITLE)
+    ax.set_xlabel(r"Mean number of interactions per crossing",
+                  fontproperties=FONT_PROPS_AX_TITLE)
+    ax.set_ylabel(r"Recorded Luminosity (%s/%.2f)" % \
+                      (LatexifyUnits("pb^{-1}"),
+                       pileup_hist2018.GetBinWidth(1)),
+                  fontproperties=FONT_PROPS_AX_TITLE)
+
+    # Add the logo.
+    AddLogo(logo_name, ax)
+    TweakPlot(fig, ax, True)
+
+    SavePlot(fig, "pileup_allYears%s%s" % (stack_suffix,run2_suffix))
+
+    plt.close()
+
+    return
+    # End of MakePlot().
+
+
+######################################################################
+
+def ConvertROOTtoMatplotlib(pileup_hist):
+    # Dump the ROOT histogram bins into a vector
+    weights = [pileup_hist.GetBinContent(i) \
+               for i in xrange(1, pileup_hist.GetNbinsX() + 1)]
+    # NOTE: Convert units to /pb!
+    weights = [1.e-6 * i for i in weights]
+    return weights
 
 ######################################################################
 
@@ -98,11 +171,7 @@ def LoadHistogram(directory,filename):
     pileup_hist.SetDirectory(0)
     in_file.Close()
 
-    # Turn the ROOT histogram into a Matplotlib one.
-    weights = [pileup_hist.GetBinContent(i) \
-               for i in xrange(1, pileup_hist.GetNbinsX() + 1)]
-    # NOTE: Convert units to /pb!
-    weights = [1.e-6 * i for i in weights]
+    weights = ConvertROOTtoMatplotlib(pileup_hist)
 
     return (pileup_hist,weights)
 
@@ -140,14 +209,11 @@ if __name__ == "__main__":
     rootfile2012 = cfg_parser.get("general", "rootfile2012")
     rootfile2011 = cfg_parser.get("general", "rootfile2011")
 
-    # Graphic options:
-    is_stacked = cfg_parser.getboolean("general", "stacked")
 
     ##########
 
     # Tell the user what's going to happen.
     print "Using configuration from file '%s'" % config_file_name
-    print "Stacking option '%s'" % is_stacked
 
     InitMatplotlib()
 
@@ -169,56 +235,46 @@ if __name__ == "__main__":
 
 
     # And this is where the plotting starts.
-    print "Drawing things..."
     ColorScheme.InitColors()
     color_scheme = ColorScheme("Greg") # note by Andrea G.: in other LUM POG scripts there is an option to choose color scheme, and two are selected simultaneously and executed in a loop; but in my opinion that's unnecessary and cumbersome, and I prefer the "Greg" scheme anyway!
     color_line_pileup = color_scheme.color_line_pileup
-    color_fill_histos = [color_scheme.color_by_year[2011], color_scheme.color_by_year[2012], color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018]]
     logo_name = color_scheme.logo_name
 
-    fig = plt.figure()
-    log_setting = False
-    fig.clear()
-    ax = fig.add_subplot(111)
+    # Plot all years in the same plot, first stacked and then superimposed:
 
-    labels_by_year = ["2011 (7 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2011.GetMean()),
-                      "2012 (8 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2012.GetMean()),
-                      "2015 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
-                      "2016 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
-                      "2017 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
-                      "2018 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean())]
+    xvalues=[vals,vals,vals,vals,vals,vals]
+    yvalues=[weights2011,weights2012,weights2015,weights2016,weights2017,weights2018]
+    color_fill_histos = [color_scheme.color_by_year[2011], color_scheme.color_by_year[2012], color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018]]
+    labels = ["2011 (7 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2011.GetMean()),
+              "2012 (8 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2012.GetMean()),
+              "2015 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
+              "2016 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
+              "2017 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
+              "2018 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean())]
 
-    histo_type="step"
-    stack_suffix = ""
-    if is_stacked:
-        histo_type="stepfilled"
-        stack_suffix = "_stack"
+    MakePlot(xvalues,yvalues,labels,True,False)
+    MakePlot(xvalues,yvalues,labels,False,False)
 
-    ax.hist([vals,vals,vals,vals,vals,vals], bins=bin_edges, 
-            weights=[weights2011,weights2012,weights2015,weights2016,weights2017,weights2018], 
-            log=log_setting,
-            histtype=histo_type, stacked=is_stacked,
-            color=color_fill_histos,
-            label=labels_by_year
-            )
-    ax.legend(prop=FONT_PROPS_AX_TITLE, frameon=False)
-    
-    fig.suptitle(r"CMS Average Pileup", 
-                 fontproperties=FONT_PROPS_SUPTITLE)
-    ax.set_xlabel(r"Mean number of interactions per crossing",
-                  fontproperties=FONT_PROPS_AX_TITLE)
-    ax.set_ylabel(r"Recorded Luminosity (%s/%.2f)" % \
-                      (LatexifyUnits("pb^{-1}"),
-                       pileup_hist2018.GetBinWidth(1)),
-                  fontproperties=FONT_PROPS_AX_TITLE)
+    # Now make a Run-II only plot:
 
-    # Add the logo.
-    AddLogo(logo_name, ax)
-    TweakPlot(fig, ax, True)
+    pileup_histRun2 = pileup_hist2018.Clone()
+    pileup_histRun2.Add(pileup_hist2017)
+    pileup_histRun2.Add(pileup_hist2016)
+    pileup_histRun2.Add(pileup_hist2015)
 
-    SavePlot(fig, "pileup_allYears%s" % stack_suffix)
+    weightsRun2 = ConvertROOTtoMatplotlib(pileup_histRun2)
 
-    plt.close()
+    xvalues=[vals,vals,vals,vals,vals]
+    yvalues=[weights2015,weights2016,weights2017,weights2018,weightsRun2]
+    color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], "black"]
+    labels = ["2015: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
+              "2016: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
+              "2017: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
+              "2018: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean()),
+              "Run II: <$\mathbf{\mu}$> = %.0f" % round(pileup_histRun2.GetMean())]
+
+
+    MakePlot(xvalues,yvalues,labels,False,True)
 
     ##########
 

@@ -589,7 +589,8 @@ if __name__ == "__main__":
         "file_suffix": "",
         "plot_label": None,
         "units": None,
-        "display_units": None
+        "display_units": None,
+        "normtag_file": None
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -701,6 +702,12 @@ if __name__ == "__main__":
     else:
         if verbose:
             print "No JSON file specified, filling only standard lumi plot."
+
+    normtag_file = cfg_parser.get("general", "normtag_file")
+    if normtag_file:
+        print "Normtag file selected:", normtag_file
+    else:
+        print "No normtag file selected, online luminosity will be used"
 
     ##########
 
@@ -855,6 +862,9 @@ if __name__ == "__main__":
             # WORKAROUND WORKAROUND WORKAROUND end
 	    #if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:
             #lumicalc_flags=lumicalc_flags_from_cfg
+
+            if normtag_file:
+                lumicalc_flags += " --normtag "+normtag_file
 
             lumicalc_flags = lumicalc_flags.strip()
             lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)

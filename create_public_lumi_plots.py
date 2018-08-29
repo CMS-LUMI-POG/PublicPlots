@@ -814,9 +814,14 @@ if __name__ == "__main__":
 
     # Figure out the last day we want to read back from the cache.
     # NOTE: The above checking ensures that date_end is <= today, so
-    # the below only assumes that we're never more than three days
-    # behind on our luminosity numbers.
-    last_day_from_cache = min(today - datetime.timedelta(days=3), date_end)
+    # the below only assumes that we're never more than N days
+    # behind on our luminosity numbers. For online we can use a smaller N,
+    # but if we're using a normtag file use a larger N to account for cases
+    # where we may have fallen behind on updating the fill validation.
+    day_margin = 3
+    if normtag_file:
+        day_margin = 7
+    last_day_from_cache = min(today - datetime.timedelta(days=day_margin), date_end)
     if verbose:
         print "Last day for which the cache will be used: %s" % \
               last_day_from_cache.isoformat()

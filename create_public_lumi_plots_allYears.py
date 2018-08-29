@@ -1892,9 +1892,9 @@ if __name__ == "__main__":
                                            for i in weights_del_cum]
                         else:
                             weights_tmp = weights_del_cum
-                        print color_by_year
-	                print color_by_year[year]
-	                print year
+                        #print color_by_year
+	                #print color_by_year[year]
+	                #print year
                         ax.plot(times, weights_tmp,
                                 color=color_by_year[year],
                                 #IRmarker="none", linestyle="solid",
@@ -1932,6 +1932,7 @@ if __name__ == "__main__":
                     # BUG BUG BUG end
 
                     num_cols = None
+                    spacing = None
                     if mode == 1:
                         num_cols = 1 #len(years)
                         tmp_x = 0.105 #0.095
@@ -1939,8 +1940,10 @@ if __name__ == "__main__":
                     else:
                         num_cols = 1
                         tmp_x = 0.175
-                        tmp_y = 1.01
-                    leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),frameon=False, ncol=num_cols)
+                        tmp_y = 1.03
+                        spacing = 0.1
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),frameon=False,
+                                    ncol=num_cols, labelspacing=spacing)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 

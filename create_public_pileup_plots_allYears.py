@@ -111,7 +111,6 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
         transparency = 0.5
         histo_type="stepfilled"
         run2_suffix = "_run2"
-#        run2_label = "(pp, #sqrt{s}=13 TeV)"
         run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 TeV)"
         
     ax.hist(xvalues, bins=bin_edges, 
@@ -132,6 +131,32 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
                       (LatexifyUnits("pb^{-1}"),
                        pileup_hist2018.GetBinWidth(1)),
                   fontproperties=FONT_PROPS_AX_TITLE)
+
+    # Add the inelastic pp cross section employed
+    if only_run2:
+        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb$",
+                 transform = ax.transAxes,
+                 horizontalalignment="right",
+                 fontproperties=FONT_PROPS_AX_TITLE,
+                 fontsize=9)
+    else:
+#        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb" + "\n" + r"$\sigma_{in}^{pp}(8\,TeV) = 73.0\,mb$",
+#        ax.text(.95, .35, "$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb \n $\sigma_{in}^{pp}(8\,TeV) = 73.0\,mb$",
+        ax.text(.95, .40, r"$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb$",
+                 transform = ax.transAxes,
+                 horizontalalignment="right",
+                 fontproperties=FONT_PROPS_AX_TITLE,
+                 fontsize=9)
+        ax.text(.95, .34, r"$\sigma_{in}^{pp}(8\,TeV) = 73.0\,mb$",
+                 transform = ax.transAxes,
+                 horizontalalignment="right",
+                 fontproperties=FONT_PROPS_AX_TITLE,
+                 fontsize=9)
+        ax.text(.95, .28, r"$\sigma_{in}^{pp}(7\,TeV) = 71.5\,mb$",
+                 transform = ax.transAxes,
+                 horizontalalignment="right",
+                 fontproperties=FONT_PROPS_AX_TITLE,
+                 fontsize=9)
 
     # Add the logo.
     AddLogo(logo_name, ax)

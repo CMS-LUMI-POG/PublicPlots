@@ -36,5 +36,5 @@ cd ~/PublicPlots
 #cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /afs/cern.ch/cms/lumi/www/publicplots/
 
 # 5) create the pileup plots
-python create_public_pileup_plots.py public_pileup_plots_pp_2017.cfg
+python create_public_pileup_plots.py public_pileup_plots_pp_2017.cfg --ignore-cache
 python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017.cfg --ignore-cache

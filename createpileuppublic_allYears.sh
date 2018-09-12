@@ -16,6 +16,6 @@ eval `scramv1 runtime -sh`
 # Make the plots!
 cd ~/PublicPlots/
 
+python create_public_pileup_plots.py public_pileup_plots_pp_2018.cfg --ignore-cache
 python create_public_pileup_plots_allYears.py public_pileup_plots_pp_allyears.cfg
-
 cp pileup_allYears* /afs/cern.ch/cms/lumi/www/publicplots/

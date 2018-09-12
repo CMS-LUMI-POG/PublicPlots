@@ -3,6 +3,8 @@
 # Overall run script for 2018. Now that we have normtags available, this is basically identical to the 2017
 # script except for the addition of the pileup script.
 
+echo Starting script at `date`
+
 # Update the normtag repository. Since the cvmfs version only updates once a week, we instead keep our own
 # copy of the git repository which we can pull now! Note: this now has to be done before setting up the
 # environment since the git version in CMSSW_7_4_0 is now no longer compatible.
@@ -40,5 +42,5 @@ python create_public_lumi_plots_allYears.py public_lumi_plots_pp_allyears.cfg
 cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /afs/cern.ch/cms/lumi/www/publicplots/
 
 # 5) Run the pileup plots script
-python create_public_pileup_plots.py public_pileup_plots_pp_2018.cfg
-cp pileup_pp_2018* /afs/cern.ch/cms/lumi/www/publicplots/
+#python create_public_pileup_plots.py public_pileup_plots_pp_2018.cfg
+#cp pileup_pp_2018* /afs/cern.ch/cms/lumi/www/publicplots/

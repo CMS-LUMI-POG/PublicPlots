@@ -1052,7 +1052,7 @@ if __name__ == "__main__":
     print "Reading back lumiCalc results"
     lumi_data_by_day = {}
     for day in days:
-        print "  %s" % day.isoformat()
+        # print "  %s" % day.isoformat()
         cache_file_path = CacheFilePath(cache_file_dir, day)
         lumi_data_day = LumiDataBlock()
         try:

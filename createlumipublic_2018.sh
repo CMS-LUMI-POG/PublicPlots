@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Overall run script for 2018. Now that we have normtags available, this is basically identical to the 2017
-# script except for the addition of the pileup script.
+# script.
 
 echo Starting script at `date`
 
@@ -40,7 +40,3 @@ cp -R public_lumi_plots_cache/pp_2018_normtag /afs/cern.ch/user/l/lumipro/public
 # 4) Run the all years plotting script
 python create_public_lumi_plots_allYears.py public_lumi_plots_pp_allyears.cfg
 cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /afs/cern.ch/cms/lumi/www/publicplots/
-
-# 5) Run the pileup plots script
-#python create_public_pileup_plots.py public_pileup_plots_pp_2018.cfg
-#cp pileup_pp_2018* /afs/cern.ch/cms/lumi/www/publicplots/

@@ -54,3 +54,9 @@ Since running the script on a full year's data is a quite lengthy procedure, the
 * You can also simply delete (or move) the cache directory, which accomplishes the same as above.
 
 It is recommended to periodically rebuild the cache a few times throughout the year just to catch any unexpected changes that may have happened in the year's data.
+
+## Current setup on lxplus
+
+Currently these scripts are run automatically by an acron job on the lumipro account. The public plots script is run every half hour, and the pileup plots script is run every week after the pileup JSON is updated. To see the current acron setup use `acrontab -l` and to edit it you can use `acrontab -e`.
+
+The crontab is configured so that it invokes the scripts `~lumipro/run_public_plots.sh` and `~lumipro/run_pileup_plots.sh`. These are set up as symlinks to the actual scripts which should be run (for 2018, `~lumipro/PublicPlots/createlumipublic_2018.sh` and `~lumipro/PublicPlots/createpileuppublic_2018.sh`), so that if you need to change the script when entering a different run period, you can just alter the symlink to point to the desired script.

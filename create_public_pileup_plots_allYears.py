@@ -134,25 +134,23 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
 
     # Add the inelastic pp cross section employed
     if only_run2:
-        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb$",
+        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,TeV) ="+str(xsection13)+"\,mb$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     else:
-#        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb" + "\n" + r"$\sigma_{in}^{pp}(8\,TeV) = 73.0\,mb$",
-#        ax.text(.95, .35, "$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb \n $\sigma_{in}^{pp}(8\,TeV) = 73.0\,mb$",
-        ax.text(.95, .40, r"$\sigma_{in}^{pp}(13\,TeV) = 80.0\,mb$",
+        ax.text(.95, .40, r"$\sigma_{in}^{pp}(13\,TeV) ="+str(xsection13)+"\,mb$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .34, r"$\sigma_{in}^{pp}(8\,TeV) = 73.0\,mb$",
+        ax.text(.95, .34, r"$\sigma_{in}^{pp}(8\,TeV) ="+str(xsection8)+"\,mb$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .28, r"$\sigma_{in}^{pp}(7\,TeV) = 71.5\,mb$",
+        ax.text(.95, .28, r"$\sigma_{in}^{pp}(7\,TeV) ="+str(xsection7)+"\,mb$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
@@ -234,6 +232,10 @@ if __name__ == "__main__":
     rootfile2012 = cfg_parser.get("general", "rootfile2012")
     rootfile2011 = cfg_parser.get("general", "rootfile2011")
 
+    xsection13 = float(cfg_parser.get("general", "xsection13"))/1000
+    xsection8 = float(cfg_parser.get("general", "xsection8"))/1000
+    xsection7 = float(cfg_parser.get("general", "xsection7"))/1000
+    print "Inelastic x-sections:", xsection13, "mb at 13 TeV,", xsection8, "mb at 8 TeV, and", xsection7, "mb at 7 TeV"
 
     ##########
 

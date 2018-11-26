@@ -479,7 +479,7 @@ def GetXLocator(ax):
 ######################################################################
 
 def TweakPlot(fig, ax, (time_begin, time_end),
-              add_extra_head_room=False):
+              add_extra_head_room=False, headroom_factor=1.2):
 
     # Fiddle with axes ranges etc.
     ax.relim()
@@ -500,7 +500,7 @@ def TweakPlot(fig, ax, (time_begin, time_end),
             y_max_new = y_max * math.pow(tmp, (add_extra_head_room + 2))
         else:
             tmp = y_ticks[-1] - y_ticks[-2]
-            y_max_new = y_max + add_extra_head_room * (1.2*tmp)
+            y_max_new = y_max + add_extra_head_room * (headroom_factor*tmp)
         ax.set_ylim(y_min, y_max_new)
 
     # Add a second vertical axis on the right-hand side.
@@ -567,8 +567,8 @@ if __name__ == "__main__":
                "based on the output from the lumiCalc family of scripts."
     arg_parser = optparse.OptionParser(description=desc_str)
     arg_parser.add_option("--ignore-cache", action="store_true",
-                          help="Ignore all cached lumiCalc results " \
-                          "and re-query lumiCalc. " \
+                          help="Ignore all cached brilcalc results " \
+                          "and re-query brilcalc. " \
                           "(Rebuilds the cache as well.)")
     (options, args) = arg_parser.parse_args()
     if len(args) != 1:
@@ -590,7 +590,8 @@ if __name__ == "__main__":
         "plot_label": None,
         "units": None,
         "display_units": None,
-        "normtag_file": None
+        "normtag_file": None,
+        "plot_multiple_years": "False"
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -599,17 +600,22 @@ if __name__ == "__main__":
         sys.exit(1)
     cfg_parser.read(config_file_name)
 
+    # See if we're running in single-year or multiple-year mode. See the README for more
+    # details on how this works.
+    plot_multiple_years = cfg_parser.getboolean("general", "plot_multiple_years")
+    print "plot multiple years mode:",plot_multiple_years
+
     # Which color scheme to use for drawing the plots.
     color_scheme_names_tmp = cfg_parser.get("general", "color_schemes")
     color_scheme_names = [i.strip() for i in color_scheme_names_tmp.split(",")]
-    # Where to store cache files containing the lumiCalc output.
+    # Where to store cache files containing the brilcalc output.
     cache_file_dir = cfg_parser.get("general", "cache_dir")
     # Flag to turn on verbose output.
     verbose = cfg_parser.getboolean("general", "verbose")
     # Suffix to append to all file names.
     file_suffix2 = cfg_parser.get("general", "file_suffix")
 
-    # Some details on how to invoke lumiCalc.
+    # Some details on how to invoke brilcalc.
     lumicalc_script = cfg_parser.get("general", "lumicalc_script")
     # Don't let people try to use lumiCalc2.py or pixelLumiCalc.py or lcr2.py or
     # really anything other than brilcalc -- sadness will ensue.
@@ -661,7 +667,6 @@ if __name__ == "__main__":
         date_end = today
     # If end date lies in the future, truncate at today.
     if date_end > today and date_end.isocalendar()[0] != 2015 :
-        print beam_energy_tmp   
         print "End date lies in the future --> using today instead"
         date_end = today
     # If end date is before start date, give up.
@@ -717,7 +722,7 @@ if __name__ == "__main__":
 
     ##########
 
-    # Map accelerator modes (as fed to lumiCalc) to particle type
+    # Map accelerator modes (as fed to brilcalc) to particle type
     # strings to be used in plot titles etc.
     particle_type_strings = {
         "PROTPHYS" : "pp",
@@ -733,11 +738,11 @@ if __name__ == "__main__":
                       2013 : 1380.1,
                       2015 : 6500.,
 		      2016 : 6500.,
-                      2017 : 6500.},
+                      2017 : 6500.,
+                      2018 : 6500.},
         "IONPHYS" : {2010 : 3500.,
                      2011 : 3500.,
-                     2015 : 6369.,
-		     2016 : 6500.},
+                     2015 : 6369.},
         "PAPHYS" : {2013 : 4000.,
                     2016 : 2500}
         }
@@ -747,13 +752,13 @@ if __name__ == "__main__":
     # Tell the user what's going to happen.
     print "Using configuration from file '%s'" % config_file_name
     if ignore_cache:
-        print "Ignoring all cached lumiCalc results (and rebuilding the cache)"
+        print "Ignoring all cached brilcalc results (and rebuilding the cache)"
     else:
-        print "Using cached lumiCalc results from %s" % \
+        print "Using cached brilcalc results from %s" % \
               CacheFilePath(cache_file_dir)
     print "Using color schemes '%s'" % ", ".join(color_scheme_names)
-    print "Using lumiCalc script '%s'" % lumicalc_script
-    print "Using additional lumiCalc flags from configuration: '%s'" % \
+    print "Using brilcalc script '%s'" % lumicalc_script
+    print "Using additional brilcalc flags from configuration: '%s'" % \
           lumicalc_flags_from_cfg
     print "Selecting data for accelerator mode '%s'" % accel_mode
     if beam_energy_from_cfg:
@@ -826,116 +831,120 @@ if __name__ == "__main__":
         print "Last day for which the cache will be used: %s" % \
               last_day_from_cache.isoformat()
 
-    # First run lumiCalc. Once for each day to be included in the
-    # plots.
-    print "Running lumiCalc for all requested days"
-    for day in days:
-        print "  %s" % day.isoformat()
-        use_cache = (not ignore_cache) and (day <= last_day_from_cache)
-        cache_file_path = CacheFilePath(cache_file_dir, day)
-        cache_file_tmp = cache_file_path.replace(".csv", "_tmp.csv")
-        if (not os.path.exists(cache_file_path)) or (not use_cache):
-          date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
-          date_begin_day_str = day.strftime(DATE_FMT_STR_LUMICALC_DAY)
-          date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
-          date_previous_str = (day - datetime.timedelta(days=0)).strftime(DATE_FMT_STR_LUMICALC)
-          year = day.isocalendar()[0]
-          if year != 2014:
-            if not beam_energy_from_cfg:
-                beam_energy = beam_energy_defaults[accel_mode][year]
+    # First run brilcalc to get the luminosity for these days. This is only applicable
+    # for single-year plots; it's assumed that if you're making the multi-year plots
+    # you already have the luminosity data on hand.
 
-            # WORKAROUND WORKAROUND WORKAROUND
-            # Trying to work around the issue with the unfilled
-            # accelerator mode in the RunInfo database.
-            if amodetag_bug_workaround:
-                # Don't use the amodetag in this case. Scary, but
-                # works for the moment.
-                #lumicalc_flags = "%s --without-checkforupdate " \
-		lumicalc_flags = "%s " \
-                                 "--beamenergy %.0f "% \
-                                 (lumicalc_flags_from_cfg,
-                                  beam_energy)
-            else:
-                # This is the way things should be.
-                #lumicalc_flags = "%s --without-checkforupdate " \
-		lumicalc_flags = "%s " \
-                                 "--beamenergy %.0f " \
-                                 "--amodetag %s " % \
-                                 (lumicalc_flags_from_cfg,
-                                  beam_energy,
-                                  accel_mode)
-            # WORKAROUND WORKAROUND WORKAROUND end
-	    #if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:
-            #lumicalc_flags=lumicalc_flags_from_cfg
+    if not plot_multiple_years:
+        print "Running brilcalc for all requested days"
+        for day in days:
+            print "  %s" % day.isoformat()
+            use_cache = (not ignore_cache) and (day <= last_day_from_cache)
+            cache_file_path = CacheFilePath(cache_file_dir, day)
+            cache_file_tmp = cache_file_path.replace(".csv", "_tmp.csv")
+            if (not os.path.exists(cache_file_path)) or (not use_cache):
+              date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
+              date_begin_day_str = day.strftime(DATE_FMT_STR_LUMICALC_DAY)
+              date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
+              date_previous_str = (day - datetime.timedelta(days=0)).strftime(DATE_FMT_STR_LUMICALC)
+              year = day.isocalendar()[0]
+              if year != 2014:
+                if not beam_energy_from_cfg:
+                    beam_energy = beam_energy_defaults[accel_mode][year]
 
-            if normtag_file:
-                lumicalc_flags += " --normtag "+normtag_file
-
-            lumicalc_flags = lumicalc_flags.strip()
-            lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
-
-            cmd = "%s --begin '%s' --end '%s' -o %s" % \
-                  (lumicalc_cmd, date_previous_str, date_end_str, cache_file_tmp)
-            if verbose:
-                print "    running lumicalc as '%s'" % cmd
-            (status, output) = commands.getstatusoutput(cmd)
-            # BUG BUG BUG
-            # Trying to track down the bad-cache problem.
-            output_0 = copy.deepcopy(output)
-            # BUG BUG BUG end
-            print status
-            if status != 0:
-                # This means 'no qualified data found'.
-                if ((status >> 8) == 13 or (status >> 8) == 14):
-                    # If no data is found it never writes the output
-                    # file. So for days without data we would keep
-                    # querying the database in vain every time the
-                    # script runs. To avoid this we just write a dummy
-                    # cache file for such days.
-                    if verbose:
-                        print "No lumi data for %s, " \
-                              "writing dummy cache file to avoid re-querying the DB" % \
-                              day.isoformat()
-                    dummy_file = open(cache_file_tmp, "w")
-                    dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
-                    dummy_file.close()
+                # WORKAROUND WORKAROUND WORKAROUND
+                # Trying to work around the issue with the unfilled
+                # accelerator mode in the RunInfo database.
+                if amodetag_bug_workaround:
+                    # Don't use the amodetag in this case. Scary, but
+                    # works for the moment.
+                    #lumicalc_flags = "%s --without-checkforupdate " \
+                    lumicalc_flags = "%s " \
+                                     "--beamenergy %.0f "% \
+                                     (lumicalc_flags_from_cfg,
+                                      beam_energy)
                 else:
-                    print >> sys.stderr, \
-                          "ERROR Problem running lumiCalc: %s" % output
-                    sys.exit(1)
+                    # This is the way things should be.
+                    #lumicalc_flags = "%s --without-checkforupdate " \
+                    lumicalc_flags = "%s " \
+                                     "--beamenergy %.0f " \
+                                     "--amodetag %s " % \
+                                     (lumicalc_flags_from_cfg,
+                                      beam_energy,
+                                      accel_mode)
+                # WORKAROUND WORKAROUND WORKAROUND end
+                #if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:
+                #lumicalc_flags=lumicalc_flags_from_cfg
 
-#The above check only works for LumiCalc not for brilcalc or lcr2.py
-	    if year >= 2015 and (not os.path.exists(cache_file_tmp)):
-		dummy_file = open(cache_file_tmp, "w")
-		dummy_file.close()		
+                if normtag_file:
+                    lumicalc_flags += " --normtag "+normtag_file
 
-            # BUG BUG BUG
-            # This works around a bug in lumiCalc where sometimes not
-            # all data for a given day is returned. The work-around is
-            # to ask for data from two days and then filter out the
-            # unwanted day.
-            lines_to_be_kept = []
-            lines_ori = open(cache_file_tmp).readlines()
-            for line in lines_ori:
-                if (date_begin_day_str in line) or ("Delivered" in line):
-                    lines_to_be_kept.append(line)
-            newfile = open(cache_file_path, "w")
-            newfile.writelines(lines_to_be_kept)
-            newfile.close()
-            # BUG BUG BUG end
+                lumicalc_flags = lumicalc_flags.strip()
+                lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
 
-            if verbose:
-                print "    CSV file for the day written to %s" % \
-                      cache_file_path
-        else:
-            if verbose:
-                print "    cache file for %s exists" % day.isoformat()
+                cmd = "%s --begin '%s' --end '%s' -o %s" % \
+                      (lumicalc_cmd, date_previous_str, date_end_str, cache_file_tmp)
+                if verbose:
+                    print "    running lumicalc as '%s'" % cmd
+                (status, output) = commands.getstatusoutput(cmd)
+                # BUG BUG BUG
+                # Trying to track down the bad-cache problem.
+                output_0 = copy.deepcopy(output)
+                # BUG BUG BUG end
+                print status
+                if status != 0:
+                    # This means 'no qualified data found'.
+                    if ((status >> 8) == 13 or (status >> 8) == 14):
+                        # If no data is found it never writes the output
+                        # file. So for days without data we would keep
+                        # querying the database in vain every time the
+                        # script runs. To avoid this we just write a dummy
+                        # cache file for such days.
+                        if verbose:
+                            print "No lumi data for %s, " \
+                                  "writing dummy cache file to avoid re-querying the DB" % \
+                                  day.isoformat()
+                        dummy_file = open(cache_file_tmp, "w")
+                        dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
+                        dummy_file.close()
+                    else:
+                        print >> sys.stderr, \
+                              "ERROR Problem running brilcalc: %s" % output
+                        sys.exit(1)
 
-    # Now read back all lumiCalc results.
-    print "Reading back lumiCalc results"
+    #The above check only works for LumiCalc not for brilcalc or lcr2.py
+                if year >= 2015 and (not os.path.exists(cache_file_tmp)):
+                    dummy_file = open(cache_file_tmp, "w")
+                    dummy_file.close()		
+
+                # BUG BUG BUG
+                # This works around a bug in lumiCalc where sometimes not
+                # all data for a given day is returned. The work-around is
+                # to ask for data from two days and then filter out the
+                # unwanted day.
+                lines_to_be_kept = []
+                lines_ori = open(cache_file_tmp).readlines()
+                for line in lines_ori:
+                    if (date_begin_day_str in line) or ("Delivered" in line):
+                        lines_to_be_kept.append(line)
+                newfile = open(cache_file_path, "w")
+                newfile.writelines(lines_to_be_kept)
+                newfile.close()
+                # BUG BUG BUG end
+
+                if verbose:
+                    print "    CSV file for the day written to %s" % \
+                          cache_file_path
+            else:
+                if verbose:
+                    print "    cache file for %s exists" % day.isoformat()
+
+    # Now read back all brilcalc results.
+    print "Reading back brilcalc results"
     lumi_data_by_day = {}
     for day in days:
-        print "  %s" % day.isoformat()
+        if not plot_multiple_years:
+            print "  %s" % day.isoformat()
         cache_file_path = CacheFilePath(cache_file_dir, day)
         lumi_data_day = LumiDataBlock()
         try:
@@ -964,18 +973,20 @@ if __name__ == "__main__":
 
             in_file.close()
         except IOError, err:
-            print >> sys.stderr, \
-                  "ERROR Could not read lumiCalc results from file '%s': %s" % \
-                  (cache_file_path, str(err))
-            #IR care sys.exit(1)
+            # If we're plotting multiple years, then we expect there to be files missing for the year-end stops, so don't
+            # spam errors for those.
+            if not plot_multiple_years:
+                print >> sys.stderr, \
+                      "ERROR Could not read brilcalc results from file '%s': %s" % \
+                      (cache_file_path, str(err))
         # Only store data if there actually is something to store.
         if not lumi_data_day.is_empty():
             lumi_data_by_day[day] = lumi_data_day
 
     ##########
 
-    # Bunch lumiCalc data together into weeks.
-    print "Combining lumiCalc data week-by-week"
+    # Bunch brilcalc data together into weeks.
+    print "Combining brilcalc data week-by-week"
     lumi_data_by_week = {}
     for (day, lumi) in lumi_data_by_day.iteritems():
         year = day.isocalendar()[0]
@@ -996,8 +1007,8 @@ if __name__ == "__main__":
             except KeyError:
                 lumi_data_by_week_per_year[year] = LumiDataBlockCollection(lumi)
 
-    # Bunch lumiCalc data together into years.
-    print "Combining lumiCalc data year-by-year"
+    # Bunch brilcalc data together into years.
+    print "Combining brilcalc data year-by-year"
     lumi_data_by_year = {}
     for (day, lumi) in lumi_data_by_day.iteritems():
         year = day.isocalendar()[0]
@@ -1016,7 +1027,12 @@ if __name__ == "__main__":
 
     ##########
 
-    # Now dump a lot of info to the user.
+    # Now dump a lot of info to the user. Also create the .csv file with the daily data if we're making
+    # the multi-year plot.
+    if plot_multiple_years:
+        csv_output = open("lumiByDay.csv", "w")
+        csv_output.write("Date,Delivered(/ub),Recorded(/ub)\n")
+
     sep_line = 50 * "-"
     print sep_line
     units = GetUnits(years[-1], accel_mode, "cum_day")
@@ -1030,8 +1046,13 @@ if __name__ == "__main__":
             if (tmp < .1) and (tmp > 0.):
                 helper_str = " (non-zero but very small)"
             tmp_str = "%8.3f%s nLS %d" % (tmp, helper_str,lumi_data_by_day[day].len())
+            if plot_multiple_years:
+                csv_output.write("%s,%.3f,%.3f\n" % (day.isoformat(),
+                                                     lumi_data_by_day[day].lum_del_tot("ub^{-1}"),
+                                                     lumi_data_by_day[day].lum_rec_tot("ub^{-1}")))
         except KeyError:
-            pass
+            if plot_multiple_years:
+                csv_output.write("%s,%.3f,%.3f\n" % (day.isoformat(), 0, 0))
         print "  %s: %s" % (day.isoformat(), tmp_str)
     print sep_line
     units = GetUnits(years[-1], accel_mode, "cum_week")
@@ -1065,6 +1086,8 @@ if __name__ == "__main__":
         print "  %4d: %s" % \
               (year, tmp_str)
     print sep_line
+    if plot_multiple_years:
+        csv_output.close()
 
     ##########
 
@@ -1083,7 +1106,7 @@ if __name__ == "__main__":
     #------------------------------
 
     for year in years: 
-      if year != 2014:
+      if not plot_multiple_years:
         print "  daily lumi plots for %d" % year
 
         if not beam_energy_from_cfg:
@@ -1169,7 +1192,6 @@ if __name__ == "__main__":
             fig = plt.figure()
 
             #----------
-
 
             for type in ["lin", "log"]:
                 is_log = (type == "log")
@@ -1398,7 +1420,7 @@ if __name__ == "__main__":
     #------------------------------
 
     for year in years: 
-      if year != 2014:
+      if not plot_multiple_years:
         print "  weekly lumi plots for %d" % year
 
         if not beam_energy_from_cfg:
@@ -1705,6 +1727,7 @@ if __name__ == "__main__":
                 color_by_year = color_scheme.color_by_year
                 logo_name = color_scheme.logo_name
                 file_suffix = color_scheme.file_suffix
+
                 for type in ["lin", "log"]:
                     is_log = (type == "log")
 
@@ -1779,9 +1802,9 @@ if __name__ == "__main__":
                                            for i in weights_del_cum]
                         else:
                             weights_tmp = weights_del_cum
-                        print color_by_year
-	                print color_by_year[year]
-	                print year
+                        #print color_by_year
+	                #print color_by_year[year]
+	                #print year
                         ax.plot(times, weights_tmp,
                                 color=color_by_year[year],
                                 #IRmarker="none", linestyle="solid",
@@ -1819,6 +1842,7 @@ if __name__ == "__main__":
                     # BUG BUG BUG end
 
                     num_cols = None
+                    spacing = None
                     if mode == 1:
                         num_cols = 1 #len(years)
                         tmp_x = 0.105 #0.095
@@ -1826,8 +1850,10 @@ if __name__ == "__main__":
                     else:
                         num_cols = 1
                         tmp_x = 0.175
-                        tmp_y = 1.01
-                    leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),frameon=False, ncol=num_cols)
+                        tmp_y = 1.03
+                        spacing = 0.1
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),frameon=False,
+                                    ncol=num_cols, labelspacing=spacing)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
@@ -1858,21 +1884,21 @@ if __name__ == "__main__":
                         zoom = .95
                     AddLogo(logo_name, ax, zoom=zoom)
                     extra_head_room = 0
-                    if is_log:
+                    if is_log or mode==2:
                         if mode == 1:
                             extra_head_room = 1
                         elif mode == 2:
                             extra_head_room = 2
 #                    TweakPlot(fig, ax, (time_begin, time_end),
                     TweakPlot(fig, ax, (time_begin_ultimate, time_end),
-                              add_extra_head_room=extra_head_room)
+                              add_extra_head_room=extra_head_room, headroom_factor=1.5)
 
                     log_suffix = ""
                     if is_log:
                         log_suffix = "_log"
-                    SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s%s" % \
+                    SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s" % \
                              (particle_type_str.lower(), mode,
-                              log_suffix, file_suffix,file_suffix2))
+                              log_suffix, file_suffix))
 
         for mode in [1, 2]:
             print "    mode %d" % mode
@@ -1901,6 +1927,7 @@ if __name__ == "__main__":
             color_by_year = color_scheme.color_by_year
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
+
             for type in ["lin", "log"]:
                 is_log = (type == "log")
 
@@ -2032,14 +2059,14 @@ if __name__ == "__main__":
                     head_room = 2.
 #                TweakPlot(fig, ax, (time_begin, time_end),
                 TweakPlot(fig, ax, (time_begin_ultimate, time_end),
-                          add_extra_head_room=head_room)
+                          add_extra_head_room=head_room, headroom_factor=1.5)
 
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                SavePlot(fig, "peak_lumi_%s%s%s%s" % \
+                SavePlot(fig, "peak_lumi_%s%s%s" % \
                          (particle_type_str.lower(),
-                          log_suffix, file_suffix,file_suffix2))
+                          log_suffix, file_suffix))
 
     #----------
 

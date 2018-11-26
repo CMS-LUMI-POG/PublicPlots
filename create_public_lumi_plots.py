@@ -765,7 +765,7 @@ if __name__ == "__main__":
         print "Selecting data for beam energy %.0f GeV" % beam_energy
     else:
         print "Selecting data for default beam energy for '%s' from:" % accel_mode
-        for (key, val) in beam_energy_defaults[accel_mode].iteritems():
+        for (key, val) in sorted(beam_energy_defaults[accel_mode].iteritems()):
             print "  %d : %.1f GeV" % (key, val)
 
     ##########
@@ -1034,10 +1034,14 @@ if __name__ == "__main__":
         csv_output.write("Date,Delivered(/ub),Recorded(/ub)\n")
 
     sep_line = 50 * "-"
-    print sep_line
+
+    # Daily summary. Print to screen if single year or to CSV file if multiple year.
     units = GetUnits(years[-1], accel_mode, "cum_day")
-    print "Delivered lumi day-by-day (%s):" % units
-    print sep_line
+    if not plot_multiple_years:
+        print sep_line
+        print "Delivered lumi day-by-day (%s):" % units
+        print sep_line
+
     for day in days:
         tmp_str = "    - (no data, presumably no lumi either)"
         try:
@@ -1053,22 +1057,29 @@ if __name__ == "__main__":
         except KeyError:
             if plot_multiple_years:
                 csv_output.write("%s,%.3f,%.3f\n" % (day.isoformat(), 0, 0))
-        print "  %s: %s" % (day.isoformat(), tmp_str)
-    print sep_line
-    units = GetUnits(years[-1], accel_mode, "cum_week")
-    print "Delivered lumi week-by-week (%s):" % units
-    print sep_line
-    for (year, week) in weeks:
-        tmp_str = "     - (no data, presumably no lumi either)"
-        try:
-            tmp = lumi_data_by_week[year][week].lum_del_tot(units)
-            helper_str = ""
-            if (tmp < .1) and (tmp > 0.):
-                helper_str = " (non-zero but very small)"
-            tmp_str = "%6.1f%s" % (tmp, helper_str)
-        except KeyError:
-            pass
-        print "  %d-%2d: %s" % (year, week, tmp_str)
+
+        if not plot_multiple_years:
+            print "  %s: %s" % (day.isoformat(), tmp_str)
+
+    # Weekly summary. Skip this entirely if multiple year.
+    if not plot_multiple_years:
+        print sep_line
+        units = GetUnits(years[-1], accel_mode, "cum_week")
+        print "Delivered lumi week-by-week (%s):" % units
+        print sep_line
+        for (year, week) in weeks:
+            tmp_str = "     - (no data, presumably no lumi either)"
+            try:
+                tmp = lumi_data_by_week[year][week].lum_del_tot(units)
+                helper_str = ""
+                if (tmp < .1) and (tmp > 0.):
+                    helper_str = " (non-zero but very small)"
+                tmp_str = "%6.1f%s" % (tmp, helper_str)
+            except KeyError:
+                pass
+            print "  %d-%2d: %s" % (year, week, tmp_str)
+
+    # Yearly summary.
     print sep_line
     units = GetUnits(years[-1], accel_mode, "cum_year")
     print "Delivered lumi year-by-year (%s):" % units

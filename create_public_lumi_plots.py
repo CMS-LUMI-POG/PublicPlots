@@ -1721,6 +1721,8 @@ if __name__ == "__main__":
     if len(years) > 1:
         print "  cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
 
+        mode_description = {1: "side-by-side", 2: "overlaid"}
+
         def PlotAllYears(lumi_data_by_day_per_year, mode):
             """Mode 1: years side-by-side, mode 2: years overlaid."""
 
@@ -1912,7 +1914,7 @@ if __name__ == "__main__":
                               log_suffix, file_suffix))
 
         for mode in [1, 2]:
-            print "    mode %d" % mode
+            print "    mode %d (%s)" % (mode, mode_description[mode])
             PlotAllYears(lumi_data_by_day_per_year, mode)
 
     plt.close()

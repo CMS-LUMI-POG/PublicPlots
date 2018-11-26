@@ -31,6 +31,6 @@ cp public_lumi_plots_cache/pp_2017_normtag/* public_lumi_plots_cache/pp_all/
 cp -R public_lumi_plots_cache/pp_2017_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
 cp -R public_lumi_plots_cache/pp_2017_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
 
-# 4) Run the all years plotting script
-python create_public_lumi_plots_allYears.py public_lumi_plots_pp_allyears.cfg
+# 4) create the plots for all years
+python create_public_lumi_plots.py public_lumi_plots_pp_allyears.cfg
 cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /afs/cern.ch/cms/lumi/www/publicplots/

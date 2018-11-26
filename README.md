@@ -29,6 +29,7 @@ There are also various run scripts which perform the task of setting up the envi
 ## Config file
 
 Here are the various variables you can set in the config file. All of these are in the "general" category:
+* `plot_multiple_years`: If False (or omitted), this will just make the plots for a single year, calling brilcalc as necessary. If True, this will make the plots for multiple years, but brilcalc will not be invoked -- only existing data in the cache will be used. In principle the script could be updated to make the single year and multiple year plots in one pass, but this is a little tricky because of the different configuration necessary for different years, so for now you'll just have to run it twice with the appropriate configuration.
 * `file_suffix`: A suffix to be added to the name of all of the plots. This is useful to distinguish online/normtag lumi, or for special runs, or so forth.
 * `plot_label`: The label to be added to the plots. Per agreement with Run Coordination, this should be "CMS Preliminary Online Luminosity" for online luminosity, "CMS Preliminary Offline Luminosity" for preliminary (not physics approved) offline luminosity, and "CMS Preliminary" for approved physics results.
 * `normtag_file`: The name of the normtag file to use. If this argument is not included, no normtag file (i.e. online luminosity) will be used.

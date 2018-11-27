@@ -1315,7 +1315,7 @@ if __name__ == "__main__":
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                        label="CMS Recorded, max: %.1f %s/day" % \
+                            label="CMS Recorded, max: %.1f %s/day" % \
                             (max_rec, LatexifyUnits(units)))
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
@@ -1918,6 +1918,129 @@ if __name__ == "__main__":
             print "    mode %d (%s)" % (mode, mode_description[mode])
             PlotAllYears(lumi_data_by_day_per_year, mode)
 
+    plt.close()
+
+    #----------
+
+    # Now the cumulative plot with all years accumulated.
+    if len(years) > 1:
+        print "  cumulative luminosity for all of %s together" % ", ".join([str(i) for i in years])
+
+        units = GetUnits(years[-1], accel_mode, "cum_year")
+
+        # Process the data once outside these loops rather than 4 times inside! It doesn't change!
+        time_begin = lumi_data_by_day_per_year[years[0]].time_begin()
+        str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
+        time_end = lumi_data_by_day_per_year[years[-1]].time_end()
+        str_end = time_end.strftime(DATE_FMT_STR_OUT)
+
+        lumi_dates = sorted(lumi_data_by_day.keys())
+        times_tmp = [AtMidnight(lumi_data_by_day[i].time_mid()) for i in lumi_dates]
+        times = [matplotlib.dates.date2num(i) for i in times_tmp]
+
+        # Get total delivered and recorded lumi.
+        weights_del = [lumi_data_by_day[i].lum_del_tot(units) for i in lumi_dates]
+        tot_del = 0
+        for val in weights_del:
+            tot_del += val
+
+        # And same for recorded.
+        weights_rec = [lumi_data_by_day[i].lum_rec_tot(units) for i in lumi_dates]
+        tot_rec = 0
+        for val in weights_rec:
+            tot_rec += val
+
+        if not beam_energy_from_cfg:
+            beam_energy = beam_energy_defaults[accel_mode][years[-1]]
+        cms_energy = 2. * beam_energy
+        cms_energy_str = "???"
+        if accel_mode == "PROTPHYS":
+            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+        elif accel_mode in ["IONPHYS", "PAPHYS"]:
+            cms_energy_str = "%.2f TeV/nucleon" % \
+                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
+
+        # Loop over all color schemes and plot.
+        for color_scheme_name in color_scheme_names:
+
+            print "      color scheme '%s'" % color_scheme_name
+
+            color_scheme = ColorScheme(color_scheme_name)
+            color_fill_del = color_scheme.color_fill_del
+            color_fill_rec = color_scheme.color_fill_rec
+            color_line_del = color_scheme.color_line_del
+            color_line_rec = color_scheme.color_line_rec
+            logo_name = color_scheme.logo_name
+            file_suffix = color_scheme.file_suffix
+
+            for type in ["lin", "log"]:
+                log_setting = False
+                if (type == "log"):
+                    min_val = weights_del[0]
+                    if min_val >0.0 :
+                        exp = math.floor(math.log10(min_val))
+                        log_setting = math.pow(10., exp)
+
+
+                fig = plt.figure()
+                ax = fig.add_subplot(111)
+                
+                ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_del,
+                        histtype="stepfilled", cumulative=True,
+                        log=log_setting,
+                        facecolor=color_fill_del, edgecolor=color_line_del,
+                        label="LHC Delivered: %.2f %s" % \
+                        (tot_del, LatexifyUnits(units)))
+                ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_rec,
+                        histtype="stepfilled", cumulative=True,
+                        log=log_setting,
+                        facecolor=color_fill_rec, edgecolor=color_line_rec,
+                        label="CMS Recorded: %.2f %s" % \
+                        (tot_rec, LatexifyUnits(units)))
+
+                leg = ax.legend(loc="upper left",
+                                bbox_to_anchor=(0.175, 0., 1., 1.01),
+                                frameon=False)
+                for t in leg.get_texts():
+                    t.set_font_properties(FONT_PROPS_TICK_LABEL)
+
+                # num_cols = 1
+                # tmp_x = 0.175
+                # tmp_y = 1.03
+                # spacing = 0.1
+                # leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),frameon=False,
+                #                 ncol=num_cols, labelspacing=spacing)
+
+                # Set titles and labels.
+                fig.suptitle(r"CMS Integrated Luminosity, " \
+                             r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
+                             (particle_type_str, cms_energy_str),
+                             fontproperties=FONT_PROPS_SUPTITLE)
+                ax.set_title("Data included from %s to %s UTC \n" % \
+                         (str_begin, str_end),
+                         fontproperties=FONT_PROPS_TITLE)
+
+                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                              LatexifyUnits(units),
+                              fontproperties=FONT_PROPS_AX_TITLE)
+
+                # Add the logo.
+                zoom = 1.7
+                AddLogo(logo_name, ax, zoom=zoom)
+                TweakPlot(fig, ax, (time_begin, time_end), add_extra_head_room=0)
+
+                log_suffix = ""
+                if type == "log":
+                    log_suffix = "_log"
+
+                SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s" % \
+                         (particle_type_str.lower(),
+                          log_suffix, file_suffix, file_suffix2))
+
+            # loop over lin/log
+        # loop over color scheme names
+    # if making this plot
     plt.close()
 
     #----------

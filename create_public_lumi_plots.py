@@ -591,6 +591,7 @@ if __name__ == "__main__":
         "units": None,
         "display_units": None,
         "normtag_file": None,
+        "year_scale_factor": None,
         "plot_multiple_years": "False"
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
@@ -691,12 +692,24 @@ if __name__ == "__main__":
     if (cfg_parser.get("general", "display_units")):
         display_units = cjson.decode(cfg_parser.get("general", "display_units"))
 
+    # For multiple-year plots, check to see if we should scale the data for particular
+    # years by a particular factor.
+    year_scale_factor = {}
+    if (cfg_parser.get("general", "year_scale_factor")):
+        year_scale_factor = cjson.decode(cfg_parser.get("general", "year_scale_factor"))
+        # Check to see if this is well-formed.
+        for year in year_scale_factor:
+            if type(year_scale_factor[year]) is not dict:
+                print >> sys.stderr, "Error in year_scale_factor for "+year+": expected dictionary as entry"
+                sys.exit(1)
+            if "integrated" not in year_scale_factor[year] or "peak" not in year_scale_factor[year]:
+                print >> sys.stderr, "Error in year_scale_factor for "+year+": dictionary does not contain integrated and peak keys"
+                sys.exit(1)
+                
     # If a JSON file is specified, use the JSON file to add in the
     # plot data certified as good for physics.
     json_file_name = cfg_parser.get("general", "json_file")
-    #IR if len(json_file_name) < 1:
     if len(str(json_file_name)) < 1:
-    #IR
         json_file_name = None
     if json_file_name:
         if not os.path.exists(json_file_name):
@@ -1728,9 +1741,6 @@ if __name__ == "__main__":
 
             units = GetUnits(years[-1], accel_mode, "cum_year")
 
-            scale_factor_2010 = 50.
-            scale_factor_2015 = 1.
-
             # Loop over all color schemes and plot.
             for color_scheme_name in color_scheme_names:
 
@@ -1805,13 +1815,10 @@ if __name__ == "__main__":
                                     (year, cms_energy_str, tot_del,
                                      LatexifyUnits(units))
 
-                        # NOTE: Special case for 2010,2015
+                        # Apply scale factor, if one exists.
                         weights_tmp = None
-                        if year == 2010:
-                            weights_tmp = [scale_factor_2010 * i \
-                                           for i in weights_del_cum]
-                        elif year == 2015 :
-                            weights_tmp = [scale_factor_2015 * i \
+                        if str(year) in year_scale_factor:
+                            weights_tmp = [year_scale_factor[str(year)]["integrated"] * i \
                                            for i in weights_del_cum]
                         else:
                             weights_tmp = weights_del_cum
@@ -1827,18 +1834,12 @@ if __name__ == "__main__":
                         if is_log:
                             ax.set_yscale("log")
 
-                        # NOTE: Special case for 2010, 2015
-                        if year == 2010:
-                            ax.annotate(r"$\times$ %.0f" % scale_factor_2010,
+                        # Create label for scale factor, if one exists.
+                        if str(year) in year_scale_factor:
+                            ax.annotate(r"$\times$ %.0f" % year_scale_factor[str(year)]["integrated"],
                                         xy=(times[-1], weights_tmp[-1]),
                                         xytext=(5., -2.),
                                         xycoords="data", textcoords="offset points")
-                        #SCALE FACTOR LABEL
-                        #if year == 2015:
-                        #    ax.annotate(r"$\times$ %.0f" % scale_factor_2015,
-                        #                xy=(times[-1], weights_tmp[-1]),
-                        #                xytext=(5., -2.),
-                        #                xycoords="data", textcoords="offset points")
 
                     # BUG BUG BUG
                     # Needs work...
@@ -1927,10 +1928,6 @@ if __name__ == "__main__":
 
         units = GetUnits(years[-1], accel_mode, "max_inst")
 
-        scale_factor_2010 = 10.
-        scale_factor_2015 = 1.
-
-
         # Loop over all color schemes and plot.
         for color_scheme_name in color_scheme_names:
 
@@ -1989,13 +1986,10 @@ if __name__ == "__main__":
                                 (year, cms_energy_str, max_inst,
                                  LatexifyUnits(units))
 
-                    # NOTE: Special case for 2010,2015
+                    # Apply scale factor, if one exists.
                     weights_tmp = None
-                    if year == 2010:
-                        weights_tmp = [scale_factor_2010 * i \
-                                       for i in weights_inst]
-                    elif year == 2015:
-                        weights_tmp = [scale_factor_2015 * i \
+                    if str(year) in year_scale_factor:
+                        weights_tmp = [year_scale_factor[str(year)]["peak"] * i \
                                        for i in weights_inst]
                     else:
                         weights_tmp = weights_inst
@@ -2007,20 +2001,12 @@ if __name__ == "__main__":
                     if is_log:
                         ax.set_yscale("log")
 
-                    # NOTE: Special case for 2010.,2015
-                    if year == 2010:
-                        ax.annotate(r"$\times$ %.0f" % scale_factor_2010,
+                    # Create label for scale factor, if one exists.
+                    if str(year) in year_scale_factor:
+                        ax.annotate(r"$\times$ %.0f" % year_scale_factor[str(year)]["peak"],
                                     xy=(times[-1], max(weights_tmp)),
                                     xytext=(5., -2.),
                                     xycoords="data", textcoords="offset points")
-
-                    #TIMES SCALE FACTOR LABEL
-
-                    #if year == 2015 :
-                    #    ax.annotate(r"$\times$ %.0f" % scale_factor_2015,
-                    #                xy=(times[-1], max(weights_tmp)),
-                    #                xytext=(5., -2.),
-                    #                xycoords="data", textcoords="offset points")
 
                     # BUG BUG BUG
                     # Needs work...

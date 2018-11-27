@@ -1348,7 +1348,7 @@ if __name__ == "__main__":
                     log_suffix = "_log"
                 SavePlot(fig, "int_lumi_per_day_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix,file_suffix2))
+                          log_suffix, file_suffix, file_suffix2))
 
             #----------
 
@@ -1437,7 +1437,7 @@ if __name__ == "__main__":
                     log_suffix = "_log"
                 SavePlot(fig, "int_lumi_per_day_cumulative_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix,file_suffix2))
+                          log_suffix, file_suffix, file_suffix2))
 
     #------------------------------
     # Create the per-week delivered-lumi plots.
@@ -1582,7 +1582,7 @@ if __name__ == "__main__":
                     log_suffix = "_log"
                 SavePlot(fig, "peak_lumi_per_week_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix,file_suffix2))
+                          log_suffix, file_suffix, file_suffix2))
 
             #----------
 
@@ -1652,7 +1652,7 @@ if __name__ == "__main__":
                     log_suffix = "_log"
                 SavePlot(fig, "int_lumi_per_week_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix,file_suffix2))
+                          log_suffix, file_suffix, file_suffix2))
 
             #----------
 
@@ -1724,7 +1724,7 @@ if __name__ == "__main__":
                     log_suffix = "_log"
                 SavePlot(fig, "int_lumi_per_week_cumulative_%s_%d%s%s%s" % \
                             (particle_type_str.lower(), year,
-                             log_suffix, file_suffix,file_suffix2))
+                             log_suffix, file_suffix, file_suffix2))
 
     plt.close()
 
@@ -1910,9 +1910,9 @@ if __name__ == "__main__":
                     log_suffix = ""
                     if is_log:
                         log_suffix = "_log"
-                    SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s" % \
+                    SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s%s" % \
                              (particle_type_str.lower(), mode,
-                              log_suffix, file_suffix))
+                              log_suffix, file_suffix, file_suffix2))
 
         for mode in [1, 2]:
             print "    mode %d (%s)" % (mode, mode_description[mode])
@@ -2063,9 +2063,9 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                SavePlot(fig, "peak_lumi_%s%s%s" % \
+                SavePlot(fig, "peak_lumi_%s%s%s%s" % \
                          (particle_type_str.lower(),
-                          log_suffix, file_suffix))
+                          log_suffix, file_suffix, file_suffix2))
 
     #----------
 

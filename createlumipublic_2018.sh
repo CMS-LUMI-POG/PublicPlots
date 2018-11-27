@@ -37,6 +37,7 @@ cp public_lumi_plots_cache/pp_2018_normtag/* public_lumi_plots_cache/pp_all/
 cp -R public_lumi_plots_cache/pp_2018_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
 cp -R public_lumi_plots_cache/pp_2018_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
 
-# 4) create the plots for all years
+# 4) create the plots for all years and Run 2 only. Do the Run 2 first because that way we get the lumiByDay.csv file correct.
+python create_public_lumi_plots.py public_lumi_plots_pp_run2.cfg
 python create_public_lumi_plots.py public_lumi_plots_pp_allyears.cfg
-cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /afs/cern.ch/cms/lumi/www/publicplots/
+cp peak_lumi_pp* int_lumi_cumulative_pp* int_lumi_allcumulative_pp* lumiByDay.csv /afs/cern.ch/cms/lumi/www/publicplots/

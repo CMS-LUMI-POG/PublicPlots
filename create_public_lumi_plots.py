@@ -1263,7 +1263,7 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
-
+                    
                     if cfg_parser.get("general", "plot_label"):
                         ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
@@ -1924,7 +1924,7 @@ if __name__ == "__main__":
 
     # Now the cumulative plot with all years accumulated.
     if len(years) > 1:
-        print "  cumulative luminosity for all of %s together" % ", ".join([str(i) for i in years])
+        print "  total cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
 
         units = GetUnits(years[-1], accel_mode, "cum_year")
 
@@ -1940,15 +1940,9 @@ if __name__ == "__main__":
 
         # Get total delivered and recorded lumi.
         weights_del = [lumi_data_by_day[i].lum_del_tot(units) for i in lumi_dates]
-        tot_del = 0
-        for val in weights_del:
-            tot_del += val
-
-        # And same for recorded.
+        tot_del = sum(weights_del)
         weights_rec = [lumi_data_by_day[i].lum_rec_tot(units) for i in lumi_dates]
-        tot_rec = 0
-        for val in weights_rec:
-            tot_rec += val
+        tot_rec = sum(weights_rec)
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][years[-1]]
@@ -1977,10 +1971,9 @@ if __name__ == "__main__":
                 log_setting = False
                 if (type == "log"):
                     min_val = weights_del[0]
-                    if min_val >0.0 :
+                    if min_val > 0.0:
                         exp = math.floor(math.log10(min_val))
                         log_setting = math.pow(10., exp)
-
 
                 fig = plt.figure()
                 ax = fig.add_subplot(111)
@@ -2004,13 +1997,6 @@ if __name__ == "__main__":
                 for t in leg.get_texts():
                     t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
-                # num_cols = 1
-                # tmp_x = 0.175
-                # tmp_y = 1.03
-                # spacing = 0.1
-                # leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),frameon=False,
-                #                 ncol=num_cols, labelspacing=spacing)
-
                 # Set titles and labels.
                 fig.suptitle(r"CMS Integrated Luminosity, " \
                              r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
@@ -2020,7 +2006,7 @@ if __name__ == "__main__":
                          (str_begin, str_end),
                          fontproperties=FONT_PROPS_TITLE)
 
-                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                 ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
                               LatexifyUnits(units),
                               fontproperties=FONT_PROPS_AX_TITLE)
@@ -2029,6 +2015,8 @@ if __name__ == "__main__":
                 zoom = 1.7
                 AddLogo(logo_name, ax, zoom=zoom)
                 TweakPlot(fig, ax, (time_begin, time_end), add_extra_head_room=0)
+                formatter = matplotlib.dates.DateFormatter("%b '%y")
+                ax.xaxis.set_major_formatter(formatter)
 
                 log_suffix = ""
                 if type == "log":

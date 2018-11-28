@@ -1943,6 +1943,9 @@ if __name__ == "__main__":
         tot_del = sum(weights_del)
         weights_rec = [lumi_data_by_day[i].lum_rec_tot(units) for i in lumi_dates]
         tot_rec = sum(weights_rec)
+        if json_file_name:
+            weights_cert = [lumi_data_by_day[i].lum_cert_tot(units) for i in lumi_dates]
+            tot_cert = sum(weights_cert)
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][years[-1]]
@@ -1962,8 +1965,10 @@ if __name__ == "__main__":
             color_scheme = ColorScheme(color_scheme_name)
             color_fill_del = color_scheme.color_fill_del
             color_fill_rec = color_scheme.color_fill_rec
+            color_fill_cert = color_scheme.color_fill_cert
             color_line_del = color_scheme.color_line_del
             color_line_rec = color_scheme.color_line_rec
+            color_line_cert = color_scheme.color_line_cert
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
 
@@ -1990,6 +1995,13 @@ if __name__ == "__main__":
                         facecolor=color_fill_rec, edgecolor=color_line_rec,
                         label="CMS Recorded: %.2f %s" % \
                         (tot_rec, LatexifyUnits(units)))
+                if json_file_name:
+                    ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_cert,
+                            histtype="stepfilled", cumulative=True,
+                            log=log_setting,
+                            facecolor=color_fill_cert, edgecolor=color_line_cert,
+                            label="CMS Certified for Physics: %.2f %s" % \
+                            (tot_cert, LatexifyUnits(units)))
 
                 leg = ax.legend(loc="upper left",
                                 bbox_to_anchor=(0.175, 0., 1., 1.01),

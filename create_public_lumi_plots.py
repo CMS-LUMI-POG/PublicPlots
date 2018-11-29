@@ -1980,64 +1980,71 @@ if __name__ == "__main__":
                         exp = math.floor(math.log10(min_val))
                         log_setting = math.pow(10., exp)
 
-                fig = plt.figure()
-                ax = fig.add_subplot(111)
-                
-                ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_del,
-                        histtype="stepfilled", cumulative=True,
-                        log=log_setting,
-                        facecolor=color_fill_del, edgecolor=color_line_del,
-                        label="LHC Delivered: %.2f %s" % \
-                        (tot_del, LatexifyUnits(units)))
-                ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_rec,
-                        histtype="stepfilled", cumulative=True,
-                        log=log_setting,
-                        facecolor=color_fill_rec, edgecolor=color_line_rec,
-                        label="CMS Recorded: %.2f %s" % \
-                        (tot_rec, LatexifyUnits(units)))
+                # and one last loop to make the versions with/without certification. 
+                certification_settings = [False]
                 if json_file_name:
-                    ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_cert,
+                    certification_settings.append(True)
+
+                for do_certification in certification_settings:
+                    fig = plt.figure()
+                    ax = fig.add_subplot(111)
+
+                    ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_del,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
-                            facecolor=color_fill_cert, edgecolor=color_line_cert,
-                            label="CMS Certified for Physics: %.2f %s" % \
-                            (tot_cert, LatexifyUnits(units)))
+                            facecolor=color_fill_del, edgecolor=color_line_del,
+                            label="LHC Delivered: %.2f %s" % \
+                            (tot_del, LatexifyUnits(units)))
+                    ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_rec,
+                            histtype="stepfilled", cumulative=True,
+                            log=log_setting,
+                            facecolor=color_fill_rec, edgecolor=color_line_rec,
+                            label="CMS Recorded: %.2f %s" % \
+                            (tot_rec, LatexifyUnits(units)))
+                    if do_certification:
+                        ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_cert,
+                                histtype="stepfilled", cumulative=True,
+                                log=log_setting,
+                                facecolor=color_fill_cert, edgecolor=color_line_cert,
+                                label="CMS Certified for Physics: %.2f %s" % \
+                                (tot_cert, LatexifyUnits(units)))
 
-                leg = ax.legend(loc="upper left",
-                                bbox_to_anchor=(0.175, 0., 1., 1.01),
-                                frameon=False)
-                for t in leg.get_texts():
-                    t.set_font_properties(FONT_PROPS_TICK_LABEL)
+                    leg = ax.legend(loc="upper left",
+                                    bbox_to_anchor=(0.175, 0., 1., 1.01),
+                                    frameon=False)
+                    for t in leg.get_texts():
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
-                # Set titles and labels.
-                fig.suptitle(r"CMS Integrated Luminosity, " \
-                             r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
-                             (particle_type_str, cms_energy_str),
-                             fontproperties=FONT_PROPS_SUPTITLE)
-                ax.set_title("Data included from %s to %s UTC \n" % \
-                         (str_begin, str_end),
-                         fontproperties=FONT_PROPS_TITLE)
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Integrated Luminosity, " \
+                                 r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
+                                 (particle_type_str, cms_energy_str),
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC \n" % \
+                             (str_begin, str_end),
+                             fontproperties=FONT_PROPS_TITLE)
 
-                ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
-                ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
-                              LatexifyUnits(units),
-                              fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                                  LatexifyUnits(units),
+                                  fontproperties=FONT_PROPS_AX_TITLE)
 
-                # Add the logo.
-                zoom = 1.7
-                AddLogo(logo_name, ax, zoom=zoom)
-                TweakPlot(fig, ax, (time_begin, time_end), add_extra_head_room=0)
-                formatter = matplotlib.dates.DateFormatter("%b '%y")
-                ax.xaxis.set_major_formatter(formatter)
+                    # Add the logo.
+                    zoom = 1.7
+                    AddLogo(logo_name, ax, zoom=zoom)
+                    TweakPlot(fig, ax, (time_begin, time_end), add_extra_head_room=0)
+                    formatter = matplotlib.dates.DateFormatter("%b '%y")
+                    ax.xaxis.set_major_formatter(formatter)
 
-                log_suffix = ""
-                if type == "log":
-                    log_suffix = "_log"
+                    log_suffix = ""
+                    if type == "log":
+                        log_suffix = "_log"
 
-                SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s" % \
-                         (particle_type_str.lower(),
-                          log_suffix, file_suffix, file_suffix2))
-
+                    SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s%s" % \
+                             (particle_type_str.lower(),
+                              log_suffix, file_suffix, file_suffix2, ("_cert" if do_certification else "")))
+                    
+                # loop over versions with/without certification
             # loop over lin/log
         # loop over color scheme names
     # if making this plot

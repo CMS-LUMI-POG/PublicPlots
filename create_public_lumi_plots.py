@@ -388,16 +388,16 @@ def GetUnits(year, accel_mode, mode):
         "max_inst" : "Hz/mb",
         },
         2015 : { #brilcalc is coming in giving barn instead of microbarn
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "fb^{-1}",
-        "cum_year" : "fb^{-1}",
-        "max_inst" : "Hz/nb",
+        "cum_day" : "ub^{-1}",
+        "cum_week" : "ub^{-1}",
+        "cum_year" : "ub^{-1}",
+        "max_inst" : "Hz/mb",
         },
-        2016 : { #brilcalc is coming in giving barn instead of microbarn
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "fb^{-1}",
-        "cum_year" : "fb^{-1}",
-        "max_inst" : "Hz/nb",
+        2018 : {
+        "cum_day" : "ub^{-1}",
+        "cum_week" : "ub^{-1}",
+        "cum_year" : "ub^{-1}",
+        "max_inst" : "Hz/mb",
         }
         },
         "PAPHYS" : {
@@ -592,6 +592,7 @@ if __name__ == "__main__":
         "display_units": None,
         "normtag_file": None,
         "year_scale_factor": None,
+        "skip_years": None,
         "plot_multiple_years": "False"
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
@@ -676,6 +677,10 @@ if __name__ == "__main__":
               "ERROR End date before begin date (%s < %s)" % \
               (date_end.isoformat(), date_begin.isoformat())
         sys.exit(1)
+    # Years to skip if making a multiyear plot.
+    skip_years = []
+    if (cfg_parser.get("general", "skip_years")):
+        skip_years = cjson.decode(cfg_parser.get("general", "skip_years"))
 
     # Oracle connection strings are no longer supported in brilcalc.
     # (If you really want to specify a specific service use the
@@ -755,7 +760,8 @@ if __name__ == "__main__":
                       2018 : 6500.},
         "IONPHYS" : {2010 : 3500.,
                      2011 : 3500.,
-                     2015 : 6369.},
+                     2015 : 6369.,
+                     2018: 6370.},
         "PAPHYS" : {2013 : 4000.,
                     2016 : 2500}
         }
@@ -978,6 +984,12 @@ if __name__ == "__main__":
                 # DEBUG DEBUG DEBUG end
 
                 for line in lines[istart:]:
+                    # Warning: extremely dirty hack for 2015 PbPb here
+                    if day.year == 2015 and accel_mode == "IONPHYS":
+                        line_data = line.split(",")
+                        line_data[5] = str(float(line_data[5])/1e6)
+                        line_data[6] = str(float(line_data[6])/1e6)
+                        line = ",".join(line_data)
                     #print line
                     if not line.startswith("Run"):
                     	ldp=LumiDataPoint(line, json_file_name)
@@ -1761,10 +1773,8 @@ if __name__ == "__main__":
                         fig = plt.figure()
                     ax = fig.add_subplot(111)
 
-                    time_begin_ultimate = lumi_data_by_day_per_year[years[0]].time_begin()
-                    str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                     for (year_index, year) in enumerate(years):
-                      if year !=2014 and year !=2013:
+                      if year not in skip_years:
                         lumi_data = lumi_data_by_day_per_year[year]
                         lumi_data.sort()
                         times_tmp = [AtMidnight(i) for i in lumi_data.times()]
@@ -1841,19 +1851,33 @@ if __name__ == "__main__":
                                         xytext=(5., -2.),
                                         xycoords="data", textcoords="offset points")
 
-                    # BUG BUG BUG
-                    # Needs work...
-                    time_begin = lumi_data.time_begin()
-                    time_end = lumi_data.time_end()
-                    str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-                    str_end = time_end.strftime(DATE_FMT_STR_OUT)
-                    if mode == 1:
-                        time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
-                        time_end = datetime.datetime(years[-1], 12, 31, 23, 59,59)
+                    # Determine the start and end times for the plot.
+                    # For mode 1 this is easy: take the start of data and the end of the year of the end of
+                    # data (arguably this adds unnecessary white space, but this keeps consistency with the past).
+                    # For mode 2 this is a little trickier: we want to take the earliest time of all of the
+                    # individual years, so all the data actually shows up on the plot.
+
+                    time_data_begin = lumi_data_by_day_per_year[years[0]].time_begin()
+                    time_data_end = lumi_data_by_day_per_year[years[-1]].time_end()
+                    str_data_begin = time_data_begin.strftime(DATE_FMT_STR_OUT)
+                    str_data_end = time_data_end.strftime(DATE_FMT_STR_OUT)
+
+                    if (mode == 1):
+                        time_plot_begin = time_data_begin
+                        time_plot_end = datetime.datetime(years[-1], 12, 31, 23, 59, 59)
                     else:
-                        time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
-                        time_end = datetime.datetime(years[0], 12, 31, 23, 59,59)
-                    # BUG BUG BUG end
+                        month_begin = lumi_data_by_day_per_year[years[0]].time_begin().month
+                        day_begin = lumi_data_by_day_per_year[years[0]].time_begin().day
+                        for i in years[1:]:
+                            if i in skip_years:
+                                continue
+                            this_month_begin = lumi_data_by_day_per_year[i].time_begin().month
+                            this_day_begin = lumi_data_by_day_per_year[i].time_begin().day
+                            if (this_month_begin < month_begin) or (this_month_begin == month_begin and this_day_begin < day_begin):
+                                month_begin = this_month_begin
+                                day_begin = this_day_begin
+                        time_plot_begin = datetime.datetime(years[0], month_begin, day_begin, 0, 0, 0)
+                        time_plot_end = datetime.datetime(years[0], 12, 31, 23, 59, 59)
 
                     num_cols = None
                     spacing = None
@@ -1876,10 +1900,8 @@ if __name__ == "__main__":
                                  fontproperties=FONT_PROPS_SUPTITLE)
 		    if year != 2015:	
                     	ax.set_title("Data included from %s to %s UTC \n" % \
-#                                 (str_begin, str_end),
-                                 (str_begin_ultimate, str_end),
+                                 (str_data_begin, str_data_end),
                                  fontproperties=FONT_PROPS_TITLE)
-
 
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
@@ -1903,8 +1925,7 @@ if __name__ == "__main__":
                             extra_head_room = 1
                         elif mode == 2:
                             extra_head_room = 2
-#                    TweakPlot(fig, ax, (time_begin, time_end),
-                    TweakPlot(fig, ax, (time_begin_ultimate, time_end),
+                    TweakPlot(fig, ax, (time_plot_begin, time_plot_end),
                               add_extra_head_room=extra_head_room, headroom_factor=1.5)
 
                     log_suffix = ""
@@ -2078,7 +2099,7 @@ if __name__ == "__main__":
                 time_begin_ultimate = lumi_data_by_day_per_year[years[0]].time_begin()
                 str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                 for (year_index, year) in enumerate(years):
-                    if year==2014 or year==2013:
+                    if year in skip_years:
 			continue
                     lumi_data = lumi_data_by_day_per_year[year]
                     lumi_data.sort()

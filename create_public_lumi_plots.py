@@ -1738,12 +1738,20 @@ if __name__ == "__main__":
                             (particle_type_str.lower(), year,
                              log_suffix, file_suffix, file_suffix2))
 
-    plt.close()
-
     #----------
 
-    # Now the cumulative plot showing all years together.
-    if len(years) > 1:
+    # Now the all-years plots, if we're doing those.
+    if plot_multiple_years:
+        # Get the set of center-of-mass energies in TeV. If we have more than one energy,
+        # then we'll want to include that in the legend for each year, but if there's just
+        # one energy, we can skip that part.
+        cms_energies_tev = set()
+        for year in years:
+            if year in skip_years:
+                continue
+            cms_energies_tev.add(2*beam_energy_defaults[accel_mode][year]/1e3)
+
+        # 1) Cumulative plot with individual lines for each year.
         print "  cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
 
         mode_description = {1: "side-by-side", 2: "overlaid"}
@@ -1813,7 +1821,8 @@ if __name__ == "__main__":
                             cms_energy_str = "%.2f TeV/nucleon" % \
                                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
-                        # NOTE: Special case for 2010,2015
+                        # NOTE: Special case for 2010 to fix the units. Also, include the energy in the legend
+                        # if and only if it changes.
                         label = None
                         if year == 2010:
                             label = r"%d, %s, %.1f %s" % \
@@ -1821,9 +1830,13 @@ if __name__ == "__main__":
                                      1.e3 * tot_del,
                                      LatexifyUnits("pb^{-1}"))
                         else:
-                            label = r"%d, %s, %.1f %s" % \
+                            if len(cms_energies_tev) > 1:
+                                label = r"%d, %s, %.1f %s" % \
                                     (year, cms_energy_str, tot_del,
                                      LatexifyUnits(units))
+                            else:
+                                label = r"%d, %.1f %s" % \
+                                    (year, tot_del, LatexifyUnits(units))
 
                         # Apply scale factor, if one exists.
                         weights_tmp = None
@@ -1895,11 +1908,16 @@ if __name__ == "__main__":
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
-                    # Set titles and labels.
-                    fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
-                                 fontproperties=FONT_PROPS_SUPTITLE)
-		    if year != 2015:	
-                    	ax.set_title("Data included from %s to %s UTC \n" % \
+                    # Set titles and labels. If there's only one center-of-mass energy, put it in the title
+                    # (we can use the existing cms_energy_str because it's the same for everything in that case,
+                    # yay!)
+                    if (len(cms_energies_tev) > 1):
+                        fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
+                                     fontproperties=FONT_PROPS_SUPTITLE)
+                    else:
+                        fig.suptitle(r"CMS Integrated Luminosity, %s, $\mathbf{\sqrt{s} =}$ %s" % \
+                                     (particle_type_str, cms_energy_str), fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_data_begin, str_data_end),
                                  fontproperties=FONT_PROPS_TITLE)
 
@@ -1939,12 +1957,9 @@ if __name__ == "__main__":
             print "    mode %d (%s)" % (mode, mode_description[mode])
             PlotAllYears(lumi_data_by_day_per_year, mode)
 
-    plt.close()
+        #----------
 
-    #----------
-
-    # Now the cumulative plot with all years accumulated.
-    if len(years) > 1:
+        # 2) Cumulative plot with all years accumulated.
         print "  total cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
 
         units = GetUnits(years[-1], accel_mode, "cum_year")
@@ -1968,15 +1983,11 @@ if __name__ == "__main__":
             weights_cert = [lumi_data_by_day[i].lum_cert_tot(units) for i in lumi_dates]
             tot_cert = sum(weights_cert)
 
-        if not beam_energy_from_cfg:
-            beam_energy = beam_energy_defaults[accel_mode][years[-1]]
-        cms_energy = 2. * beam_energy
         cms_energy_str = "???"
         if accel_mode == "PROTPHYS":
-            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+            cms_energy_str = ", ".join(["%.0f" % (i) for i in sorted(cms_energies_tev)]) + " TeV"
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
-            cms_energy_str = "%.2f TeV/nucleon" % \
-                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
+            cms_energy_str = ", ".join(["%.2f" % (i*GetEnergyPerNucleonScaleFactor(accel_mode)) for i in sorted(cms_energies_tev)]) + " TeV/nucleon"
 
         # Loop over all color schemes and plot.
         for color_scheme_name in color_scheme_names:
@@ -2068,13 +2079,8 @@ if __name__ == "__main__":
                 # loop over versions with/without certification
             # loop over lin/log
         # loop over color scheme names
-    # if making this plot
-    plt.close()
 
-    #----------
-
-    # Now the peak lumi plot showing all years together.
-    if len(years) > 1:
+        # 3) The peak lumi plot showing all years together.
         print "  peak luminosity for %s together" % ", ".join([str(i) for i in years])
 
         units = GetUnits(years[-1], accel_mode, "max_inst")
@@ -2125,7 +2131,8 @@ if __name__ == "__main__":
                         cms_energy_str = "%.2f TeV/nucleon" % \
                                          (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
-                    # NOTE: Special case for 2010,2015
+                    # NOTE: Special case for 2010 to fix the units. Also, include the energy in the legend
+                    # if and only if it changes.
                     label = None
                     if year == 2010:
                         label = r"%d, %s, max. %.1f %s" % \
@@ -2133,9 +2140,13 @@ if __name__ == "__main__":
                                  1.e3 * max_inst,
                                  LatexifyUnits("Hz/ub"))
                     else:
-                        label = r"%d, %s, max. %.1f %s" % \
+                        if len(cms_energies_tev) > 1:
+                            label = r"%d, %s, max. %.1f %s" % \
                                 (year, cms_energy_str, max_inst,
                                  LatexifyUnits(units))
+                        else:
+                            label = r"%d, max. %.1f %s" % \
+                                (year, max_inst, LatexifyUnits(units))
 
                     # Apply scale factor, if one exists.
                     weights_tmp = None
@@ -2183,9 +2194,15 @@ if __name__ == "__main__":
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
-                # Set titles and labels.
-                fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
-                             fontproperties=FONT_PROPS_SUPTITLE)
+                # Set titles and labels. If there's only one center-of-mass energy,
+                # put it in the title.
+                if len(cms_energies_tev) > 1:
+                    fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                else:
+                    fig.suptitle(r"CMS Peak Luminosity Per Day, %s, $\mathbf{\sqrt{s} =}$ %s " % \
+                                     (particle_type_str, cms_energy_str), fontproperties=FONT_PROPS_SUPTITLE)
+                
                 ax.set_title("Data included from %s to %s UTC \n" % \
 #                             (str_begin, str_end),
                              (str_begin_ultimate, str_end),
@@ -2219,8 +2236,6 @@ if __name__ == "__main__":
                           log_suffix, file_suffix, file_suffix2))
 
     #----------
-
-    plt.close()
 
     ##########
 

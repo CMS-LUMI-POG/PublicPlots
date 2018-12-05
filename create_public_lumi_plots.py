@@ -1745,11 +1745,14 @@ if __name__ == "__main__":
         # Get the set of center-of-mass energies in TeV. If we have more than one energy,
         # then we'll want to include that in the legend for each year, but if there's just
         # one energy, we can skip that part.
-        cms_energies_tev = set()
+        cms_energy_strings = set()
         for year in years:
             if year in skip_years:
                 continue
-            cms_energies_tev.add(2*beam_energy_defaults[accel_mode][year]/1e3)
+            if accel_mode == "PROTPHYS":
+                cms_energy_strings.add("%.0f" % (2*beam_energy_defaults[accel_mode][year]/1e3))
+            elif accel_mode in ["IONPHYS", "PAPHYS"]:
+                cms_energy_strings.add("%.2f" % (2*beam_energy_defaults[accel_mode][year]*GetEnergyPerNucleonScaleFactor(accel_mode)/1e3))
 
         # 1) Cumulative plot with individual lines for each year.
         print "  cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
@@ -1830,7 +1833,7 @@ if __name__ == "__main__":
                                      1.e3 * tot_del,
                                      LatexifyUnits("pb^{-1}"))
                         else:
-                            if len(cms_energies_tev) > 1:
+                            if len(cms_energy_strings) > 1:
                                 label = r"%d, %s, %.1f %s" % \
                                     (year, cms_energy_str, tot_del,
                                      LatexifyUnits(units))
@@ -1911,7 +1914,7 @@ if __name__ == "__main__":
                     # Set titles and labels. If there's only one center-of-mass energy, put it in the title
                     # (we can use the existing cms_energy_str because it's the same for everything in that case,
                     # yay!)
-                    if (len(cms_energies_tev) > 1):
+                    if (len(cms_energy_strings) > 1):
                         fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
                                      fontproperties=FONT_PROPS_SUPTITLE)
                     else:
@@ -1985,9 +1988,9 @@ if __name__ == "__main__":
 
         cms_energy_str = "???"
         if accel_mode == "PROTPHYS":
-            cms_energy_str = ", ".join(["%.0f" % (i) for i in sorted(cms_energies_tev)]) + " TeV"
+            cms_energy_str = ", ".join(sorted(cms_energy_strings, key=float)) + " TeV"
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
-            cms_energy_str = ", ".join(["%.2f" % (i*GetEnergyPerNucleonScaleFactor(accel_mode)) for i in sorted(cms_energies_tev)]) + " TeV/nucleon"
+            cms_energy_str = ", ".join(sorted(cms_energy_strings, key=float)) + " TeV/nucleon"
 
         # Loop over all color schemes and plot.
         for color_scheme_name in color_scheme_names:
@@ -2140,7 +2143,7 @@ if __name__ == "__main__":
                                  1.e3 * max_inst,
                                  LatexifyUnits("Hz/ub"))
                     else:
-                        if len(cms_energies_tev) > 1:
+                        if len(cms_energy_strings) > 1:
                             label = r"%d, %s, max. %.1f %s" % \
                                 (year, cms_energy_str, max_inst,
                                  LatexifyUnits(units))
@@ -2196,7 +2199,7 @@ if __name__ == "__main__":
 
                 # Set titles and labels. If there's only one center-of-mass energy,
                 # put it in the title.
-                if len(cms_energies_tev) > 1:
+                if len(cms_energy_strings) > 1:
                     fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
                                  fontproperties=FONT_PROPS_SUPTITLE)
                 else:

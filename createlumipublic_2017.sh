@@ -28,8 +28,8 @@ cp *2017*NormtagLumi*png *2017*NormtagLumi*pdf /afs/cern.ch/cms/lumi/www/publicp
 cp public_lumi_plots_cache/pp_2017_normtag/* public_lumi_plots_cache/pp_all/
 
 # 3) Copy cache to public location
-cp -R public_lumi_plots_cache/pp_2017_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
-cp -R public_lumi_plots_cache/pp_2017_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
+cp -R -u public_lumi_plots_cache/pp_2017_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
+cp -R -u public_lumi_plots_cache/pp_2017_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
 
 # 4) create the plots for all years
 python create_public_lumi_plots.py public_lumi_plots_pp_allyears.cfg

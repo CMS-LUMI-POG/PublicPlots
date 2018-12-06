@@ -25,4 +25,4 @@ python create_public_lumi_plots.py public_brilcalc_plots_pp5TeV_2017_online.cfg
 cp *2017*5TeV_OnlineLumi*png *2017*5TeV_OnlineLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
 
 # 2) Copy cache to public location
-cp -R public_lumi_plots_cache/pp5TeV_2017_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
+cp -R -u public_lumi_plots_cache/pp5TeV_2017_online /afs/cern.ch/user/l/lumipro/public/lumiCache/

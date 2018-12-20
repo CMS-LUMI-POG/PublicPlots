@@ -1757,10 +1757,10 @@ if __name__ == "__main__":
         # 1) Cumulative plot with individual lines for each year.
         print "  cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
 
-        mode_description = {1: "side-by-side", 2: "overlaid"}
+        mode_description = {1: "side-by-side", 2: "overlaid", 3: "side-by-side cumulative"}
 
         def PlotAllYears(lumi_data_by_day_per_year, mode):
-            """Mode 1: years side-by-side, mode 2: years overlaid."""
+            """Mode 1: years side-by-side, mode 2: years overlaid, mode 3: like 1, but with each year starting at the previous year's end."""
 
             units = GetUnits(years[-1], accel_mode, "cum_year")
 
@@ -1777,12 +1777,13 @@ if __name__ == "__main__":
                 for type in ["lin", "log"]:
                     is_log = (type == "log")
 
-                    if mode == 1:
+                    if mode == 1 or mode == 3:
                         aspect_ratio = matplotlib.figure.figaspect(1. / 2.5)
                         fig = plt.figure(figsize=aspect_ratio)
                     else:
                         fig = plt.figure()
                     ax = fig.add_subplot(111)
+                    total_cum = 0
 
                     for (year_index, year) in enumerate(years):
                       if year not in skip_years:
@@ -1810,6 +1811,11 @@ if __name__ == "__main__":
                         for (i, val) in enumerate(weights_del):
                             tot_del += val
                             weights_del_cum[i] = tot_del
+                            # For the mode 3 plot, shift each year by the totals from previous years.
+                            if mode == 3:
+                                weights_del_cum[i] += total_cum
+                        total_cum += tot_del
+
                         if not beam_energy_from_cfg:
                             beam_energy = beam_energy_defaults[accel_mode][year]
                         cms_energy = 2. * beam_energy
@@ -1841,19 +1847,16 @@ if __name__ == "__main__":
                                 label = r"%d, %.1f %s" % \
                                     (year, tot_del, LatexifyUnits(units))
 
-                        # Apply scale factor, if one exists.
+                        # Apply scale factor, if one exists. Note: don't use this for mode 3.
                         weights_tmp = None
-                        if str(year) in year_scale_factor:
+                        if str(year) in year_scale_factor and mode != 3:
                             weights_tmp = [year_scale_factor[str(year)]["integrated"] * i \
                                            for i in weights_del_cum]
                         else:
                             weights_tmp = weights_del_cum
-                        #print color_by_year
-	                #print color_by_year[year]
-	                #print year
+
                         ax.plot(times, weights_tmp,
                                 color=color_by_year[year],
-                                #IRmarker="none", linestyle="solid",
                                 marker="None", linestyle="solid",
                                 linewidth=4,
                                 label=label)
@@ -1861,15 +1864,16 @@ if __name__ == "__main__":
                             ax.set_yscale("log")
 
                         # Create label for scale factor, if one exists.
-                        if str(year) in year_scale_factor:
+                        if str(year) in year_scale_factor and mode != 3:
                             ax.annotate(r"$\times$ %.0f" % year_scale_factor[str(year)]["integrated"],
                                         xy=(times[-1], weights_tmp[-1]),
                                         xytext=(5., -2.),
                                         xycoords="data", textcoords="offset points")
 
                     # Determine the start and end times for the plot.
-                    # For mode 1 this is easy: take the start of data and the end of the year of the end of
-                    # data (arguably this adds unnecessary white space, but this keeps consistency with the past).
+                    # For mode 1 and 3 this is easy: take the start of data and the end of the year of the end
+                    # of data (arguably this adds unnecessary white space, but this keeps consistency with the
+                    # past).
                     # For mode 2 this is a little trickier: we want to take the earliest time of all of the
                     # individual years, so all the data actually shows up on the plot.
 
@@ -1878,7 +1882,7 @@ if __name__ == "__main__":
                     str_data_begin = time_data_begin.strftime(DATE_FMT_STR_OUT)
                     str_data_end = time_data_end.strftime(DATE_FMT_STR_OUT)
 
-                    if (mode == 1):
+                    if mode == 1 or mode == 3:
                         time_plot_begin = time_data_begin
                         time_plot_end = datetime.datetime(years[-1], 12, 31, 23, 59, 59)
                     else:
@@ -1897,7 +1901,7 @@ if __name__ == "__main__":
 
                     num_cols = None
                     spacing = None
-                    if mode == 1:
+                    if mode == 1 or mode == 3:
                         num_cols = 1 #len(years)
                         tmp_x = 0.105 #0.095
                         tmp_y = 1.01 #.95
@@ -1915,10 +1919,10 @@ if __name__ == "__main__":
                     # (we can use the existing cms_energy_str because it's the same for everything in that case,
                     # yay!)
                     if (len(cms_energy_strings) > 1):
-                        fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
+                        fig.suptitle(r"CMS Integrated Luminosity Delivered, %s" % particle_type_str,
                                      fontproperties=FONT_PROPS_SUPTITLE)
                     else:
-                        fig.suptitle(r"CMS Integrated Luminosity, %s, $\mathbf{\sqrt{s} =}$ %s" % \
+                        fig.suptitle(r"CMS Integrated Luminosity Delivered, %s, $\mathbf{\sqrt{s} =}$ %s" % \
                                      (particle_type_str, cms_energy_str), fontproperties=FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_data_begin, str_data_end),
@@ -1929,23 +1933,23 @@ if __name__ == "__main__":
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
-                   #SET OFFLINE LUMI LABEL
-                   # if cfg_parser.get("general", "plot_label"):
-                   #     ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
-                   #             verticalalignment="center", horizontalalignment="left",
-                   #             transform = ax.transAxes, color='red', fontsize=15)
+                    # Add label, if it exists.
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                                verticalalignment="center", horizontalalignment="left",
+                                transform = ax.transAxes, color='red', fontsize=15)
 
                     # Add the logo.
                     zoom = 1.7
-                    if mode == 1:
+                    if mode == 1 or mode == 3:
                         zoom = .95
                     AddLogo(logo_name, ax, zoom=zoom)
                     extra_head_room = 0
-                    if is_log or mode==2:
-                        if mode == 1:
-                            extra_head_room = 1
-                        elif mode == 2:
-                            extra_head_room = 2
+                    if mode == 2:
+                        extra_head_room = 2
+                    elif is_log:
+                        extra_head_room = 1
+
                     TweakPlot(fig, ax, (time_plot_begin, time_plot_end),
                               add_extra_head_room=extra_head_room, headroom_factor=1.5)
 
@@ -1956,7 +1960,7 @@ if __name__ == "__main__":
                              (particle_type_str.lower(), mode,
                               log_suffix, file_suffix, file_suffix2))
 
-        for mode in [1, 2]:
+        for mode in [1, 2, 3]:
             print "    mode %d (%s)" % (mode, mode_description[mode])
             PlotAllYears(lumi_data_by_day_per_year, mode)
 
@@ -2215,11 +2219,11 @@ if __name__ == "__main__":
                               LatexifyUnits(units),
                               fontproperties=FONT_PROPS_AX_TITLE)
 
-                ## SET OFFLINE LUMI LABEL
-                #    if cfg_parser.get("general", "plot_label"):
-                #        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
-                #                verticalalignment="center", horizontalalignment="left",
-                #                transform = ax.transAxes, color='red', fontsize=15)
+                # Add label, if it exists.
+                if cfg_parser.get("general", "plot_label"):
+                    ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                            verticalalignment="center", horizontalalignment="left",
+                            transform = ax.transAxes, color='red', fontsize=15)
 
                 # Add the logo.
                 zoom = .97

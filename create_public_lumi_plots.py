@@ -593,7 +593,8 @@ if __name__ == "__main__":
         "normtag_file": None,
         "year_scale_factor": None,
         "skip_years": None,
-        "plot_multiple_years": "False"
+        "plot_multiple_years": "False",
+        "filter_brilcalc_results": "True"
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -606,6 +607,9 @@ if __name__ == "__main__":
     # details on how this works.
     plot_multiple_years = cfg_parser.getboolean("general", "plot_multiple_years")
     print "plot multiple years mode:",plot_multiple_years
+
+    filter_brilcalc_results = cfg_parser.getboolean("general", "filter_brilcalc_results")
+    print "filter mode:",filter_brilcalc_results
 
     # Which color scheme to use for drawing the plots.
     color_scheme_names_tmp = cfg_parser.get("general", "color_schemes")
@@ -877,23 +881,14 @@ if __name__ == "__main__":
                 if amodetag_bug_workaround:
                     # Don't use the amodetag in this case. Scary, but
                     # works for the moment.
-                    #lumicalc_flags = "%s --without-checkforupdate " \
                     lumicalc_flags = "%s " \
                                      "--beamenergy %.0f "% \
                                      (lumicalc_flags_from_cfg,
                                       beam_energy)
                 else:
-                    # This is the way things should be.
-                    #lumicalc_flags = "%s --without-checkforupdate " \
-                    lumicalc_flags = "%s " \
-                                     "--beamenergy %.0f " \
-                                     "--amodetag %s " % \
-                                     (lumicalc_flags_from_cfg,
-                                      beam_energy,
-                                      accel_mode)
-                # WORKAROUND WORKAROUND WORKAROUND end
-                #if beam_energy == 6500 or beam_energy == 2510 or beam_energy == 6369:
-                #lumicalc_flags=lumicalc_flags_from_cfg
+                    lumicalc_flags = lumicalc_flags_from_cfg
+                    if filter_brilcalc_results:
+                        lumicalc_flags += " --beamenergy %.0f --amodetag %s" % (beam_energy, accel_mode)
 
                 if normtag_file:
                     lumicalc_flags += " --normtag "+normtag_file

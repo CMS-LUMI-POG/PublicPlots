@@ -28,24 +28,39 @@ There are also various run scripts which perform the task of setting up the envi
 
 ## Config file
 
-Here are the various variables you can set in the config file. All of these are in the "general" category:
-* `plot_multiple_years`: If False (or omitted), this will just make the plots for a single year, calling brilcalc as necessary. If True, this will make the plots for multiple years, but brilcalc will not be invoked -- only existing data in the cache will be used. In principle the script could be updated to make the single year and multiple year plots in one pass, but this is a little tricky because of the different configuration necessary for different years, so for now you'll just have to run it twice with the appropriate configuration.
+Here are the various variables you can set in the config file. All of these are in the "general" category.
+
+* `plot_multiple_years`: If False (or omitted), this will just make the plots for a single year, calling brilcalc as necessary. If True, this will make the plots for multiple years, but brilcalc will not be invoked -- only existing data in the cache will be used. In principle the script could be updated to make the single year and multiple year plots in one pass, but this is a little tricky because of the different configuration necessary for different years, so for now you'll just have to run it twice with the appropriate configuration. Some of the options below apply only in one case or the other, so I've separated them below.
+
+**Options for both single-year and multiple-year plots**
+
 * `file_suffix`: A suffix to be added to the name of all of the plots. This is useful to distinguish online/normtag lumi, or for special runs, or so forth.
 * `plot_label`: The label to be added to the plots. Per agreement with Run Coordination, this should be "CMS Preliminary Online Luminosity" for online luminosity, "CMS Preliminary Offline Luminosity" for preliminary (not physics approved) offline luminosity, and "CMS Preliminary" for approved physics results.
-* `normtag_file`: The name of the normtag file to use. If this argument is not included, no normtag file will be used (i.e., the results will use online luminosity).
 * `json_file`: A JSON file to define ranges of data that are certified as good for physics.
-* `beam_energy`: The beam energy (in GeV). This will be used to display on the plots and (if enabled) for filtering the brilcalc results.
-* `accel_mode`: The accelerator mode (PROTPHYS, IONPHYS, or PAPHYS). Like the beam energy, this is used for display (and naming) of the plots and, if enabled, for filtering the brilcalc output.
-* `filter_brilcalc_results`: If True, only fills matching the beam energy and accelerator mode selected by `beam_energy` and `accel_mode` will be included in the output. If False, all fills in the specified dates will be used. Use this flag carefully: normally you will need to set it to True to exclude various special runs (e.g., the XeXe run in 2017 or the 450 GeV runs in 2018). However it occasionally happens that an otherwise normal fill will have an incorrect beam energy stored, and in the special runs the accelerator mode is also sometimes not correct, so using this filter will incorrectly exclude these runs. Either way, I recommend that you periodically check what happens when you flip this flag and make sure that you understand the resulting differences.
-* `units`: If you want to override the default units with units more appropriate to a special run, they can be specified here. There are four different units, for the cumulative by day, cumulative by week, yearly, and maximum instantaneous luminosity. They should be specified as a dictionary, as for example `units = {"cum_day": "pb^{-1}", "cum_week": "pb^{-1}", "cum_year" : "pb^{-1}", "max_inst" : "Hz/nb"}`. You can also specify just some entries if you only want to override some units.
-* `display_units`: This is a bit of a workaround necessary for the fact that the units are changed for PbPb running, so the units that need to be displayed are no longer the same as the units that brilcalc uses internally. See `public_brilcalc_plots_pbpb_2015.cfg` for an example of how this works.
+* `accel_mode`: The accelerator mode (PROTPHYS, IONPHYS, or PAPHYS). This is used for display (and naming) of the plots. For single-year plots it can also be used to filter the brilcalc output (see below)
 * `date_begin`: First date to consider in this run.
 * `date_end`: Last date to consider in this run (set this at the end of the year for runs which are still in progress).
-* `cache_dir`: The cache directory where the brilcalc results will be stored (see below).
-* `lumicalc_script`: The actual script to invoke for getting the luminosity information. This is mostly a legacy option from when we were still in the transition from other tools to brilcalc; now that brilcalc is established, this should always be `brilcalc lumi` (other tools are no longer supported).
-* `lumicalc_flags`: Flags to pass to the script defined by `lumicalc_script`. Normally this should be `-b "STABLE BEAMS" --byls` and should not need to be changed (normally changes to the brilcalc invocation are handled by `normtag_file`, `beam_energy`, and `accel_mode`).
+* `cache_dir`: The cache directory where the brilcalc results will be stored (if brilcalc is invoked) and read from. See below for more details.
+* `data_scale_factor`: If the output from brilcalc needs to be scaled by a factor in order to get the correct value, you can specify the factor here. This is necessary for ion runs for 2015 and before, since the luminosity output for these runs was scaled. This can be either a flat factor (in which case all data is scaled by that factor) or a dictionary of years specifying the factor for each year you need to scale. If you just want to change the display (not the actual luminosity), don't use this; see `display_scale_factor` below.
 * `color_schemes`: Color schemes for the plots, as defined in `public_plots_tools.py`.
 * `verbose`: Adds some extra messages for debugging.
+
+**Options for single-year plots only**
+
+* `units`: If you want to override the default units with units more appropriate to a special run, they can be specified here. There are four different units, for the cumulative by day, cumulative by week, yearly, and maximum instantaneous luminosity. They should be specified as a dictionary, as for example `units = {"cum_day": "pb^{-1}", "cum_week": "pb^{-1}", "cum_year" : "pb^{-1}", "max_inst" : "Hz/nb"}`. You can also specify just some entries if you only want to override some units.
+* `display_units`: This is a bit of a workaround necessary for the fact that the units are changed for PbPb running, so the units that need to be displayed are no longer the same as the units that brilcalc uses internally. See `public_brilcalc_plots_pbpb_2015.cfg` for an example of how this works.
+* `normtag_file`: The name of the normtag file to use. If this argument is not included, no normtag file will be used (i.e., the results will use online luminosity).
+* `beam_energy`: The beam energy (in GeV). This will be used to display on the plots and (if enabled) for filtering the brilcalc results.
+* `filter_brilcalc_results`: If True, only fills matching the beam energy and accelerator mode selected by `beam_energy` and `accel_mode` will be included in the output. If False, all fills in the specified dates will be used. Use this flag carefully: normally you will need to set it to True to exclude various special runs (e.g., the XeXe run in 2017 or the 450 GeV runs in 2018). However it occasionally happens that an otherwise normal fill will have an incorrect beam energy stored, and in the special runs the accelerator mode is also sometimes not correct, so using this filter will incorrectly exclude these runs. Either way, I recommend that you periodically check what happens when you flip this flag and make sure that you understand the resulting differences.
+* `lumicalc_script`: The actual script to invoke for getting the luminosity information. This is mostly a legacy option from when we were still in the transition from other tools to brilcalc; now that brilcalc is established, this should always be `brilcalc lumi` (other tools are no longer supported).
+* `lumicalc_flags`: Flags to pass to the script defined by `lumicalc_script`. Normally this should be `-b "STABLE BEAMS" --byls` and should not need to be changed (normally changes to the brilcalc invocation are handled by `normtag_file`, `beam_energy`, and `accel_mode`).
+
+**Options for multi-year plots only**
+
+* `display_scale_factor`: If some years have a very small luminosity, you can use this option to scale them by a factor to make them visible. It should be in the format
+```display_scale_factor = {"2010": {"integrated": 50.0, "peak": 10.0}}```
+This is different from `data_scale_factor` above in that it only affects the drawing of the line, not the actual luminosity shown in the totals. Also a label is added to show that the scaling has been applied.
+Note that for multi-year plots, `beam_energy` and `units` are not used; rather, the per-year defaults defined in the script are used to define these.
 
 ## A note about the cache
 

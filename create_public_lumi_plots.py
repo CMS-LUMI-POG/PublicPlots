@@ -69,7 +69,7 @@ LEAD_SCALE_FACTOR = 82. / 208.
 class LumiDataPoint(object):
     """Holds info from one line of lumiCalc lumibyls output."""
 
-    def __init__(self, line, json_file_name=None):
+    def __init__(self, line, json_file_name=None, data_scale_factor=1):
 
         # Decode the comma-separated line from lumiCalc.
         line_split = line.split(",")
@@ -80,8 +80,8 @@ class LumiDataPoint(object):
         self.ls = int(tmp[0])
         tmp = line_split[2]
         self.timestamp = datetime.datetime.strptime(tmp, DATE_FMT_STR_LUMICALC)
-        # NOTE: Convert from ub^{-1} to b^{-1}.
-        scale_factor = 1.e6
+        # The 1e6 is to convert from ub^{-1} to b^{-1}, and any other factor can be applied here as well.
+        scale_factor = 1.e6*data_scale_factor
         self.lum_del = scale_factor * float(line_split[5])
         self.lum_rec = scale_factor * float(line_split[6])
 #IR add avgpu
@@ -591,7 +591,8 @@ if __name__ == "__main__":
         "units": None,
         "display_units": None,
         "normtag_file": None,
-        "year_scale_factor": None,
+        "display_scale_factor": None,
+        "data_scale_factor": None,
         "skip_years": None,
         "plot_multiple_years": "False",
         "filter_brilcalc_results": "True"
@@ -701,18 +702,25 @@ if __name__ == "__main__":
     if (cfg_parser.get("general", "display_units")):
         display_units = cjson.decode(cfg_parser.get("general", "display_units"))
 
+    # See if the data needs to be scaled (e.g. for the 2015 PbPb data). This can be specified as either a float
+    # (in which case it will apply to everything) or as a dictionary (in which case you can specify different factors
+    # for different years, as in the multi-year PbPb plot).
+    data_scale_factor = None
+    if (cfg_parser.get("general", "data_scale_factor")):
+        data_scale_factor = cjson.decode(cfg_parser.get("general", "data_scale_factor"))
+
     # For multiple-year plots, check to see if we should scale the data for particular
     # years by a particular factor.
-    year_scale_factor = {}
-    if (cfg_parser.get("general", "year_scale_factor")):
-        year_scale_factor = cjson.decode(cfg_parser.get("general", "year_scale_factor"))
+    display_scale_factor = {}
+    if (cfg_parser.get("general", "display_scale_factor")):
+        display_scale_factor = cjson.decode(cfg_parser.get("general", "display_scale_factor"))
         # Check to see if this is well-formed.
-        for year in year_scale_factor:
-            if type(year_scale_factor[year]) is not dict:
-                print >> sys.stderr, "Error in year_scale_factor for "+year+": expected dictionary as entry"
+        for year in display_scale_factor:
+            if type(display_scale_factor[year]) is not dict:
+                print >> sys.stderr, "Error in display_scale_factor for "+year+": expected dictionary as entry"
                 sys.exit(1)
-            if "integrated" not in year_scale_factor[year] or "peak" not in year_scale_factor[year]:
-                print >> sys.stderr, "Error in year_scale_factor for "+year+": dictionary does not contain integrated and peak keys"
+            if "integrated" not in display_scale_factor[year] or "peak" not in display_scale_factor[year]:
+                print >> sys.stderr, "Error in display_scale_factor for "+year+": dictionary does not contain integrated and peak keys"
                 sys.exit(1)
                 
     # If a JSON file is specified, use the JSON file to add in the
@@ -979,16 +987,13 @@ if __name__ == "__main__":
                 # DEBUG DEBUG DEBUG end
 
                 for line in lines[istart:]:
-                    # Warning: extremely dirty hack for 2015 PbPb here
-                    if day.year == 2015 and accel_mode == "IONPHYS":
-                        line_data = line.split(",")
-                        line_data[5] = str(float(line_data[5])/1e6)
-                        line_data[6] = str(float(line_data[6])/1e6)
-                        line = ",".join(line_data)
-                    #print line
                     if not line.startswith("Run"):
-                    	ldp=LumiDataPoint(line, json_file_name)
-                    #lumi_data_day.add(LumiDataPoint(line, json_file_name))
+                        if isinstance(data_scale_factor, float):
+                            ldp = LumiDataPoint(line, json_file_name, data_scale_factor)
+                        elif isinstance(data_scale_factor, dict) and str(day.year) in data_scale_factor:
+                            ldp = LumiDataPoint(line, json_file_name, data_scale_factor[str(day.year)])
+                        else:
+                            ldp = LumiDataPoint(line, json_file_name)
                     	lumi_data_day.add(ldp)
 
             in_file.close()
@@ -1844,8 +1849,8 @@ if __name__ == "__main__":
 
                         # Apply scale factor, if one exists. Note: don't use this for mode 3.
                         weights_tmp = None
-                        if str(year) in year_scale_factor and mode != 3:
-                            weights_tmp = [year_scale_factor[str(year)]["integrated"] * i \
+                        if str(year) in display_scale_factor and mode != 3:
+                            weights_tmp = [display_scale_factor[str(year)]["integrated"] * i \
                                            for i in weights_del_cum]
                         else:
                             weights_tmp = weights_del_cum
@@ -1859,8 +1864,8 @@ if __name__ == "__main__":
                             ax.set_yscale("log")
 
                         # Create label for scale factor, if one exists.
-                        if str(year) in year_scale_factor and mode != 3:
-                            ax.annotate(r"$\times$ %.0f" % year_scale_factor[str(year)]["integrated"],
+                        if str(year) in display_scale_factor and mode != 3:
+                            ax.annotate(r"$\times$ %.0f" % display_scale_factor[str(year)]["integrated"],
                                         xy=(times[-1], weights_tmp[-1]),
                                         xytext=(5., -2.),
                                         xycoords="data", textcoords="offset points")
@@ -2152,8 +2157,8 @@ if __name__ == "__main__":
 
                     # Apply scale factor, if one exists.
                     weights_tmp = None
-                    if str(year) in year_scale_factor:
-                        weights_tmp = [year_scale_factor[str(year)]["peak"] * i \
+                    if str(year) in display_scale_factor:
+                        weights_tmp = [display_scale_factor[str(year)]["peak"] * i \
                                        for i in weights_inst]
                     else:
                         weights_tmp = weights_inst
@@ -2166,8 +2171,8 @@ if __name__ == "__main__":
                         ax.set_yscale("log")
 
                     # Create label for scale factor, if one exists.
-                    if str(year) in year_scale_factor:
-                        ax.annotate(r"$\times$ %.0f" % year_scale_factor[str(year)]["peak"],
+                    if str(year) in display_scale_factor:
+                        ax.annotate(r"$\times$ %.0f" % display_scale_factor[str(year)]["peak"],
                                     xy=(times[-1], max(weights_tmp)),
                                     xytext=(5., -2.),
                                     xycoords="data", textcoords="offset points")

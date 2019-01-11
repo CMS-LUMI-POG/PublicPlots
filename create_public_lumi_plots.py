@@ -1941,7 +1941,7 @@ if __name__ == "__main__":
 
                     # Add label, if it exists.
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
                                 transform = ax.transAxes, color='red', fontsize=15)
 
@@ -2073,6 +2073,12 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
+
+                    # Add label, if it exists.
+                    if cfg_parser.get("general", "plot_label"):
+                        ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
+                                verticalalignment="center", horizontalalignment="left",
+                                transform = ax.transAxes, color='red', fontsize=15)
 
                     # Add the logo.
                     zoom = 1.7
@@ -2217,7 +2223,7 @@ if __name__ == "__main__":
 
                 # Add label, if it exists.
                 if cfg_parser.get("general", "plot_label"):
-                    ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                    ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
                             verticalalignment="center", horizontalalignment="left",
                             transform = ax.transAxes, color='red', fontsize=15)
 

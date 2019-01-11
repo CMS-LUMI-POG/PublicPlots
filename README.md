@@ -3,7 +3,9 @@
 This repository contains the tools for creating the public luminosity plots. This is initially imported from the Run 1 repository in https://github.com/cms-sw/RecoLuminosity-LumiDB/plotdata and is currently in the process of being cleaned up and documented.
 
 The basic procedure is:
-```python create_public_lumi_plots.py [cfg file]```
+```
+python create_public_lumi_plots.py [cfg file]
+```
 where the config file is hopefully self-explanatory (but see below for further documentation).
 
 However, be aware that many of the config files are out of date. The following config files should work and reproduce the plots currently on the page:
@@ -37,17 +39,17 @@ Here are the various variables you can set in the config file. All of these are 
 * `file_suffix`: A suffix to be added to the name of all of the plots. This is useful to distinguish online/normtag lumi, or for special runs, or so forth.
 * `plot_label`: The label to be added to the plots. Per agreement with Run Coordination, this should be "CMS Preliminary Online Luminosity" for online luminosity, "CMS Preliminary Offline Luminosity" for preliminary (not physics approved) offline luminosity, and "CMS Preliminary" for approved physics results.
 * `json_file`: A JSON file to define ranges of data that are certified as good for physics.
-* `accel_mode`: The accelerator mode (PROTPHYS, IONPHYS, or PAPHYS). This is used for display (and naming) of the plots. For single-year plots it can also be used to filter the brilcalc output (see below)
+* `accel_mode`: The accelerator mode (PROTPHYS, IONPHYS, or PAPHYS). This is used for display (and naming) of the plots. For single-year plots it can also be used to filter the brilcalc output (see below). For multi-year plots you can also specify the special mode ALLIONS which combines PbPb and pPb running. In this case you will also need to specify the actual accelerator mode for each year in `accel_mode_by_year`. See `public_lumi_plots_ions_run2.cfg` for an example of how this works.
 * `date_begin`: First date to consider in this run.
 * `date_end`: Last date to consider in this run (set this at the end of the year for runs which are still in progress).
 * `cache_dir`: The cache directory where the brilcalc results will be stored (if brilcalc is invoked) and read from. See below for more details.
+* `units`: If you want to override the default units with units more appropriate to a special run, they can be specified here. There are four different units, for the cumulative by day, cumulative by week, yearly, and maximum instantaneous luminosity. They should be specified as a dictionary, as for example `units = {"cum_day": "pb^{-1}", "cum_week": "pb^{-1}", "cum_year" : "pb^{-1}", "max_inst" : "Hz/nb"}`. You can also specify just some entries if you only want to override some units. Note that only `cum_year` and `max_inst` are applicable for multi-year plots.
 * `data_scale_factor`: If the output from brilcalc needs to be scaled by a factor in order to get the correct value, you can specify the factor here. This is necessary for ion runs for 2015 and before, since the luminosity output for these runs was scaled. This can be either a flat factor (in which case all data is scaled by that factor) or a dictionary of years specifying the factor for each year you need to scale. If you just want to change the display (not the actual luminosity), don't use this; see `display_scale_factor` below.
 * `color_schemes`: Color schemes for the plots, as defined in `public_plots_tools.py`.
 * `verbose`: Adds some extra messages for debugging.
 
 **Options for single-year plots only**
 
-* `units`: If you want to override the default units with units more appropriate to a special run, they can be specified here. There are four different units, for the cumulative by day, cumulative by week, yearly, and maximum instantaneous luminosity. They should be specified as a dictionary, as for example `units = {"cum_day": "pb^{-1}", "cum_week": "pb^{-1}", "cum_year" : "pb^{-1}", "max_inst" : "Hz/nb"}`. You can also specify just some entries if you only want to override some units.
 * `display_units`: This is a bit of a workaround necessary for the fact that the units are changed for PbPb running, so the units that need to be displayed are no longer the same as the units that brilcalc uses internally. See `public_brilcalc_plots_pbpb_2015.cfg` for an example of how this works.
 * `normtag_file`: The name of the normtag file to use. If this argument is not included, no normtag file will be used (i.e., the results will use online luminosity).
 * `beam_energy`: The beam energy (in GeV). This will be used to display on the plots and (if enabled) for filtering the brilcalc results.
@@ -57,10 +59,9 @@ Here are the various variables you can set in the config file. All of these are 
 
 **Options for multi-year plots only**
 
-* `display_scale_factor`: If some years have a very small luminosity, you can use this option to scale them by a factor to make them visible. It should be in the format
-```display_scale_factor = {"2010": {"integrated": 50.0, "peak": 10.0}}```
-This is different from `data_scale_factor` above in that it only affects the drawing of the line, not the actual luminosity shown in the totals. Also a label is added to show that the scaling has been applied.
-Note that for multi-year plots, `beam_energy` and `units` are not used; rather, the per-year defaults defined in the script are used to define these.
+* `display_scale_factor`: If some years have a very small luminosity, you can use this option to scale them by a factor to make them visible. It should be in the format `display_scale_factor = {"2010": {"integrated": 50.0, "peak": 10.0}}`. This is different from `data_scale_factor` above in that it only affects the drawing of the line, not the actual luminosity shown in the totals. Also a label is added to show that the scaling has been applied.
+
+Note that for multi-year plots, `beam_energy` is not used; rather, the per-year defaults defined in the script are used to define the beam energy.
 
 ## A note about the cache
 

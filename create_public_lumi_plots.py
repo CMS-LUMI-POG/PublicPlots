@@ -60,7 +60,7 @@ DATE_FMT_STR_AXES = "%-d %b"
 DATE_FMT_STR_CFG = "%Y-%m-%d"
 NUM_SEC_IN_LS = 2**18 / 11246.
 
-KNOWN_ACCEL_MODES = ["PROTPHYS", "IONPHYS", "PAPHYS",
+KNOWN_ACCEL_MODES = ["PROTPHYS", "IONPHYS", "PAPHYS", "ALLIONS",
                      "2013_amode_bug_workaround"]
 LEAD_SCALE_FACTOR = 82. / 208. 
 
@@ -439,10 +439,18 @@ def GetUnits(year, accel_mode, mode):
 
 ######################################################################
 
-def GetEnergyPerNucleonScaleFactor(amodetag):
+def GetEnergyPerNucleonScaleFactor(amodetag, year):
     # DEBUG DEBUG DEBUG
-    assert amodetag in ["IONPHYS", "PAPHYS"]
+    assert amodetag in ["IONPHYS", "PAPHYS", "ALLIONS"]
     # DEBUG DEBUG DEBUG end
+
+    if amodetag == "ALLIONS":
+        # Get the actual mode used for this year from the config file.
+        try:
+            accel_mode_by_year = cjson.decode(cfg_parser.get("general", "accel_mode_by_year"))
+            amodetag = accel_mode_by_year[str(year)]
+        except:
+            print "Error: accelerator mode for year",year,"not specified in accel_mode_by_year parameter in config file"
 
     res = LEAD_SCALE_FACTOR
     if amodetag == "PAPHYS":
@@ -450,6 +458,28 @@ def GetEnergyPerNucleonScaleFactor(amodetag):
 
     # End of GetEnergyPerNucleonScaleFactor().
     return res
+
+######################################################################
+# Given the beam energy in GeV, produce a string version of the CMS energy in TeV,
+# including the pPb or PbPb scale factor if necessary.
+
+def FormatCMSEnergy(beam_energy, accel_mode, year, include_units=True):
+    cms_energy = 2 * beam_energy
+    cms_energy_str = "???"
+    if accel_mode == "PROTPHYS":
+        width = 0
+        if year == 2013:
+            width = 2
+        cms_energy_str = "%.*f" % \
+                         (width, 1.e-3 * cms_energy)
+        if include_units:
+            cms_energy_str += " TeV"
+    elif accel_mode in ["IONPHYS", "PAPHYS", "ALLIONS"]:
+        cms_energy_str = "%.2f" % \
+                         (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode, year) * cms_energy)
+        if include_units:
+            cms_energy_str += " TeV/nucleon"
+    return cms_energy_str
 
 ######################################################################
 
@@ -639,6 +669,9 @@ if __name__ == "__main__":
         print >> sys.stderr, \
               "ERROR Unknown accelerator mode '%s'" % \
               accel_mode
+    if accel_mode == "ALLIONS" and not plot_multiple_years:
+        print >> sys.stderr, "Accelerator mode",accel_mode,"is only meaningful for multiple-year plots, sorry!"
+        sys.exit(1)
 
     # WORKAROUND WORKAROUND WORKAROUND
     amodetag_bug_workaround = False
@@ -757,7 +790,8 @@ if __name__ == "__main__":
     particle_type_strings = {
         "PROTPHYS" : "pp",
         "IONPHYS" : "PbPb",
-        "PAPHYS" : "pPb"
+        "PAPHYS" : "pPb",
+        "ALLIONS": "PbPb+pPb"
         }
     particle_type_str = particle_type_strings[accel_mode]
 
@@ -773,9 +807,12 @@ if __name__ == "__main__":
         "IONPHYS" : {2010 : 3500.,
                      2011 : 3500.,
                      2015 : 6369.,
-                     2018: 6370.},
+                     2018 : 6370.},
         "PAPHYS" : {2013 : 4000.,
-                    2016 : 2500}
+                    2016 : 2500},
+        "ALLIONS": {2015 : 6369.,
+                    2016 : 6500,
+                    2018 : 6370.},
         }
 
     ##########
@@ -1147,17 +1184,8 @@ if __name__ == "__main__":
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][year]
-        cms_energy = 2. * beam_energy
-        cms_energy_str = "???"
-        if accel_mode == "PROTPHYS":
-            width = 0
-            if year == 2013:
-                width = 2
-            cms_energy_str = "%.*f TeV" % (width, 1.e-3 * cms_energy)
-        elif accel_mode in ["IONPHYS", "PAPHYS"]:
-            cms_energy_str = "%.2f TeV/nucleon" % \
-                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
-
+        cms_energy_str = FormatCMSEnergy(beam_energy, accel_mode, year)
+        
         lumi_data = lumi_data_by_day_per_year[year]
         lumi_data.sort()
 
@@ -1461,16 +1489,7 @@ if __name__ == "__main__":
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][year]
-        cms_energy = 2. * beam_energy
-        cms_energy_str = "???"
-        if accel_mode == "PROTPHYS":
-            width = 0
-            if year == 2013:
-                width = 2
-            cms_energy_str = "%.*f TeV" % (width, 1.e-3 * cms_energy)
-        elif accel_mode in ["IONPHYS", "PAPHYS"]:
-            cms_energy_str = "%.2f TeV/nucleon" % \
-                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
+        cms_energy_str = FormatCMSEnergy(beam_energy, accel_mode, year)
 
         lumi_data = lumi_data_by_week_per_year[year]
         lumi_data.sort()
@@ -1749,10 +1768,7 @@ if __name__ == "__main__":
         for year in years:
             if year in skip_years:
                 continue
-            if accel_mode == "PROTPHYS":
-                cms_energy_strings.add("%.0f" % (2*beam_energy_defaults[accel_mode][year]/1e3))
-            elif accel_mode in ["IONPHYS", "PAPHYS"]:
-                cms_energy_strings.add("%.2f" % (2*beam_energy_defaults[accel_mode][year]*GetEnergyPerNucleonScaleFactor(accel_mode)/1e3))
+            cms_energy_strings.add(FormatCMSEnergy(beam_energy_defaults[accel_mode][year], accel_mode, year, False))
 
         # 1) Cumulative plot with individual lines for each year.
         print "  cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
@@ -1818,17 +1834,7 @@ if __name__ == "__main__":
 
                         if not beam_energy_from_cfg:
                             beam_energy = beam_energy_defaults[accel_mode][year]
-                        cms_energy = 2. * beam_energy
-                        cms_energy_str = "???"
-                        if accel_mode == "PROTPHYS":
-                            width = 0
-                            if year == 2013:
-                                width = 2
-                            cms_energy_str = "%.*f TeV" % \
-                                             (width, 1.e-3 * cms_energy)
-                        elif accel_mode in ["IONPHYS", "PAPHYS"]:
-                            cms_energy_str = "%.2f TeV/nucleon" % \
-                                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
+                        cms_energy_str = FormatCMSEnergy(beam_energy, accel_mode, year)
 
                         # NOTE: Special case for 2010 to fix the units. Also, include the energy in the legend
                         # if and only if it changes.
@@ -1993,7 +1999,7 @@ if __name__ == "__main__":
         cms_energy_str = "???"
         if accel_mode == "PROTPHYS":
             cms_energy_str = ", ".join(sorted(cms_energy_strings, key=float)) + " TeV"
-        elif accel_mode in ["IONPHYS", "PAPHYS"]:
+        elif accel_mode in ["IONPHYS", "PAPHYS", "ALLIONS"]:
             cms_energy_str = ", ".join(sorted(cms_energy_strings, key=float)) + " TeV/nucleon"
 
         # Loop over all color schemes and plot.
@@ -2126,17 +2132,7 @@ if __name__ == "__main__":
                     max_inst = max(weights_inst)
                     if not beam_energy_from_cfg:
                         beam_energy = beam_energy_defaults[accel_mode][year]
-                    cms_energy = 2. * beam_energy
-                    cms_energy_str = "???"
-                    if accel_mode == "PROTPHYS":
-                        width = 0
-                        if year == 2013:
-                            width = 2
-                        cms_energy_str = "%.*f TeV" % \
-                                         (width, 1.e-3 * cms_energy)
-                    elif accel_mode in ["IONPHYS", "PAPHYS"]:
-                        cms_energy_str = "%.2f TeV/nucleon" % \
-                                         (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
+                    cms_energy_str = FormatCMSEnergy(beam_energy, accel_mode, year)
 
                     # NOTE: Special case for 2010 to fix the units. Also, include the energy in the legend
                     # if and only if it changes.

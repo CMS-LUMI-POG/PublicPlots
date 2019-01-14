@@ -1877,11 +1877,13 @@ if __name__ == "__main__":
                                         xycoords="data", textcoords="offset points")
 
                     # Determine the start and end times for the plot.
-                    # For mode 1 and 3 this is easy: take the start of data and the end of the year of the end
-                    # of data (arguably this adds unnecessary white space, but this keeps consistency with the
-                    # past).
+                    # For mode 1 and 3 this is easy: take the start of data for the start date and the end of
+                    # the last year for the end date (this adds a little extra white space at the end which
+                    # makes the plot a little cleaner).
                     # For mode 2 this is a little trickier: we want to take the earliest time of all of the
-                    # individual years, so all the data actually shows up on the plot.
+                    # individual years, so all the data actually shows up on the plot. For pp plots we can
+                    # just use the end of the year again, but this is kind of a lot of white space in the ion
+                    # case, so for those we use the same procedure for the end date.
 
                     time_data_begin = lumi_data_by_day_per_year[years[0]].time_begin()
                     time_data_end = lumi_data_by_day_per_year[years[-1]].time_end()
@@ -1894,16 +1896,27 @@ if __name__ == "__main__":
                     else:
                         month_begin = lumi_data_by_day_per_year[years[0]].time_begin().month
                         day_begin = lumi_data_by_day_per_year[years[0]].time_begin().day
+                        month_end = lumi_data_by_day_per_year[years[0]].time_end().month
+                        day_end = lumi_data_by_day_per_year[years[0]].time_end().day
                         for i in years[1:]:
                             if i in skip_years:
                                 continue
                             this_month_begin = lumi_data_by_day_per_year[i].time_begin().month
                             this_day_begin = lumi_data_by_day_per_year[i].time_begin().day
+                            this_month_end = lumi_data_by_day_per_year[i].time_end().month
+                            this_day_end = lumi_data_by_day_per_year[i].time_end().day
                             if (this_month_begin < month_begin) or (this_month_begin == month_begin and this_day_begin < day_begin):
                                 month_begin = this_month_begin
                                 day_begin = this_day_begin
+                            if (this_month_end > month_end) or (this_month_end == month_end and this_day_end > day_end):
+                                month_end = this_month_end
+                                day_end = this_day_end
+
                         time_plot_begin = datetime.datetime(years[0], month_begin, day_begin, 0, 0, 0)
-                        time_plot_end = datetime.datetime(years[0], 12, 31, 23, 59, 59)
+                        if accel_mode == "PROTPHYS":
+                            time_plot_end = datetime.datetime(years[0], 12, 31, 23, 59, 59)
+                        else:
+                            time_plot_end = datetime.datetime(years[0], month_end, day_end, 0, 0, 0)
 
                     num_cols = None
                     spacing = None

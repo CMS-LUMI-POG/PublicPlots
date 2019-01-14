@@ -634,13 +634,14 @@ if __name__ == "__main__":
         sys.exit(1)
     cfg_parser.read(config_file_name)
 
+    print "Using configuration from file '%s'" % config_file_name
+
     # See if we're running in single-year or multiple-year mode. See the README for more
     # details on how this works.
     plot_multiple_years = cfg_parser.getboolean("general", "plot_multiple_years")
     print "plot multiple years mode:",plot_multiple_years
 
     filter_brilcalc_results = cfg_parser.getboolean("general", "filter_brilcalc_results")
-    print "filter mode:",filter_brilcalc_results
 
     # Which color scheme to use for drawing the plots.
     color_scheme_names_tmp = cfg_parser.get("general", "color_schemes")
@@ -666,9 +667,7 @@ if __name__ == "__main__":
     accel_mode = cfg_parser.get("general", "accel_mode")
     # Check if we know about this accelerator mode.
     if not accel_mode in KNOWN_ACCEL_MODES:
-        print >> sys.stderr, \
-              "ERROR Unknown accelerator mode '%s'" % \
-              accel_mode
+        print >> sys.stderr, "ERROR Unknown accelerator mode '%s'" % accel_mode
     if accel_mode == "ALLIONS" and not plot_multiple_years:
         print >> sys.stderr, "Accelerator mode",accel_mode,"is only meaningful for multiple-year plots, sorry!"
         sys.exit(1)
@@ -766,16 +765,8 @@ if __name__ == "__main__":
             print >> sys.stderr, \
                 "ERROR Requested JSON file '%s' is not available" % json_file_name
             sys.exit(1)
-        print "Using JSON file '%s' for certified data" % json_file_name
-    else:
-        if verbose:
-            print "No JSON file specified, filling only standard lumi plot."
 
     normtag_file = cfg_parser.get("general", "normtag_file")
-    if normtag_file:
-        print "Normtag file selected:", normtag_file
-    else:
-        print "No normtag file selected, online luminosity will be used"
 
     ##########
 
@@ -818,23 +809,35 @@ if __name__ == "__main__":
     ##########
 
     # Tell the user what's going to happen.
-    print "Using configuration from file '%s'" % config_file_name
+    print "Accelerator mode is '%s'" % accel_mode
     if ignore_cache:
         print "Ignoring all cached brilcalc results (and rebuilding the cache)"
     else:
         print "Using cached brilcalc results from %s" % \
               CacheFilePath(cache_file_dir)
-    print "Using color schemes '%s'" % ", ".join(color_scheme_names)
-    print "Using brilcalc script '%s'" % lumicalc_script
-    print "Using additional brilcalc flags from configuration: '%s'" % \
-          lumicalc_flags_from_cfg
-    print "Selecting data for accelerator mode '%s'" % accel_mode
-    if beam_energy_from_cfg:
-        print "Selecting data for beam energy %.0f GeV" % beam_energy
+    # We only use brilcalc for the single-year plots, so don't bother printing out info if we're making a
+    # multi-year plot
+    if not plot_multiple_years:
+        print "Using brilcalc script '%s'" % lumicalc_script
+        print "Using additional brilcalc flags from configuration: '%s'" % \
+            lumicalc_flags_from_cfg
+        if normtag_file:
+            print "Normtag file selected:", normtag_file
+        else:
+            print "No normtag file selected, online luminosity will be used"
+    
+    if json_file_name:
+        print "Using JSON file '%s' for certified data" % json_file_name
     else:
-        print "Selecting data for default beam energy for '%s' from:" % accel_mode
+        print "No certification JSON file will be applied."
+
+    if beam_energy_from_cfg:
+        print "Beam energy is %.0f GeV" % beam_energy
+    else:
+        print "Using default beam energy for '%s' from:" % accel_mode
         for (key, val) in sorted(beam_energy_defaults[accel_mode].iteritems()):
             print "  %d : %.1f GeV" % (key, val)
+    print "Using color schemes '%s'" % ", ".join(color_scheme_names)
 
     ##########
 

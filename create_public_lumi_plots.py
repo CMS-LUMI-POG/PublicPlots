@@ -439,18 +439,8 @@ def GetUnits(year, accel_mode, mode):
 
 ######################################################################
 
-def GetEnergyPerNucleonScaleFactor(amodetag, year):
-    # DEBUG DEBUG DEBUG
-    assert amodetag in ["IONPHYS", "PAPHYS", "ALLIONS"]
-    # DEBUG DEBUG DEBUG end
-
-    if amodetag == "ALLIONS":
-        # Get the actual mode used for this year from the config file.
-        try:
-            accel_mode_by_year = cjson.decode(cfg_parser.get("general", "accel_mode_by_year"))
-            amodetag = accel_mode_by_year[str(year)]
-        except:
-            print "Error: accelerator mode for year",year,"not specified in accel_mode_by_year parameter in config file"
+def GetEnergyPerNucleonScaleFactor(amodetag):
+    assert amodetag in ["IONPHYS", "PAPHYS"]
 
     res = LEAD_SCALE_FACTOR
     if amodetag == "PAPHYS":
@@ -475,10 +465,24 @@ def FormatCMSEnergy(beam_energy, accel_mode, year, include_units=True):
         if include_units:
             cms_energy_str += " TeV"
     elif accel_mode in ["IONPHYS", "PAPHYS", "ALLIONS"]:
+        this_accel_mode = accel_mode
+        if accel_mode == "ALLIONS":
+            # Get the actual mode used for this year from the config file.
+            try:
+                accel_mode_by_year = cjson.decode(cfg_parser.get("general", "accel_mode_by_year"))
+                this_accel_mode = accel_mode_by_year[str(year)]
+            except:
+                print "Error: accelerator mode for year",year,"not specified in accel_mode_by_year parameter in config file"
+                return cms_energy_str
+            
         cms_energy_str = "%.2f" % \
-                         (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode, year) * cms_energy)
+                         (1.e-3 * GetEnergyPerNucleonScaleFactor(this_accel_mode) * cms_energy)
+
         if include_units:
+            if accel_mode == "ALLIONS":
+                cms_energy_str = particle_type_strings[this_accel_mode] + " " + cms_energy_str
             cms_energy_str += " TeV/nucleon"
+
     return cms_energy_str
 
 ######################################################################

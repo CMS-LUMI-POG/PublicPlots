@@ -1886,7 +1886,8 @@ if __name__ == "__main__":
                     # For mode 2 this is a little trickier: we want to take the earliest time of all of the
                     # individual years, so all the data actually shows up on the plot. For pp plots we can
                     # just use the end of the year again, but this is kind of a lot of white space in the ion
-                    # case, so for those we use the same procedure for the end date.
+                    # case, so for those we use the same procedure for the end date (plus a couple days so
+                    # the line isn't bumping against the edge of the plot).
 
                     time_data_begin = lumi_data_by_day_per_year[years[0]].time_begin()
                     time_data_end = lumi_data_by_day_per_year[years[-1]].time_end()
@@ -1919,7 +1920,7 @@ if __name__ == "__main__":
                         if accel_mode == "PROTPHYS":
                             time_plot_end = datetime.datetime(years[0], 12, 31, 23, 59, 59)
                         else:
-                            time_plot_end = datetime.datetime(years[0], month_end, day_end, 0, 0, 0)
+                            time_plot_end = datetime.datetime(years[0], month_end, day_end, 0, 0, 0) + datetime.timedelta(days=2)
 
                     num_cols = None
                     spacing = None

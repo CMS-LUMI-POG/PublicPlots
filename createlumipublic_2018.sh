@@ -24,11 +24,11 @@ cd ~/PublicPlots
 
 # 1a) create the plots for this year, online luminosity, and copy them to plot area
 python create_public_lumi_plots.py public_brilcalc_plots_pp_2018_online.cfg
-cp *2018*OnlineLumi*png *2018*OnlineLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
+cp *2018*OnlineLumi*png *2018*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
 
 # 1b) same, with normtag luminosity
 python create_public_lumi_plots.py public_brilcalc_plots_pp_2018_normtag.cfg
-cp *2018*NormtagLumi*png *2018*NormtagLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
+cp *2018*NormtagLumi*png *2018*NormtagLumi*pdf /eos/user/l/lumipro/www/publicplots/
 
 # 2) Copy the cache into the cache for the all years plots. Note: uses normtag now!
 cp public_lumi_plots_cache/pp_2018_normtag/* public_lumi_plots_cache/pp_all/
@@ -41,4 +41,4 @@ cp -R -u public_lumi_plots_cache/pp_all /afs/cern.ch/user/l/lumipro/public/lumiC
 # 4) create the plots for all years and Run 2 only. Do the Run 2 first because that way we get the lumiByDay.csv file correct.
 python create_public_lumi_plots.py public_lumi_plots_pp_run2.cfg
 python create_public_lumi_plots.py public_lumi_plots_pp_allyears.cfg
-cp peak_lumi_pp* int_lumi_cumulative_pp* int_lumi_allcumulative_pp* lumiByDay.csv /afs/cern.ch/cms/lumi/www/publicplots/
+cp peak_lumi_pp* int_lumi_cumulative_pp* int_lumi_allcumulative_pp* lumiByDay.csv /eos/user/l/lumipro/www/publicplots/

@@ -22,7 +22,7 @@ cd ~/PublicPlots
 
 # 1) create the plots for this year, online luminosity, and copy them to plot area
 python create_public_lumi_plots.py public_brilcalc_plots_pp5TeV_2017_online.cfg
-cp *2017*5TeV_OnlineLumi*png *2017*5TeV_OnlineLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
+cp *2017*5TeV_OnlineLumi*png *2017*5TeV_OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
 
 # 2) Copy cache to public location
 cp -R -u public_lumi_plots_cache/pp5TeV_2017_online /afs/cern.ch/user/l/lumipro/public/lumiCache/

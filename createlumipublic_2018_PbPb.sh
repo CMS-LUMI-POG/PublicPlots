@@ -23,5 +23,5 @@ eval `scramv1 runtime -sh`
 cd ~/PublicPlots
 
 python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_online.cfg
-cp *pbpb_2018*OnlineLumi*png *pbpb_2018*OnlineLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
+cp *pbpb_2018*OnlineLumi*png *pbpb_2018*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
 cp -R -u public_lumi_plots_cache/PbPb_2018_online /afs/cern.ch/user/l/lumipro/public/lumiCache/

@@ -18,11 +18,11 @@ cd ~/PublicPlots
 
 # 1a) create the plots for this year, online luminosity, and copy them to plot area
 python create_public_lumi_plots.py public_brilcalc_plots_pp_2017_online.cfg
-cp *2017*OnlineLumi*png *2017*OnlineLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
+cp *2017*OnlineLumi*png *2017*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
 
 # 1b) same, with normtag luminosity
 python create_public_lumi_plots.py public_brilcalc_plots_pp_2017_normtag.cfg
-cp *2017*NormtagLumi*png *2017*NormtagLumi*pdf /afs/cern.ch/cms/lumi/www/publicplots/
+cp *2017*NormtagLumi*png *2017*NormtagLumi*pdf /eos/user/l/lumipro/www/publicplots/
 
 # 2) Copy the cache into the cache for the all years plots. Note: uses normtag now!
 cp public_lumi_plots_cache/pp_2017_normtag/* public_lumi_plots_cache/pp_all/
@@ -33,4 +33,4 @@ cp -R -u public_lumi_plots_cache/pp_2017_normtag /afs/cern.ch/user/l/lumipro/pub
 
 # 4) create the plots for all years
 python create_public_lumi_plots.py public_lumi_plots_pp_allyears.cfg
-cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /afs/cern.ch/cms/lumi/www/publicplots/
+cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /eos/user/l/lumipro/www/publicplots/

@@ -21,6 +21,8 @@ The rest are in progress.
 
 There are also various run scripts which perform the task of setting up the environment, running the actual script, copying the plots to the final plot location, etc. Check out createlumipublic_2017.sh for an example.
 
+A new addition is `public_animated_lumi_plot_run2.py`, which will create an animated plot from the `lumiByDay.csv` file created when the multi-year plots are created. See the script for some documentation; it is designed to be run to create the individual frames and then `make_animations.sh` will create the final animation (requires installation of `ffmpeg`).
+
 ## Todo list
 * Figure out disrepancies in 2016 pp run
 * Update 2015 pp 13 TeV and 2015 PbPb runs

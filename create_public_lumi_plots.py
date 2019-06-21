@@ -1435,7 +1435,7 @@ if __name__ == "__main__":
                                 histtype="stepfilled", cumulative=True,
                                 log=log_setting,
                                 facecolor=color_fill_cert, edgecolor=color_line_cert,
-                                label="B=3.8 T, validated: %.2f %s" % \
+                                label="CMS Certified: %.2f %s" % \
                                 (tot_cert, LatexifyUnits(units)))
                     leg = ax.legend(loc="upper left",
                                     bbox_to_anchor=(0.125, 0., 1., 1.01),

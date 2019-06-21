@@ -147,6 +147,9 @@ if __name__ == "__main__":
     year = int(cfg_parser.get("general", "year"))
     cms_energy_str = cfg_parser.get("general", "cms_energy_str")
 
+    xsection = float(cfg_parser.get("general", "xsection"))/1000
+    print("Inelastic x-section:", xsection, "mb at", cms_energy_str)
+
     ##########
 
     # Tell the user what's going to happen.
@@ -253,6 +256,13 @@ if __name__ == "__main__":
                     transform = ax.transAxes,
                     horizontalalignment="right",
                     fontproperties=FONT_PROPS_AX_TITLE)
+
+            # Add the inelastic pp cross section employed
+            ax.text(.95, .35, r"$\sigma_{in}^{pp} ="+str(xsection)+"\,mb$",
+                     transform = ax.transAxes,
+                     horizontalalignment="right",
+                     fontproperties=FONT_PROPS_AX_TITLE,
+                     fontsize=9)
 
             # Add the logo.
             AddLogo(logo_name, ax)

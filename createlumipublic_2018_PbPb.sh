@@ -22,6 +22,12 @@ eval `scramv1 runtime -sh`
 # Make the plots!
 cd ~/PublicPlots
 
+# First with online...
 python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_online.cfg
 cp *pbpb_2018*OnlineLumi*png *pbpb_2018*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
 cp -R -u public_lumi_plots_cache/PbPb_2018_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
+
+# ...then with normtag
+python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_normtag.cfg
+cp *pbpb_2018*NormtagLumi*png *pbpb_2018*NormtagLumi*pdf /eos/user/l/lumipro/www/publicplots/
+cp -R -u public_lumi_plots_cache/PbPb_2018_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/

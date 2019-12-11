@@ -35,6 +35,14 @@ if matplotlib.__version__ != '1.0.1':
 matplotlib.axes.Axes.hist = hist
 # FIX FIX FIX end
 
+try:
+    from brokenaxes import brokenaxes
+    has_brokenaxes = True
+except ImportError:
+    print("Warning: brokenaxes package is not installed, cannot produce multi-year cumulative plots with cutouts")
+    print("Use pip install --user brokenaxes to install")
+    has_brokenaxes = False
+
 from public_plots_tools import ColorScheme
 from public_plots_tools import LatexifyUnits
 from public_plots_tools import AddLogo
@@ -2017,6 +2025,28 @@ if __name__ == "__main__":
         elif accel_mode in ["IONPHYS", "PAPHYS", "ALLIONS"]:
             cms_energy_str = ", ".join(sorted(cms_energy_strings, key=float)) + " TeV/nucleon"
 
+        # Look for gaps in the data so we can make the plots with cutouts in the axis.
+        gaps = []
+        last_date = False
+        for i in lumi_dates:
+            if last_date and (i-last_date) >= datetime.timedelta(days=60):
+                gaps.append([last_date, i])
+            last_date = i
+        # Now use the gaps to define the periods that we are active for.
+        nper = len(gaps)+1
+        periods = []
+        for i in range(nper):
+            if (i==0):
+                tmin = lumi_dates[0]
+            else:
+                tmin = gaps[i-1][1]
+            if (i==nper-1):
+                tmax = lumi_dates[-1]
+            else:
+                tmax = gaps[i][0]
+            periods.append([tmin, tmax])
+        periods_t = [matplotlib.dates.date2num(i) for i in periods]
+
         # Loop over all color schemes and plot.
         for color_scheme_name in color_scheme_names:
 
@@ -2040,77 +2070,135 @@ if __name__ == "__main__":
                         exp = math.floor(math.log10(min_val))
                         log_setting = math.pow(10., exp)
 
-                # and one last loop to make the versions with/without certification. 
-                certification_settings = [False]
-                if json_file_name:
-                    certification_settings.append(True)
+                # One more loop to make the versions with/without the cutout in the axis.
+                # Obviously we can only do this if the brokenaxes package is installed.
+                cutout_settings = [False]
+                if has_brokenaxes:
+                    cutout_settings.append(True)
+                for do_cutouts in cutout_settings:
 
-                for do_certification in certification_settings:
-                    fig = plt.figure()
-                    ax = fig.add_subplot(111)
+                    # and one last loop to make the versions with/without certification. 
+                    certification_settings = [False]
+                    if json_file_name:
+                        certification_settings.append(True)
 
-                    ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_del,
-                            histtype="stepfilled", cumulative=True,
-                            log=log_setting,
-                            facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered: %.2f %s" % \
-                            (tot_del, LatexifyUnits(units)))
-                    ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_rec,
-                            histtype="stepfilled", cumulative=True,
-                            log=log_setting,
-                            facecolor=color_fill_rec, edgecolor=color_line_rec,
-                            label="CMS Recorded: %.2f %s" % \
-                            (tot_rec, LatexifyUnits(units)))
-                    if do_certification:
-                        ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_cert,
+                    for do_certification in certification_settings:
+                        fig = plt.figure()
+                        if do_cutouts:
+                            # The geometry here is a little tricky. For normal plots these are generated with default
+                            # margins and then tweaked to these margins using subplots_adjust in TweakPlot() (don't ask why
+                            # they're not just generated with those margins to start with). We could use that approach here but
+                            # then the cut lines that brokenaxes draws to indicate the breaks in the axis end up in the wrong
+                            # place. So we do this here but then we have to tweak the positioning of the legend and date
+                            # text below so THEY don't end up in the wrong place.
+
+                            # Note: if we were breaking the y-axis we'd need to specify whether the plot was log or not.
+                            # But we're not so we don't worry about that.
+                            ax = brokenaxes(xlims=periods_t, tilt=75, despine=False, top=.85, bottom=.14, left=.13, right=.91)
+                        else:
+                            ax = fig.add_subplot(111)
+
+                        ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_del,
                                 histtype="stepfilled", cumulative=True,
                                 log=log_setting,
-                                facecolor=color_fill_cert, edgecolor=color_line_cert,
-                                label="CMS Certified for Physics: %.2f %s" % \
-                                (tot_cert, LatexifyUnits(units)))
+                                facecolor=color_fill_del, edgecolor=color_line_del,
+                                label="LHC Delivered: %.2f %s" % \
+                                (tot_del, LatexifyUnits(units)))
+                        ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_rec,
+                                histtype="stepfilled", cumulative=True,
+                                log=log_setting,
+                                facecolor=color_fill_rec, edgecolor=color_line_rec,
+                                label="CMS Recorded: %.2f %s" % \
+                                (tot_rec, LatexifyUnits(units)))
+                        if do_certification:
+                            ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_cert,
+                                    histtype="stepfilled", cumulative=True,
+                                    log=log_setting,
+                                    facecolor=color_fill_cert, edgecolor=color_line_cert,
+                                    label="CMS Certified for Physics: %.2f %s" % \
+                                    (tot_cert, LatexifyUnits(units)))
 
-                    leg = ax.legend(loc="upper left",
-                                    bbox_to_anchor=(0.175, 0., 1., 1.01),
-                                    frameon=False)
-                    for t in leg.get_texts():
-                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
+                        if do_cutouts:
+                            leg = ax.legend(loc="upper left", frameon=False,
+                                            bbox_to_anchor=(0.19, 0., 1., 0.92))
+                        else:
+                            leg = ax.legend(loc="upper left", frameon=False,
+                                            bbox_to_anchor=(0.175, 0., 1., 1.01))
 
-                    # Set titles and labels.
-                    fig.suptitle(r"CMS Integrated Luminosity, " \
-                                 r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, cms_energy_str),
-                                 fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                             (str_begin, str_end),
-                             fontproperties=FONT_PROPS_TITLE)
+                        for t in leg.get_texts():
+                            t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
-                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
-                                  LatexifyUnits(units),
-                                  fontproperties=FONT_PROPS_AX_TITLE)
+                        # Set titles and labels.
+                        fig.suptitle(r"CMS Integrated Luminosity, " \
+                                     r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
+                                     (particle_type_str, cms_energy_str),
+                                     fontproperties=FONT_PROPS_SUPTITLE)
+                        ax_kwargs = dict(fontproperties=FONT_PROPS_TITLE)
+                        if do_cutouts:
+                            ax_kwargs["y"] = 0.95
+                        ax.set_title("Data included from %s to %s UTC \n" % \
+                                     (str_begin, str_end), **ax_kwargs)
 
-                    # Add label, if it exists.
-                    if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
-                                verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                        ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
+                        ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                                      LatexifyUnits(units),
+                                      fontproperties=FONT_PROPS_AX_TITLE)
 
-                    # Add the logo.
-                    zoom = 1.7
-                    AddLogo(logo_name, ax, zoom=zoom)
-                    TweakPlot(fig, ax, (time_begin, time_end), add_extra_head_room=0)
-                    formatter = matplotlib.dates.DateFormatter("%b '%y")
-                    ax.xaxis.set_major_formatter(formatter)
+                        # Add label, if it exists.
+                        if cfg_parser.get("general", "plot_label"):
+                            ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
+                                    verticalalignment="center", horizontalalignment="left",
+                                    transform = ax.transAxes, color='red', fontsize=15)
 
-                    log_suffix = ""
-                    if type == "log":
-                        log_suffix = "_log"
+                        # Add the logo.
+                        zoom = 1.7
+                        formatter = matplotlib.dates.DateFormatter("%b '%y")
+                        if do_cutouts:
+                            # We have to add the logo on big_ax because otherwise it gets cut off when
+                            # the individual subplots get too small. Unfortunately this changes the positioning
+                            # so we have to tweak the offset.
+                            AddLogo(logo_name, ax.big_ax, zoom=zoom, xy_offset=(5., -25.))
 
-                    SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s%s" % \
-                             (particle_type_str.lower(),
-                              log_suffix, file_suffix, file_suffix2, ("_cert" if do_certification else "")))
-                    
-                # loop over versions with/without certification
+                            # A somewhat-reduced version of the code in TweakPlot() to work with
+                            # the multiple axes of the brokenaxes object.
+                            
+                            # Add a second vertical axis on the right-hand side.
+                            ax_sec = ax.axs[-1].twinx()
+                            ax_sec.set_ylim(ax.axs[-1].get_ylim())
+                            ax_sec.set_yscale(ax.axs[-1].get_yscale())
+
+                            # Set fonts on all axis labels
+                            for ax_tmp in fig.axes:
+                                for sub_ax in [ax_tmp.xaxis, ax_tmp.yaxis]:
+                                    for label in sub_ax.get_ticklabels():
+                                        label.set_font_properties(FONT_PROPS_TICK_LABEL)
+ 
+                            # Format and set rotation for x-axis labels
+                            for a in ax.axs:
+                                a.xaxis.set_major_formatter(formatter)
+                                a.xaxis.set_ticks_position("both")
+                                for label in a.get_xticklabels():
+                                    label.set_ha("right")
+                                    label.set_rotation(30.0)
+                        else:
+                            AddLogo(logo_name, ax, zoom=zoom)
+                            TweakPlot(fig, ax, (time_begin, time_end), add_extra_head_room=0)
+                            ax.xaxis.set_major_formatter(formatter)
+
+                        log_suffix = ""
+                        if type == "log":
+                            log_suffix = "_log"
+
+                        save_kwargs = dict()
+                        if do_cutouts:
+                            save_kwargs["ax"] = ax.big_ax
+                        SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s%s%s" % \
+                                 (particle_type_str.lower(),
+                                  log_suffix, file_suffix, file_suffix2, ("_cert" if do_certification else ""),
+                                  ("_cutout" if do_cutouts else "")), **save_kwargs)
+
+                    # loop over versions with/without certification
+                # loop over versions with/without cutouts
             # loop over lin/log
         # loop over color scheme names
 

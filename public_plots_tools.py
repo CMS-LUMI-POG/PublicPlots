@@ -36,7 +36,7 @@ def InitMatplotlib():
 
 ######################################################################
 
-def AddLogo(logo_name, ax, zoom=1.2):
+def AddLogo(logo_name, ax, zoom=1.2, xy_offset=(2., -3.)):
     """Read logo from PNG file and add it to axes."""
 
     logo_data = read_png(logo_name)
@@ -47,7 +47,7 @@ def AddLogo(logo_name, ax, zoom=1.2):
     zoom_factor *= zoom
     logo_box = OffsetImage(logo_data, zoom=zoom_factor)
     ann_box = AnnotationBbox(logo_box, [0., 1.],
-                             xybox=(2., -3.),
+                             xybox=xy_offset,
                              xycoords="axes fraction",
                              boxcoords="offset points",
                              box_alignment=(0., 1.),
@@ -219,22 +219,23 @@ class ColorScheme(object):
 
 ######################################################################
 
-def SavePlot(fig, file_name_base):
+def SavePlot(fig, file_name_base, ax=None):
     """Little helper to save plots in various formats."""
 
-    # DEBUG DEBUG DEBUG
+    if not ax:
+        ax = fig.axes[0]
     # Check some assumptions.
-    assert len(fig.axes) == 2
-    assert len(fig.axes[0].artists) == 1
+    # assert len(fig.axes) == 2 # this is a little excessively paranoid --
+    # just be sure that if it's not fig.axes[0] that you pass the correct axis
+    assert len(ax.artists) == 1
     assert file_name_base.find(".") < 0
-    # DEBUG DEBUG DEBUG end
 
     # First save as PNG.
     fig.savefig("%s.png" % file_name_base)
 
     # Then rescale and reposition the logo (which is assumed to be the
     # only artist in the first pair of axes) and save as PDF.
-    tmp_annbox = fig.axes[0].artists[0]
+    tmp_annbox = ax.artists[0]
     tmp_offsetbox = tmp_annbox.offsetbox
     fig_dpi = fig.dpi
     tmp_offsetbox.set_zoom(tmp_offsetbox.get_zoom() * 72. / fig_dpi)

@@ -23,6 +23,8 @@ There are also various run scripts which perform the task of setting up the envi
 
 A new addition is `public_animated_lumi_plot_run2.py`, which will create an animated plot from the `lumiByDay.csv` file created when the multi-year plots are created. See the script for some documentation; it is designed to be run to create the individual frames and then `make_animations.sh` will create the final animation (requires installation of `ffmpeg`).
 
+**IMPORTANT NOTE**: In order to produce the all-years cumulative plots with broken axes, the `brokenaxes` package needs to be installed. You can install it with `pip install --user brokenaxes`. If not installed, the script will still work; it will just skip making those plots.
+
 ## Todo list
 * Figure out disrepancies in 2016 pp run
 * Update 2015 pp 13 TeV and 2015 PbPb runs

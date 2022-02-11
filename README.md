@@ -51,6 +51,7 @@ Here are the various variables you can set in the config file. All of these are 
 * `data_scale_factor`: If the output from brilcalc needs to be scaled by a factor in order to get the correct value, you can specify the factor here. This is necessary for ion runs for 2015 and before, since the luminosity output for these runs was scaled. This can be either a flat factor (in which case all data is scaled by that factor) or a dictionary of years specifying the factor for each year you need to scale. If you just want to change the display (not the actual luminosity), don't use this; see `display_scale_factor` below.
 * `color_schemes`: Color schemes for the plots, as defined in `public_plots_tools.py`.
 * `verbose`: Adds some extra messages for debugging.
+* `plot_directory` : The sub-directory tree to put the plots. If this option is not specified, plots will be put in the subdirectory 'plots'. Make sure that the shell scripts which copy the plots to the web-server space on eos, contain the corresponding diirectory path.
 
 **Options for single-year plots only**
 

@@ -15,24 +15,43 @@ import copy
 import math
 import optparse
 import ConfigParser
-import cjson
+# CS : This funky module is in CMSSW but we want to be independent of 
+#      CMSSW also if this costs some performance. We go for the 
+#      standard json decoder...
+#      Introduced plt.close(fig) calls to release memory that was getting
+#                 a bit tight...
+#      Adjusted the minimum of the log y axis to the value calculated and
+#                 and previously used in the matplotlib fix.
+# import cjson
+import json
 
 import numpy as np
 
 import six
 import matplotlib
+
+# CS : To be compliant with the code below: 
+cjson = json.JSONDecoder()
+
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
+
+# CS : This fix was for the old matplotlib version in CMSSW. We now 
+#      go for the brilconda version which today (26/1/2022) features 
+#      matplotlib 1.5.3. The sources reveal that the bug has been fixed.
+
 # FIX FIX FIX
+#
 # This fixes a well-know bug with stepfilled logarithmic histograms in
 # Matplotlib.
-from mpl_axes_hist_fix import hist
-if matplotlib.__version__ != '1.0.1':
-    print("ERROR The %s script contains a hard-coded bug-fix " \
-          "for Matplotlib 1.0.1. The Matplotlib version loaded " \
-          "is %s" % (__file__, matplotlib.__version__), file=sys.stderr)
-    #sys.exit(1)
-matplotlib.axes.Axes.hist = hist
+# from mpl_axes_hist_fix import hist
+# if matplotlib.__version__ != '1.0.1':
+#     print("ERROR The %s script contains a hard-coded bug-fix " \
+#           "for Matplotlib 1.0.1. The Matplotlib version loaded " \
+#           "is %s" % (__file__, matplotlib.__version__), file=sys.stderr)
+#     sys.exit(1)
+# matplotlib.axes.Axes.hist = hist
+#
 # FIX FIX FIX end
 
 try:
@@ -469,6 +488,9 @@ def FormatCMSEnergy(beam_energy, accel_mode, year, include_units=True):
         width = 0
         if year == 2013:
             width = 2
+        if year >= 2021:
+            # We do not run on an integer enery anymore...
+            width = 1
         cms_energy_str = "%.*f" % \
                          (width, 1.e-3 * cms_energy)
         if include_units:
@@ -703,6 +725,15 @@ if __name__ == "__main__":
         beam_energy_from_cfg = True
         beam_energy = float(beam_energy_tmp)
 
+    # get the directory where to put the plots
+    plot_directory_tmp = cfg_parser.get("general", "plot_directory")
+    if not plot_directory_tmp:
+        plot_directory = "plots"
+        print("No plot directory specified --> using default value '%s'" % plot_directory)
+    else:
+        plot_directory = plot_directory_tmp
+        print("Plots will be stored in directory '%s'." % plot_directory)
+        
     # Overall begin and end dates of all data to include.
     tmp = cfg_parser.get("general", "date_begin")
     date_begin = datetime.datetime.strptime(tmp, DATE_FMT_STR_CFG).date()
@@ -1269,12 +1300,14 @@ if __name__ == "__main__":
             for type in ["lin", "log"]:
                 is_log = (type == "log")
                 log_setting = False
+                bottom = 0.0
                 if is_log:
                     min_val = min(weights_del_inst)
                     if min_val>0.0:
                         exp = math.floor(math.log10(min_val))
-                        log_setting = math.pow(10., exp)
-
+                        log_setting = True
+                        bottom = math.pow(10., exp)
+                        
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1289,6 +1322,7 @@ if __name__ == "__main__":
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_peak, edgecolor=color_line_peak,
                             label="Max. inst. lumi.: %.2f %s" % \
                             (max_inst, LatexifyUnits(units)))
@@ -1301,10 +1335,13 @@ if __name__ == "__main__":
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
+                    # Due to a bug in matplotlib 1.5.3 we cannot use the font_properties
+                    # keyword argument directly but have to go via the set_fontproperties
+                    # method.
                     fig.suptitle(r"CMS Peak Luminosity Per Day, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str),
-                                 fontproperties=FONT_PROPS_SUPTITLE)
+                                 (particle_type_str, year, cms_energy_str)) \
+                       .set_fontproperties(FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
@@ -1325,22 +1362,26 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
+                    
                 SavePlot(fig, "peak_lumi_per_day_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2))
-
+                          log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory)
+            
             #----------
 
             # The lumi-per-day plot.
             for type in ["lin", "log"]:
                 is_log = (type == "log")
                 log_setting = False
+                bottom = 0.0
                 if is_log:
                     min_val = min(weights_rec)
 		    if min_val>0.0 :
                           exp = math.floor(math.log10(min_val))
-                          log_setting = math.pow(10., exp)
-
+                          log_setting = True
+                          bottom = math.pow(10., exp)
+                          
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1357,12 +1398,14 @@ if __name__ == "__main__":
                     ax.hist(times, bin_edges, weights=weights_del,
                             histtype="stepfilled",
                             log=log_setting,
+                            bottom=bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
                             label="LHC Delivered, max: %.1f %s/day" % \
                             (max_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec,
                             histtype="stepfilled",
                             log=log_setting,
+                            bottom=bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded, max: %.1f %s/day" % \
                             (max_rec, LatexifyUnits(units)))
@@ -1373,8 +1416,8 @@ if __name__ == "__main__":
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str),
-                                 fontproperties=FONT_PROPS_SUPTITLE)
+                                 (particle_type_str, year, cms_energy_str)) \
+                       .set_fontproperties(FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
@@ -1395,10 +1438,12 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
+                    
                 SavePlot(fig, "int_lumi_per_day_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2))
-
+                          log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory)
+            
             #----------
 
             # Now for the cumulative plot.
@@ -1415,12 +1460,14 @@ if __name__ == "__main__":
             for type in ["lin", "log"]:
                 is_log = (type == "log")
                 log_setting = False
+                bottom = 0.0
                 if is_log:
                     min_val = min(weights_del_for_cum)
                     if min_val >0.0 :
                         exp = math.floor(math.log10(min_val))
-                        log_setting = math.pow(10., exp)
-
+                        log_setting = True
+                        bottom = math.pow(10., exp)
+                        
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1429,22 +1476,28 @@ if __name__ == "__main__":
                     ax.hist(times, bin_edges, weights=weights_del_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
                             label="LHC Delivered: %.2f %s" % \
                             (tot_del, LatexifyUnits(units)))
+                        
                     ax.hist(times, bin_edges, weights=weights_rec_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
+
                     if sum(weights_cert_for_cum) > 0.:
                         ax.hist(times, bin_edges, weights=weights_cert_for_cum,
                                 histtype="stepfilled", cumulative=True,
                                 log=log_setting,
+                                bottom = bottom,
                                 facecolor=color_fill_cert, edgecolor=color_line_cert,
                                 label="CMS Certified: %.2f %s" % \
                                 (tot_cert, LatexifyUnits(units)))
+
                     leg = ax.legend(loc="upper left",
                                     bbox_to_anchor=(0.125, 0., 1., 1.01),
                                     frameon=False)
@@ -1454,8 +1507,8 @@ if __name__ == "__main__":
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, " \
                                  r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str),
-                                 fontproperties=FONT_PROPS_SUPTITLE)
+                                 (particle_type_str, year, cms_energy_str)) \
+                       .set_fontproperties(FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
@@ -1484,10 +1537,12 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
+
                 SavePlot(fig, "int_lumi_per_day_cumulative_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2))
-
+                          log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory)
+            plt.close(fig)
     #------------------------------
     # Create the per-week delivered-lumi plots.
     #------------------------------
@@ -1562,12 +1617,14 @@ if __name__ == "__main__":
             for type in ["lin", "log"]:
                 is_log = (type == "log")
                 log_setting = False
+                bottom = 0.0
                 if is_log:
                     min_val = min(weights_del_inst)
                     if min_val >0.0 :
                         exp = math.floor(math.log10(min_val))
-                        log_setting = math.pow(10., exp)
-
+                        log_setting = True
+                        bottom = math.pow(10., exp)
+                        
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1583,6 +1640,7 @@ if __name__ == "__main__":
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_peak, edgecolor=color_line_peak,
                             label="Max. inst. lumi.: %.2f %s" % \
                             (max_inst, LatexifyUnits(units)))
@@ -1597,8 +1655,8 @@ if __name__ == "__main__":
                     # Set titles and labels.
                     fig.suptitle(r"CMS Peak Luminosity Per Week, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str),
-                                 fontproperties=FONT_PROPS_SUPTITLE)
+                                 (particle_type_str, year, cms_energy_str)) \
+                       .set_fontproperties(FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
@@ -1620,22 +1678,24 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
+                    
                 SavePlot(fig, "peak_lumi_per_week_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2))
-
+                          log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory)
             #----------
 
             # The lumi-per-week plot.
             for type in ["lin", "log"]:
                 is_log = (type == "log")
                 log_setting = False
+                bottom = 0.0
                 if is_log:
                     min_val = min(weights_rec)
                     if min_val >0.0 :
                         exp = math.floor(math.log10(min_val))
-                        log_setting = math.pow(10., exp)
-
+                        log_setting = True
+                        bottom =  math.pow(10., exp)
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1652,12 +1712,14 @@ if __name__ == "__main__":
                     ax.hist(times, bin_edges, weights=weights_del,
                             histtype="stepfilled",
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
                             label="LHC Delivered, max: %.1f %s/week" % \
                             (max_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec,
                             histtype="stepfilled",
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded, max: %.1f %s/week" % \
                             (max_rec, LatexifyUnits(units)))
@@ -1669,8 +1731,8 @@ if __name__ == "__main__":
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity Per Week, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str),
-                                 fontproperties=FONT_PROPS_SUPTITLE)
+                                 (particle_type_str, year, cms_energy_str)) \
+                       .set_fontproperties(FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
@@ -1690,10 +1752,11 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
+                    
                 SavePlot(fig, "int_lumi_per_week_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2))
-
+                          log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory)
             #----------
 
             # Now for the cumulative plot.
@@ -1709,12 +1772,13 @@ if __name__ == "__main__":
             for type in ["lin", "log"]:
                 is_log = (type == "log")
                 log_setting = False
+                bottom = 0.0
                 if is_log:
                     min_val = min(weights_del_for_cum)
                     if min_val >0.0 :
                         exp = math.floor(math.log10(min_val))
-                        log_setting = math.pow(10., exp)
-
+                        log_setting = True
+                        bottom = math.pow(10., exp)
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1723,12 +1787,14 @@ if __name__ == "__main__":
                     ax.hist(times, bin_edges, weights=weights_del_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
                             label="LHC Delivered: %.2f %s" % \
                             (tot_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
+                            bottom = bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
@@ -1740,8 +1806,8 @@ if __name__ == "__main__":
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, " \
                                  r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str),
-                                 fontproperties=FONT_PROPS_SUPTITLE)
+                                 (particle_type_str, year, cms_energy_str)) \
+                       .set_fontproperties(FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
@@ -1762,10 +1828,12 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
+
                 SavePlot(fig, "int_lumi_per_week_cumulative_%s_%d%s%s%s" % \
                             (particle_type_str.lower(), year,
-                             log_suffix, file_suffix, file_suffix2))
-
+                             log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory)
+        plt.close(fig)
     #----------
 
     # Now the all-years plots, if we're doing those.
@@ -1948,11 +2016,11 @@ if __name__ == "__main__":
                     # (we can use the existing cms_energy_str because it's the same for everything in that case,
                     # yay!)
                     if (len(cms_energy_strings) > 1):
-                        fig.suptitle(r"CMS Integrated Luminosity Delivered, %s" % particle_type_str,
-                                     fontproperties=FONT_PROPS_SUPTITLE)
+                        fig.suptitle(r"CMS Integrated Luminosity Delivered, %s" % particle_type_str) \
+                           .set_fontproperties(FONT_PROPS_SUPTITLE)
                     else:
                         fig.suptitle(r"CMS Integrated Luminosity Delivered, %s, $\mathbf{\sqrt{s} =}$ %s" % \
-                                     (particle_type_str, cms_energy_str), fontproperties=FONT_PROPS_SUPTITLE)
+                                     (particle_type_str, cms_energy_str)).set_fontproperties(FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_data_begin, str_data_end),
                                  fontproperties=FONT_PROPS_TITLE)
@@ -1985,10 +2053,13 @@ if __name__ == "__main__":
                     log_suffix = ""
                     if is_log:
                         log_suffix = "_log"
+
                     SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s%s" % \
                              (particle_type_str.lower(), mode,
-                              log_suffix, file_suffix, file_suffix2))
-
+                              log_suffix, file_suffix, file_suffix2),
+                             direc = plot_directory)
+                    plt.close(fig)
+                    
         for mode in [1, 2, 3]:
             print("    mode %d (%s)" % (mode, mode_description[mode]))
             PlotAllYears(lumi_data_by_day_per_year, mode)
@@ -2064,12 +2135,13 @@ if __name__ == "__main__":
 
             for type in ["lin", "log"]:
                 log_setting = False
+                bottom = 0.0
                 if (type == "log"):
                     min_val = weights_del[0]
                     if min_val > 0.0:
                         exp = math.floor(math.log10(min_val))
-                        log_setting = math.pow(10., exp)
-
+                        log_setting = True
+                        bottom = math.pow(10., exp)
                 # One more loop to make the versions with/without the cutout in the axis.
                 # Obviously we can only do this if the brokenaxes package is installed.
                 cutout_settings = [False]
@@ -2101,12 +2173,14 @@ if __name__ == "__main__":
                         ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_del,
                                 histtype="stepfilled", cumulative=True,
                                 log=log_setting,
+                                bottom = bottom,
                                 facecolor=color_fill_del, edgecolor=color_line_del,
                                 label="LHC Delivered: %.2f %s" % \
                                 (tot_del, LatexifyUnits(units)))
                         ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_rec,
                                 histtype="stepfilled", cumulative=True,
                                 log=log_setting,
+                                bottom = bottom,
                                 facecolor=color_fill_rec, edgecolor=color_line_rec,
                                 label="CMS Recorded: %.2f %s" % \
                                 (tot_rec, LatexifyUnits(units)))
@@ -2114,10 +2188,11 @@ if __name__ == "__main__":
                             ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_cert,
                                     histtype="stepfilled", cumulative=True,
                                     log=log_setting,
+                                    bottom = bottom,
                                     facecolor=color_fill_cert, edgecolor=color_line_cert,
                                     label="CMS Certified for Physics: %.2f %s" % \
                                     (tot_cert, LatexifyUnits(units)))
-
+                            
                         if do_cutouts:
                             leg = ax.legend(loc="upper left", frameon=False,
                                             bbox_to_anchor=(0.19, 0., 1., 0.92))
@@ -2131,8 +2206,8 @@ if __name__ == "__main__":
                         # Set titles and labels.
                         fig.suptitle(r"CMS Integrated Luminosity, " \
                                      r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
-                                     (particle_type_str, cms_energy_str),
-                                     fontproperties=FONT_PROPS_SUPTITLE)
+                                     (particle_type_str, cms_energy_str)) \
+                           .set_fontproperties(FONT_PROPS_SUPTITLE)
                         ax_kwargs = dict(fontproperties=FONT_PROPS_TITLE)
                         if do_cutouts:
                             ax_kwargs["y"] = 0.95
@@ -2189,14 +2264,16 @@ if __name__ == "__main__":
                         if type == "log":
                             log_suffix = "_log"
 
-                        save_kwargs = dict()
+                        save_kwargs = dict( direc = plot_directory )
                         if do_cutouts:
                             save_kwargs["ax"] = ax.big_ax
+
                         SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s%s%s" % \
                                  (particle_type_str.lower(),
                                   log_suffix, file_suffix, file_suffix2, ("_cert" if do_certification else ""),
                                   ("_cutout" if do_cutouts else "")), **save_kwargs)
-
+                        # CS Should close the figure here, otherwise we get in trouble with memory
+                        plt.close( fig )
                     # loop over versions with/without certification
                 # loop over versions with/without cutouts
             # loop over lin/log
@@ -2309,11 +2386,11 @@ if __name__ == "__main__":
                 # Set titles and labels. If there's only one center-of-mass energy,
                 # put it in the title.
                 if len(cms_energy_strings) > 1:
-                    fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
-                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str) \
+                       .set_fontproperties(FONT_PROPS_SUPTITLE)
                 else:
                     fig.suptitle(r"CMS Peak Luminosity Per Day, %s, $\mathbf{\sqrt{s} =}$ %s " % \
-                                     (particle_type_str, cms_energy_str), fontproperties=FONT_PROPS_SUPTITLE)
+                                 (particle_type_str, cms_energy_str)).set_fontproperties(FONT_PROPS_SUPTITLE)
                 
                 ax.set_title("Data included from %s to %s UTC \n" % \
 #                             (str_begin, str_end),
@@ -2343,10 +2420,12 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
+
                 SavePlot(fig, "peak_lumi_%s%s%s%s" % \
                          (particle_type_str.lower(),
-                          log_suffix, file_suffix, file_suffix2))
-
+                          log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory)
+                plt.close(fig)
     #----------
 
     ##########

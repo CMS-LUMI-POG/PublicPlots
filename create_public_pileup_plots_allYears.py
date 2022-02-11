@@ -160,7 +160,7 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
     AddLogo(logo_name, ax)
     TweakPlot(fig, ax, True)
 
-    SavePlot(fig, "pileup_allYears%s%s" % (stack_suffix,run2_suffix))
+    SavePlot(fig, "pileup_allYears%s%s" % (stack_suffix,run2_suffix), direc=plot_directory)
 
     plt.close()
 
@@ -237,7 +237,7 @@ if __name__ == "__main__":
     xsection7 = float(cfg_parser.get("general", "xsection7"))/1000
     print "Inelastic x-sections:", xsection13, "mb at 13 TeV,", xsection8, "mb at 8 TeV, and", xsection7, "mb at 7 TeV"
 
-        # get the directory where to put the plots
+    # get the directory where to put the plots
     plot_directory_tmp = cfg_parser.get("general", "plot_directory")
     if not plot_directory_tmp:
         plot_directory = "plots"

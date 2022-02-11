@@ -219,9 +219,9 @@ class ColorScheme(object):
 
 ######################################################################
 
-def SavePlot(fig, file_name_base, ax=None):
+def SavePlot(fig, file_name_base, ax=None, direc="plots"):
     """Little helper to save plots in various formats."""
-
+    
     if not ax:
         ax = fig.axes[0]
     # Check some assumptions.
@@ -230,8 +230,19 @@ def SavePlot(fig, file_name_base, ax=None):
     assert len(ax.artists) == 1
     assert file_name_base.find(".") < 0
 
+    # CS : added the direc option to have the results in a sub-directory
+    #      and not mixed with scripts and config files.
+    if direc != None and direc != "":
+        if not os.path.isdir(direc):
+            os.makedirs(direc)
+    else:
+        direc = ""
+    
+    file_name_path = os.path.join( direc, file_name_base )
+
+
     # First save as PNG.
-    fig.savefig("%s.png" % file_name_base)
+    fig.savefig("%s.png" % file_name_path)
 
     # Then rescale and reposition the logo (which is assumed to be the
     # only artist in the first pair of axes) and save as PDF.
@@ -239,9 +250,12 @@ def SavePlot(fig, file_name_base, ax=None):
     tmp_offsetbox = tmp_annbox.offsetbox
     fig_dpi = fig.dpi
     tmp_offsetbox.set_zoom(tmp_offsetbox.get_zoom() * 72. / fig_dpi)
-    tmp = tmp_annbox.xytext
-    tmp_annbox.xytext = (tmp[0] + 1., tmp[1] - 1.)
-    fig.savefig("%s.pdf" % file_name_base, dpi=600)
+    # CS: tmp = tmp_annbox.xytext ==> The api seems to have changed: 
+    tmp = tmp_annbox.xyann
+    # CS tmp_annbox.xytext = (tmp[0] + 1., tmp[1] - 1.) 
+    #                             ==> The api seems to have changed: 
+    tmp_annbox.xyann = (tmp[0] + 1., tmp[1] - 1.)
+    fig.savefig("%s.pdf" % file_name_path, dpi=600)
 
     # End of SavePlot().
 

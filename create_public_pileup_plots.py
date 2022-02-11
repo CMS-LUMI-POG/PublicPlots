@@ -21,17 +21,6 @@ import ConfigParser
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
-# FIX FIX FIX
-# This fixes a well-know bug with stepfilled logarithmic histograms in
-# Matplotlib.
-#IR from mpl_axes_hist_fix import hist
-#IR if matplotlib.__version__ != '1.0.1':
-#IR     print("ERROR The %s script contains a hard-coded bug-fix " \
-#IR          "for Matplotlib 1.0.1. The Matplotlib version loaded " \
-#IR          "is %s" % (__file__, matplotlib.__version__), file=sys.stderr)
-#IR    sys.exit(1)
-#IR matplotlib.axes.Axes.hist = hist
-# FIX FIX FIX end
 
 from ROOT import gROOT
 gROOT.SetBatch(True)
@@ -106,19 +95,13 @@ if __name__ == "__main__":
     desc_str = "This script creates the official CMS pileup plots " \
                "based on the output from the pileupCalc.py script."
     arg_parser = optparse.OptionParser(description=desc_str)
-    arg_parser.add_option("--ignore-cache", action="store_true",
-                          help="Ignore all cached PU results " \
-                          "and run pileupCalc. " \
-                          "(Rebuilds the cache as well.)")
     (options, args) = arg_parser.parse_args()
     if len(args) != 1:
         print("ERROR Need exactly one argument: a config file name", file=sys.stderr)
         sys.exit(1)
     config_file_name = args[0]
-    ignore_cache = options.ignore_cache
 
     cfg_defaults = {
-        "pileupcalc_flags" : "",
         "color_schemes" : "Joe, Greg",
         "verbose" : False
         }
@@ -137,15 +120,19 @@ if __name__ == "__main__":
     # Flag to turn on verbose output.
     verbose = cfg_parser.getboolean("general", "verbose")
 
-    # Some details on how to invoke pileupCalc.
-    pileupcalc_flags_from_cfg = cfg_parser.get("general", "pileupcalc_flags")
-    input_json = cfg_parser.get("general", "input_json")
-    input_lumi_json = cfg_parser.get("general", "input_lumi_json")
-
     # Some things needed for titles etc.
     particle_type_str = cfg_parser.get("general", "particle_type_str")
     year = int(cfg_parser.get("general", "year"))
     cms_energy_str = cfg_parser.get("general", "cms_energy_str")
+
+    # get the directory where to put the plots
+    plot_directory_tmp = cfg_parser.get("general", "plot_directory")
+    if not plot_directory_tmp:
+        plot_directory = "plots"
+        print("No plot directory specified --> using default value '%s'" % plot_directory)
+    else:
+        plot_directory = plot_directory_tmp
+        print("Plots will be stored in directory '%s'." % plot_directory)
 
     xsection = float(cfg_parser.get("general", "xsection"))/1000
     print("Inelastic x-section:", xsection, "mb at", cms_energy_str)
@@ -155,10 +142,6 @@ if __name__ == "__main__":
     # Tell the user what's going to happen.
     print("Using configuration from file '%s'" % config_file_name)
     print("Using color schemes '%s'" % ", ".join(color_scheme_names))
-    print("Using additional pileupCalc flags from configuration: '%s'" % \
-          pileupcalc_flags_from_cfg)
-    print("Using input JSON filter: %s" % input_json)
-    print("Using input lumi JSON filter: %s" % input_lumi_json)
 
     ##########
 
@@ -166,21 +149,9 @@ if __name__ == "__main__":
 
     ##########
 
-    # First run pileupCalc.
-    tmp_file_name = os.path.join(cache_file_dir,"pileup_calc_tmp.root")
-    if ignore_cache:
-        cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
-              (input_json, input_lumi_json,
-               pileupcalc_flags_from_cfg, tmp_file_name)
-        print("Running pileupCalc (this may take a while)")
-        if verbose:
-            print("  pileupCalc cmd: '%s'" % cmd)
-        (status, output) = commands.getstatusoutput(cmd)
-        if status != 0:
-            print("ERROR Problem running pileupCalc: %s" % output, file=sys.stderr)
-            sys.exit(1)
-
-    ##########
+    # read the results of pileupCalc which should be in the cache:
+    xsec_suffix = cfg_parser.get("general", "xsection")
+    tmp_file_name = os.path.join(cache_file_dir,"pileup_calc_" + xsec_suffix + "_tmp.root")
 
     in_file = TFile.Open(tmp_file_name, "READ")
     if not in_file or in_file.IsZombie():
@@ -239,15 +210,22 @@ if __name__ == "__main__":
                     facecolor=color_fill_pileup)
 
             # Set titles and labels.
+            # Due to a bug in matplotlib 1.5.3 we cannot directly set the
+            # fontproperties in the call but need to use the method
+            # set_fontproperties. This might disapear with a new version of
+            # matplotlib
             fig.suptitle(r"CMS Average Pileup, " \
                          "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                         (particle_type_str, year, cms_energy_str),
-                         fontproperties=FONT_PROPS_SUPTITLE)
+                         (particle_type_str, year, cms_energy_str)) \
+               .set_fontproperties(FONT_PROPS_SUPTITLE)
             ax.set_xlabel(r"Mean number of interactions per crossing",
                           fontproperties=FONT_PROPS_AX_TITLE)
+            # The labelpad is necessary since otherwise the label goes
+            # out of the picture frame and is cut.
             ax.set_ylabel(r"Recorded Luminosity (%s/%.2f)" % \
                           (LatexifyUnits("pb^{-1}"),
                            pileup_hist.GetBinWidth(1)),
+                          labelpad = 0,
                           fontproperties=FONT_PROPS_AX_TITLE)
 
             # Add the average pileup number to the top right.
@@ -268,12 +246,14 @@ if __name__ == "__main__":
             AddLogo(logo_name, ax)
             TweakPlot(fig, ax, True)
 
+            xsec_suffix = "_" + cfg_parser.get("general", "xsection")
             log_suffix = ""
             if is_log:
                 log_suffix = "_log"
-            SavePlot(fig, "pileup_%s_%d%s%s" % \
+            SavePlot(fig, "pileup_%s_%d%s%s%s" % \
                      (particle_type_str, year,
-                      log_suffix, file_suffix))
+                      log_suffix, file_suffix, xsec_suffix),
+                     direc = plot_directory)
 
         plt.close()
 

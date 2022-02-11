@@ -237,6 +237,16 @@ if __name__ == "__main__":
     xsection7 = float(cfg_parser.get("general", "xsection7"))/1000
     print "Inelastic x-sections:", xsection13, "mb at 13 TeV,", xsection8, "mb at 8 TeV, and", xsection7, "mb at 7 TeV"
 
+        # get the directory where to put the plots
+    plot_directory_tmp = cfg_parser.get("general", "plot_directory")
+    if not plot_directory_tmp:
+        plot_directory = "plots"
+        print("No plot directory specified --> using default value '%s'" % plot_directory)
+    else:
+        plot_directory = plot_directory_tmp
+        print("Plots will be stored in directory '%s'." % plot_directory)
+
+
     ##########
 
     # Tell the user what's going to happen.

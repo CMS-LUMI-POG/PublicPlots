@@ -250,8 +250,9 @@ if __name__ == "__main__":
             log_suffix = ""
             if is_log:
                 log_suffix = "_log"
+            fn_particle_type_str = particle_type_str.replace(' ','_')
             SavePlot(fig, "pileup_%s_%d%s%s%s" % \
-                     (particle_type_str, year,
+                     (fn_particle_type_str, year,
                       log_suffix, file_suffix, xsec_suffix),
                      direc = plot_directory)
 

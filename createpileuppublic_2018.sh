@@ -22,7 +22,6 @@ export PYTHONPATH=/afs/cern.ch/cms/lumi/brilconda-1.1.7-cc7/root/lib:$PYTHONPATH
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     eval `scramv1 runtime -sh`
     cd ~/PublicPlots
-    #cd ~/scratch0/testdir/ChristophLearn/PublicPlots
     
     # you can specify --ignore-cache here to force the re-sun of pileupCalc:
     python run_pileupCalc.py public_pileup_plots_pp_2018_80000.cfg 
@@ -30,7 +29,6 @@ export PYTHONPATH=/afs/cern.ch/cms/lumi/brilconda-1.1.7-cc7/root/lib:$PYTHONPATH
 )
 
 cd ~/PublicPlots
-#cd ~/scratch0/testdir/ChristophLearn/PublicPlots
     
 
 # Create and copy the pileup plots for this year.
@@ -38,11 +36,11 @@ cd ~/PublicPlots
 python create_public_pileup_plots.py public_pileup_plots_pp_2018_80000.cfg 
 python create_public_pileup_plots.py public_pileup_plots_pp_2018_69200.cfg 
 
-#cp plots/2018/normtag/pileup_pp_2018* /eos/user/l/lumipro/www/publicplots/
+cp plots/2018/normtag/pileup_pp_2018* /eos/user/l/lumipro/www/publicplots/
 
 # Now make sure that the same rootfile is in both cache directories.
 cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2018/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-goldenJSON-13tev-2018.root
 
 # Create and copy the all-year pileup plots.
 python create_public_pileup_plots_allYears.py public_pileup_plots_pp_allyears.cfg
-#cp pileup_allYears* /eos/user/l/lumipro/www/publicplots/
+cp pileup_allYears* /eos/user/l/lumipro/www/publicplots/

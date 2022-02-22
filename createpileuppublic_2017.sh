@@ -5,36 +5,43 @@
 cd ~/public/Normtags
 git pull
 
-# Set up the environment. First we need to set up brilconda and then CMSSW.
-# I want to get rid of the CMSSW dependence but it doesn't quite work yet.
+export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7-cc7/bin:$PATH
+export LD_LIBRARY_PATH=/afs/cern.ch/cms/lumi/brilconda-1.1.7-cc7/root/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=/afs/cern.ch/cms/lumi/brilconda-1.1.7-cc7/root/lib:$PYTHONPATH
 
-export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
-cd /afs/cern.ch/user/l/lumipro/CMSSW_7_4_16/src/
-source /cvmfs/cms.cern.ch/cmsset_default.sh
-eval `scramv1 runtime -sh`
 
-# Make the plots!
+# The above is sufficient if we have the output of pileupCalc cached. But if we have to run
+# pileupCalc.py we need to configure CMSSW since pileupCalc IS a CMSSW tool.
+# We run pileupCalc in a subshell since the environment of CMSSW is not compatible with the
+# python and matplotlib we are useing to produce the plots later.
+# The separation of running pileupCalc and the creation of the plots nicely factors out
+# the dependency on CMSSW and makes it easier to move to a new release if necessary. 
+(
+    cd /afs/cern.ch/user/l/lumipro/CMSSW_7_4_16/src/
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    eval `scramv1 runtime -sh`
+    cd ~/PublicPlots
+    
+    # you can specify --ignore-cache here to force the re-sun of pileupCalc:
+    python run_pileupCalc.py public_pileup_plots_pp_2017_80000.cfg 
+    python run_pileupCalc.py public_pileup_plots_pp_2017_69200.cfg
+    python run_pileupCalc.py public_pileup_plots_pplowpu_2017.cfg
+)
+
+
 cd ~/PublicPlots
 
-# 1a) create the plots for this year, online luminosity, and copy them to plot area
-#python create_public_lumi_plots.py public_brilcalc_plots_pp_2017_internal.cfg
-#cp *2017*OnlineLumi*png *2017*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
 
-# 1b) same, with normtag luminosity
-#python create_public_lumi_plots.py public_brilcalc_plots_pp_2017_normtag.cfg
-#cp *2017*NormtagLumi*png *2017*NormtagLumi*pdf /eos/user/l/lumipro/www/publicplots/
+# Create and copy the pileup plots for this year.
+# The following commands requires the pileupCalc results to be in the cache.
+python create_public_pileup_plots.py public_pileup_plots_pp_2017_80000.cfg 
+python create_public_pileup_plots.py public_pileup_plots_pp_2017_69200.cfg 
+python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017.cfg
 
-# 2) Copy the cache into the cache for the all years plots. Note: uses normtag now!
-#cp public_lumi_plots_cache/pp_2017_normtag/* public_lumi_plots_cache/pp_all/
+cp plots/2017/normtag/pileup_pp_2017* /eos/user/l/lumipro/www/publicplots/
+cp plots/2017/normtag_lowPU/pileup_pp*/
 
-# 3) Copy cache to public location
-#cp -R public_lumi_plots_cache/pp_2017_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
-#cp -R public_lumi_plots_cache/pp_2017_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
+# Now make sure that the same rootfile is in both cache directories.
+cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2017/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-goldenJSON-13tev-2017.root
 
-# 4) Run the all years plotting script
-#python create_public_lumi_plots_allYears.py public_lumi_plots_pp_allyears.cfg
-#cp peak_lumi_pp.* peak_lumi_pp_* int_lumi_cumulative_pp_2* int_lumi_cumulative_pp_1* /eos/user/l/lumipro/www/publicplots/
-
-# 5) create the pileup plots
-python create_public_pileup_plots.py public_pileup_plots_pp_2017.cfg --ignore-cache
-python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017.cfg --ignore-cache
+# The all year pileup plots are created when running the script for 2018

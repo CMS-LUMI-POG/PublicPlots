@@ -20,6 +20,7 @@ FONT_PROPS_SUPTITLE = FontProperties(size="x-large", weight="bold", stretch="con
 FONT_PROPS_TITLE = FontProperties(size="large", weight="regular")
 FONT_PROPS_AX_TITLE = FontProperties(size="x-large", weight="bold")
 FONT_PROPS_TICK_LABEL = FontProperties(size="large", weight="bold")
+FONT_PROPS_CMS_LABEL = FontProperties(size=22, weight="bold")
 
 ######################################################################
 
@@ -38,22 +39,28 @@ def InitMatplotlib():
 
 def AddLogo(logo_name, ax, zoom=1.2, xy_offset=(2., -3.)):
     """Read logo from PNG file and add it to axes."""
+    ax.text( 0.02,0.93, "CMS",
+             transform = ax.transAxes,
+             horizontalalignment="left",
+             fontproperties=FONT_PROPS_CMS_LABEL )
 
-    logo_data = read_png(logo_name)
-    fig_dpi = ax.get_figure().dpi
-    fig_size = ax.get_figure().get_size_inches()
-    # NOTE: This scaling is kinda ad hoc...
-    zoom_factor = .1 / 1.2 * fig_dpi * fig_size[0] / np.shape(logo_data)[0]
-    zoom_factor *= zoom
-    logo_box = OffsetImage(logo_data, zoom=zoom_factor)
-    ann_box = AnnotationBbox(logo_box, [0., 1.],
-                             xybox=xy_offset,
-                             xycoords="axes fraction",
-                             boxcoords="offset points",
-                             box_alignment=(0., 1.),
-                             pad=0., frameon=False)
-    ax.add_artist(ann_box)
-    # End of AddLogo().
+    # 
+    # 
+    # logo_data = read_png(logo_name)
+    # fig_dpi = ax.get_figure().dpi
+    # fig_size = ax.get_figure().get_size_inches()
+    # # NOTE: This scaling is kinda ad hoc...
+    # zoom_factor = .1 / 1.2 * fig_dpi * fig_size[0] / np.shape(logo_data)[0]
+    # zoom_factor *= zoom
+    # logo_box = OffsetImage(logo_data, zoom=zoom_factor)
+    # ann_box = AnnotationBbox(logo_box, [0., 1.],
+    #                          xybox=xy_offset,
+    #                          xycoords="axes fraction",
+    #                          boxcoords="offset points",
+    #                          box_alignment=(0., 1.),
+    #                          pad=0., frameon=False)
+    # ax.add_artist(ann_box)
+    # # End of AddLogo().
 
 ######################################################################
 
@@ -227,7 +234,8 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots"):
     # Check some assumptions.
     # assert len(fig.axes) == 2 # this is a little excessively paranoid --
     # just be sure that if it's not fig.axes[0] that you pass the correct axis
-    assert len(ax.artists) == 1
+    # assert len(ax.artists) == 1
+    
     assert file_name_base.find(".") < 0
 
     # CS : added the direc option to have the results in a sub-directory
@@ -244,17 +252,21 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots"):
     # First save as PNG.
     fig.savefig("%s.png" % file_name_path)
 
-    # Then rescale and reposition the logo (which is assumed to be the
-    # only artist in the first pair of axes) and save as PDF.
-    tmp_annbox = ax.artists[0]
-    tmp_offsetbox = tmp_annbox.offsetbox
-    fig_dpi = fig.dpi
-    tmp_offsetbox.set_zoom(tmp_offsetbox.get_zoom() * 72. / fig_dpi)
-    # CS: tmp = tmp_annbox.xytext ==> The api seems to have changed: 
-    tmp = tmp_annbox.xyann
-    # CS tmp_annbox.xytext = (tmp[0] + 1., tmp[1] - 1.) 
-    #                             ==> The api seems to have changed: 
-    tmp_annbox.xyann = (tmp[0] + 1., tmp[1] - 1.)
+    # Conditional in case we do not use the logo but plain text as requested
+    # in CMS plot guidelines.
+    if len(ax.artists) == 1:
+        # Then rescale and reposition the logo (which is assumed to be the
+        # only artist in the first pair of axes) and save as PDF.
+        tmp_annbox = ax.artists[0]
+        tmp_offsetbox = tmp_annbox.offsetbox
+        fig_dpi = fig.dpi
+        tmp_offsetbox.set_zoom(tmp_offsetbox.get_zoom() * 72. / fig_dpi)
+        # CS: tmp = tmp_annbox.xytext ==> The api seems to have changed: 
+        tmp = tmp_annbox.xyann
+        # CS tmp_annbox.xytext = (tmp[0] + 1., tmp[1] - 1.) 
+        #                             ==> The api seems to have changed: 
+        tmp_annbox.xyann = (tmp[0] + 1., tmp[1] - 1.)
+
     fig.savefig("%s.pdf" % file_name_path, dpi=600)
 
     # End of SavePlot().

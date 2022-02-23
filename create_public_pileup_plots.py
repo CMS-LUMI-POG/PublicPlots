@@ -66,6 +66,9 @@ def TweakPlot(fig, ax, add_extra_head_room=False):
         if is_log:
             tmp = y_ticks[-1] / y_ticks[-2]
             y_max_new = y_max * math.pow(tmp, add_extra_head_room)
+            # Try to convince matplotlib to fill the space up to the bottom
+            # of the plots
+            y_min = y_min * 10
         else:
             tmp = y_ticks[-1] - y_ticks[-2]
             y_max_new = y_max + add_extra_head_room * tmp
@@ -236,7 +239,7 @@ if __name__ == "__main__":
                     fontproperties=FONT_PROPS_AX_TITLE)
 
             # Add the inelastic pp cross section employed
-            ax.text(.95, .35, r"$\sigma_{in}^{pp} ="+str(xsection)+"\,mb$",
+            ax.text(.95, .7, r"$\sigma_{in}^{pp} ="+str(xsection)+"\,mb$",
                      transform = ax.transAxes,
                      horizontalalignment="right",
                      fontproperties=FONT_PROPS_AX_TITLE,

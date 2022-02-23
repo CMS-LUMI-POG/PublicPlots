@@ -46,4 +46,4 @@ cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2018/p
 
 # Create and copy the all-year pileup plots.
 python create_public_pileup_plots_allYears.py public_pileup_plots_pp_allyears.cfg
-cp pileup_allYears* /eos/user/l/lumipro/www/publicplots/
+cp plots/allYears/pileup_allYears* /eos/user/l/lumipro/www/publicplots/

@@ -39,7 +39,7 @@ cd ~/PublicPlots
 python create_public_pileup_plots.py public_pileup_plots_pp_2016_80000.cfg 
 python create_public_pileup_plots.py public_pileup_plots_pp_2016_69200.cfg 
 
-cp plots/2016/normtag/pileup_pp_2016* /eos/user/l/lumipro/www/publicplots/
+#cp plots/2016/normtag/pileup_pp_2016* /eos/user/l/lumipro/www/publicplots/
 
 # Now make sure that the same rootfile is in both cache directories.
 cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2016/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-goldenJSON-13tev-2016.root

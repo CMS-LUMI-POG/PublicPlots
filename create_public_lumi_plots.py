@@ -71,6 +71,7 @@ from public_plots_tools import FONT_PROPS_SUPTITLE
 from public_plots_tools import FONT_PROPS_TITLE
 from public_plots_tools import FONT_PROPS_AX_TITLE
 from public_plots_tools import FONT_PROPS_TICK_LABEL
+from public_plots_tools import FONT_PROPS_PLOT_LABEL
 
 try:
     import debug_hook
@@ -544,7 +545,7 @@ def GetXLocator(ax):
 ######################################################################
 
 def TweakPlot(fig, ax, time_range,
-              add_extra_head_room=False, headroom_factor=1.2):
+              add_extra_head_room=False, headroom_factor=1.3):
 
     # Fiddle with axes ranges etc.
     (time_begin, time_end) = time_range
@@ -569,10 +570,11 @@ def TweakPlot(fig, ax, time_range,
             y_max_new = y_max + add_extra_head_room * (headroom_factor*tmp)
         ax.set_ylim(y_min, y_max_new)
 
-    # Add a second vertical axis on the right-hand side.
-    ax_sec = ax.twinx()
-    ax_sec.set_ylim(ax.get_ylim())
-    ax_sec.set_yscale(ax.get_yscale())
+    ## Add a second vertical axis on the right-hand side.
+    # CS: Even though useful, not CMS standard therefore commented out. 
+    #ax_sec = ax.twinx()
+    #ax_sec.set_ylim(ax.get_ylim())
+    #ax_sec.set_yscale(ax.get_yscale())
 
     for ax_tmp in fig.axes:
         for sub_ax in [ax_tmp.xaxis, ax_tmp.yaxis]:
@@ -586,7 +588,7 @@ def TweakPlot(fig, ax, time_range,
     formatter = matplotlib.dates.DateFormatter(DATE_FMT_STR_AXES)
     ax.xaxis.set_major_formatter(formatter)
 
-    fig.subplots_adjust(top=.85, bottom=.14, left=.13, right=.91)
+    fig.subplots_adjust(top=.85, bottom=.14, left=.13, right=.95)
     # End of TweakPlot().
 
 ######################################################################
@@ -652,7 +654,7 @@ if __name__ == "__main__":
         "oracle_connection": "",
         "json_file": None,
         "file_suffix": "",
-        "plot_label": None,
+        "plot_label": " ",
         "units": None,
         "display_units": None,
         "normtag_file": None,
@@ -660,7 +662,7 @@ if __name__ == "__main__":
         "data_scale_factor": None,
         "skip_years": None,
         "plot_multiple_years": "False",
-        "filter_brilcalc_results": "True"
+        "filter_brilcalc_results": "True",
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -1272,9 +1274,11 @@ if __name__ == "__main__":
                                              datetime.timedelta(days=.5)
         str_begin = None
         str_end = None
+        date_end = None
         if sum(weights_del) > 0.:
             str_begin = lumi_data.time_begin().strftime(DATE_FMT_STR_OUT)
             str_end = lumi_data.time_end().strftime(DATE_FMT_STR_OUT)
+            date_end = lumi_data.time_end().strftime(DATE_FMT_STR_CFG)
 
         #----------
 
@@ -1319,41 +1323,62 @@ if __name__ == "__main__":
                     units=display_units["max_inst"]
 
                 if sum(weights_del) > 0.:
+#                    ax.hist(times, bin_edges, weights=weights_del_inst,
+#                            histtype="stepfilled",
+#                            log=log_setting,
+#                            bottom = bottom,
+#                            facecolor=color_fill_peak, edgecolor=color_line_peak,
+#                            label="Max. inst. lumi.: %.2f %s" % \
+#                            (max_inst, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
                             log=log_setting,
                             bottom = bottom,
-                            facecolor=color_fill_peak, edgecolor=color_line_peak,
-                            label="Max. inst. lumi.: %.2f %s" % \
-                            (max_inst, LatexifyUnits(units)))
+                            #label="Max. inst. lumi.: %.2f %s" % \
+                            #(max_inst, LatexifyUnits(units)),
+                            facecolor=color_fill_peak, edgecolor=color_line_peak)
 
-                    tmp_leg = ax.legend(loc="upper left",
-                                        bbox_to_anchor=(0.025, 0., 1., .97),
-                                        frameon=False)
-                    tmp_leg.legendHandles[0].set_visible(False)
-                    for t in tmp_leg.get_texts():
-                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
+#                    tmp_leg = ax.legend(loc="upper left",
+#                                        bbox_to_anchor=(0.025, 0., 1., .97),
+#                                        frameon=False)
+#                    tmp_leg.legendHandles[0].set_visible(False)
+#                    for t in tmp_leg.get_texts():
+#                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
                     # Due to a bug in matplotlib 1.5.3 we cannot use the font_properties
                     # keyword argument directly but have to go via the set_fontproperties
                     # method.
-                    fig.suptitle(r"CMS Peak Luminosity Per Day, " \
+                    figtitle = r"peak luminosity per day, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str)) \
-                       .set_fontproperties(FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_begin, str_end),
+                                 (particle_type_str, year, cms_energy_str)
+
+                    #fig.suptitle(r"CMS Peak Luminosity Per Day, " \
+                    #             "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                    #            (particle_type_str, year, cms_energy_str)) \
+                    #  .set_fontproperties(FONT_PROPS_SUPTITLE)
+
+                    axtit = "%s (%s %s)" % (year, particle_type_str, cms_energy_str)
+                    ax.set_title(axtit, \
+                                 loc='right', \
                                  fontproperties=FONT_PROPS_TITLE)
+                    if cfg_parser.get("general", "plot_label"):
+                        plot_label = cfg_parser.get("general", "plot_label")
+                        
+                    if plot_label == "Online":
+                        datatime = "Data up to %s" % date_end
+                        ax.set_title(datatime, \
+                                     loc='left', \
+                                     fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
+                    ax.set_ylabel(r"Peak delivered luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
                     
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                                transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
 
                     # Add the logo.
                     AddLogo(logo_name, ax)
@@ -1362,11 +1387,27 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                    
+
+
+                caption = "Peak instantaneous luminosity on a day-by-day basis.\n"
+                caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+                caption += "Max. inst. lumi.: %.2f %s ." % (max_inst, LatexifyUnits(units))
+
+                energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                yamldict = { 'year' : year,
+                             'date' : time_end,
+                             'particle' : particle_type_str,
+                             'run' : "Run 3",
+                             'energystr' :  energystr,
+                             'log_suffix' : log_suffix,
+                             'category' : file_suffix2,
+                             'title' : figtitle,
+                             'caption' : caption }
+                
                 SavePlot(fig, "peak_lumi_per_day_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
-                         direc = plot_directory)
+                         direc = plot_directory, yamldict=yamldict)
             
             #----------
 
@@ -1400,36 +1441,46 @@ if __name__ == "__main__":
                             log=log_setting,
                             bottom=bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered, max: %.1f %s/day" % \
+                            label="LHC delivered, max: %.1f %s/day" % \
                             (max_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec,
                             histtype="stepfilled",
                             log=log_setting,
                             bottom=bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                            label="CMS Recorded, max: %.1f %s/day" % \
+                            label="CMS recorded, max: %.1f %s/day" % \
                             (max_rec, LatexifyUnits(units)))
-                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
-                              frameon=False)
+                    #leg = ax.legend(loc="upper right", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                    #          frameon=False)
+                    leg = ax.legend(frameon=False)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
                     # Set titles and labels.
-                    fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
+                    figtitle = r"CMS luminosity per day, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str)) \
-                       .set_fontproperties(FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_begin, str_end),
+                                 (particle_type_str, year, cms_energy_str)
+                    #fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
+                    #            "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                    #            (particle_type_str, year, cms_energy_str)) \
+                    #  .set_fontproperties(FONT_PROPS_SUPTITLE)
+                    axtit = "%s (%s %s)" % (year, particle_type_str, cms_energy_str)
+                    ax.set_title(axtit, \
+                                 loc='right',
                                  fontproperties=FONT_PROPS_TITLE)
+                    if plot_label == "Online":
+                        datatime = "Data up to %s" % date_end
+                        ax.set_title(datatime, \
+                                     loc='left', \
+                                     fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Integrated Luminosity (%s/day)" % \
+                    ax.set_ylabel(r"Integrated luminosity (%s/day)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                                transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
 
                     # Add the logo.
                     AddLogo(logo_name, ax)
@@ -1439,10 +1490,25 @@ if __name__ == "__main__":
                 if is_log:
                     log_suffix = "_log"
                     
+                caption = "Integrated luminosity per day.\n"
+                caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+
+                energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                yamldict = { 'year' : year,
+                             'date' : time_end,
+                             'particle' : particle_type_str,
+                             'run' : "Run 3",
+                             'energystr' :  energystr,
+                             'log_suffix' : log_suffix,
+                             'category' : file_suffix2,
+                             'title' : figtitle,
+                             'caption' : caption }
+               
                 SavePlot(fig, "int_lumi_per_day_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
-                         direc = plot_directory)
+                         direc = plot_directory, yamldict=yamldict)
+
             
             #----------
 
@@ -1498,50 +1564,71 @@ if __name__ == "__main__":
                                 label="CMS Certified: %.2f %s" % \
                                 (tot_cert, LatexifyUnits(units)))
 
-                    leg = ax.legend(loc="upper left",
-                                    bbox_to_anchor=(0.125, 0., 1., 1.01),
-                                    frameon=False)
+                    leg = ax.legend(frameon=False)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
-                    fig.suptitle(r"CMS Integrated Luminosity, " \
-                                 r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str)) \
-                       .set_fontproperties(FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_begin, str_end),
+                    figtitle = "Integrated luminosity, " \
+                        "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                        (particle_type_str, year, cms_energy_str)
+                    
+                    #fig.suptitle(r"CMS Integrated Luminosity, " \
+                    #             r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                    #             (particle_type_str, year, cms_energy_str)) \
+                    #   .set_fontproperties(FONT_PROPS_SUPTITLE)
+                    axtit =  "%s (%s %s)" % (year, particle_type_str, cms_energy_str)
+                    ax.set_title(axtit, loc='right', \
                                  fontproperties=FONT_PROPS_TITLE)
+                    if cfg_parser.get("general", "plot_label"):
+                        plot_label = cfg_parser.get("general", "plot_label")
+                        
+                    if plot_label == "Online":
+                        datatime = "Data up to %s" % date_end
+                        ax.set_title(datatime, \
+                                     loc='left', \
+                                     fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                    ax.set_ylabel(r"Total integrated luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
-                    # Add "CMS Preliminary" to the plot.
-#                    if json_file_name :
-                        #ax.text(0.05, 0.7, "CMS Preliminary",
-                        #        verticalalignment="center", horizontalalignment="left",
-#                                transform = ax.transAxes, fontsize=15)
-
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                                transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
 
 
                     # Add the logo.
                     AddLogo(logo_name, ax)
+#                    TweakPlot(fig, ax, (time_begin, time_end),
+#                              add_extra_head_room=is_log)
                     TweakPlot(fig, ax, (time_begin, time_end),
-                              add_extra_head_room=is_log)
+                              add_extra_head_room=True)
 
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
 
+                caption =  "Cumulative integrated lumi per day.\n"
+                caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+                caption += "Max. inst. lumi.: %.2f %s ." % (max_inst, LatexifyUnits(units))
+
+                energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                yamldict = { 'year' : year,
+                             'date' : time_end,
+                             'particle' : particle_type_str,
+                             'run' : "Run 3",
+                             'energystr' :  energystr,
+                             'log_suffix' : log_suffix,
+                             'category' : file_suffix2,
+                             'title' : figtitle,
+                             'caption' : caption }
+                
                 SavePlot(fig, "int_lumi_per_day_cumulative_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
-                         direc = plot_directory)
+                         direc = plot_directory, yamldict=yamldict)
             plt.close(fig)
     #------------------------------
     # Create the per-week delivered-lumi plots.
@@ -1641,35 +1728,43 @@ if __name__ == "__main__":
                             histtype="stepfilled",
                             log=log_setting,
                             bottom = bottom,
-                            facecolor=color_fill_peak, edgecolor=color_line_peak,
-                            label="Max. inst. lumi.: %.2f %s" % \
-                            (max_inst, LatexifyUnits(units)))
+                            facecolor=color_fill_peak, edgecolor=color_line_peak)
+                            #label="Max. inst. lumi.: %.2f %s" % \
+                            #(max_inst, LatexifyUnits(units)))
 
-                    tmp_leg = ax.legend(loc="upper left",
-                                        bbox_to_anchor=(0.025, 0., 1., .97),
-                                        frameon=False)
-                    tmp_leg.legendHandles[0].set_visible(False)
-                    for t in tmp_leg.get_texts():
-                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
+                    #tmp_leg = ax.legend(frameon=False)
+                    #tmp_leg.legendHandles[0].set_visible(False)
+                    #for t in tmp_leg.get_texts():
+                    #    t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
-                    fig.suptitle(r"CMS Peak Luminosity Per Week, " \
-                                 "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str)) \
-                       .set_fontproperties(FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_begin, str_end),
+                    #fig.suptitle(r"CMS Peak Luminosity Per Week, " \
+                    #             "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                    #             (particle_type_str, year, cms_energy_str)) \
+                    #   .set_fontproperties(FONT_PROPS_SUPTITLE)
+                    figtitle = "Peak luminosity per week, " \
+                        "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                        (particle_type_str, year, cms_energy_str)
+
+                    axtit = "%s (%s %s)" % (year, particle_type_str, cms_energy_str)
+                    ax.set_title(axtit, \
+                                 loc='right',
                                  fontproperties=FONT_PROPS_TITLE)
+                    if plot_label == "Online":
+                        datatime = "Data up to %s" % date_end
+                        ax.set_title(datatime, \
+                                     loc='left', \
+                                     fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)",
                                   fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
+                    ax.set_ylabel(r"Peak delivered luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                                transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
 
                     # Add the logo.
                     AddLogo(logo_name, ax)
@@ -1679,10 +1774,24 @@ if __name__ == "__main__":
                 if is_log:
                     log_suffix = "_log"
                     
+                caption = "Peak luminosity per week.\n"
+                caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+
+                energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                yamldict = { 'year' : year,
+                             'date' : time_end,
+                             'particle' : particle_type_str,
+                             'run' : "Run 3",
+                             'energystr' :  energystr,
+                             'log_suffix' : log_suffix,
+                             'category' : file_suffix2,
+                             'title' : figtitle,
+                             'caption' : caption }
+               
                 SavePlot(fig, "peak_lumi_per_week_%s_%d%s%s%s" % \
-                         (particle_type_str.lower(), year,
+                        (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
-                         direc = plot_directory)
+                         direc = plot_directory, yamldict=yamldict)
             #----------
 
             # The lumi-per-week plot.
@@ -1723,28 +1832,41 @@ if __name__ == "__main__":
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded, max: %.1f %s/week" % \
                             (max_rec, LatexifyUnits(units)))
-                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
-                              frameon=False)
+                    leg = ax.legend(frameon=False)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
-                    # Set titles and labels.
-                    fig.suptitle(r"CMS Integrated Luminosity Per Week, " \
-                                 "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str)) \
-                       .set_fontproperties(FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_begin, str_end),
+                    ## Set titles and labels.
+                    figtitle = "Integrated luminosity per week, " \
+                        "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                        (particle_type_str, year, cms_energy_str)
+
+                    #fig.suptitle(r"CMS Integrated Luminosity Per Week, " \
+                    #             "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                    #             (particle_type_str, year, cms_energy_str)) \
+                    #   .set_fontproperties(FONT_PROPS_SUPTITLE)
+                    #ax.set_title("Data included from %s to %s UTC \n" % \
+                    #             (str_begin, str_end),
+                    #             fontproperties=FONT_PROPS_TITLE)
+
+                    axtit = "%s (%s %s)" % (year, particle_type_str, cms_energy_str)
+                    ax.set_title(axtit, \
+                                 loc='right',
                                  fontproperties=FONT_PROPS_TITLE)
+                    if plot_label == "Online":
+                        datatime = "Data up to %s" % date_end
+                        ax.set_title(datatime, \
+                                     loc='left', \
+                                     fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Integrated Luminosity (%s/week)" % \
+                    ax.set_ylabel(r"Integrated luminosity (%s/week)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                                transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
                     # Add the logo.
                     AddLogo(logo_name, ax)
                     TweakPlot(fig, ax, (week_lo, week_hi), True)
@@ -1753,10 +1875,24 @@ if __name__ == "__main__":
                 if is_log:
                     log_suffix = "_log"
                     
+                caption = "Integrated luminosity per week.\n"
+                caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+
+                energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                yamldict = { 'year' : year,
+                             'date' : time_end,
+                             'particle' : particle_type_str,
+                             'run' : "Run 3",
+                             'energystr' :  energystr,
+                             'log_suffix' : log_suffix,
+                             'category' : file_suffix2,
+                             'title' : figtitle,
+                             'caption' : caption }
+               
                 SavePlot(fig, "int_lumi_per_week_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
-                         direc = plot_directory)
+                         direc = plot_directory, yamldict=yamldict)
             #----------
 
             # Now for the cumulative plot.
@@ -1798,41 +1934,65 @@ if __name__ == "__main__":
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
-                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
-                              frameon=False)
+                    leg = ax.legend(frameon=False)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
-                    fig.suptitle(r"CMS Integrated Luminosity, " \
-                                 r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                                 (particle_type_str, year, cms_energy_str)) \
-                       .set_fontproperties(FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_begin, str_end),
+                    figtitle = r"Integrated luminosity, " \
+                        r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                        (particle_type_str, year, cms_energy_str)
+                    #fig.suptitle(r"CMS Integrated Luminosity, " \
+                    #             r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                    #             (particle_type_str, year, cms_energy_str)) \
+                    #   .set_fontproperties(FONT_PROPS_SUPTITLE)
+                    axtit = "%s (%s %s)" % (year, particle_type_str, cms_energy_str)
+                    ax.set_title(axtit, \
+                                 loc='right',
                                  fontproperties=FONT_PROPS_TITLE)
+                    if plot_label == "Online":
+                        datatime = "Data up to %s" % date_end
+                        ax.set_title(datatime, \
+                                     loc='left', \
+                                     fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                    ax.set_ylabel(r"Total integrated luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.7, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                                transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
 		    # Add the logo.
                     AddLogo(logo_name, ax)
+#                    TweakPlot(fig, ax, (week_lo, week_hi),
+#                              add_extra_head_room=is_log)
                     TweakPlot(fig, ax, (week_lo, week_hi),
-                              add_extra_head_room=is_log)
+                              add_extra_head_room=True)
 
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
 
+                caption = "Cumulative integrated luminosity per day.\n"
+                caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+
+                energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                yamldict = { 'year' : year,
+                             'date' : time_end,
+                             'particle' : particle_type_str,
+                             'run' : "Run 3",
+                             'energystr' :  energystr,
+                             'log_suffix' : log_suffix,
+                             'category' : file_suffix2,
+                             'title' : figtitle,
+                             'caption' : caption }
+               
                 SavePlot(fig, "int_lumi_per_week_cumulative_%s_%d%s%s%s" % \
-                            (particle_type_str.lower(), year,
-                             log_suffix, file_suffix, file_suffix2),
-                         direc = plot_directory)
+                         (particle_type_str.lower(), year,
+                          log_suffix, file_suffix, file_suffix2),
+                         direc = plot_directory, yamldict=yamldict)
         plt.close(fig)
     #----------
 
@@ -1859,8 +2019,6 @@ if __name__ == "__main__":
 
             # Loop over all color schemes and plot.
             for color_scheme_name in color_scheme_names:
-
-                print("      color scheme '%s'" % color_scheme_name)
 
                 color_scheme = ColorScheme(color_scheme_name)
                 color_by_year = color_scheme.color_by_year
@@ -1929,7 +2087,6 @@ if __name__ == "__main__":
                             else:
                                 label = r"%d, %.1f %s" % \
                                     (year, tot_del, LatexifyUnits(units))
-
                         # Apply scale factor, if one exists. Note: don't use this for mode 3.
                         weights_tmp = None
                         if str(year) in display_scale_factor and mode != 3:
@@ -1937,7 +2094,6 @@ if __name__ == "__main__":
                                            for i in weights_del_cum]
                         else:
                             weights_tmp = weights_del_cum
-
                         ax.plot(times, weights_tmp,
                                 color=color_by_year[year],
                                 marker="None", linestyle="solid",
@@ -2005,7 +2161,8 @@ if __name__ == "__main__":
                     else:
                         num_cols = 1
                         tmp_x = 0.175
-                        tmp_y = 1.03
+#                        tmp_y = 1.03
+                        tmp_y = 1.00
                         spacing = 0.1
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),frameon=False,
                                     ncol=num_cols, labelspacing=spacing)
@@ -2016,25 +2173,30 @@ if __name__ == "__main__":
                     # (we can use the existing cms_energy_str because it's the same for everything in that case,
                     # yay!)
                     if (len(cms_energy_strings) > 1):
-                        fig.suptitle(r"CMS Integrated Luminosity Delivered, %s" % particle_type_str) \
-                           .set_fontproperties(FONT_PROPS_SUPTITLE)
+                        figtitle = "Integrated luminosity delivered, %s" % (particle_type_str)
                     else:
-                        fig.suptitle(r"CMS Integrated Luminosity Delivered, %s, $\mathbf{\sqrt{s} =}$ %s" % \
-                                     (particle_type_str, cms_energy_str)).set_fontproperties(FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_data_begin, str_data_end),
-                                 fontproperties=FONT_PROPS_TITLE)
+                        figtitle = "Integrated luminosity delivered, %s, $\mathbf{\sqrt{s} =}$ %s" % \
+                                     (particle_type_str, cms_energy_str)
+                    #if (len(cms_energy_strings) > 1):
+                    #    fig.suptitle(r"CMS Integrated Luminosity Delivered, %s" % particle_type_str) \
+                    #       .set_fontproperties(FONT_PROPS_SUPTITLE)
+                    #else:
+                    #    fig.suptitle(r"CMS Integrated Luminosity Delivered, %s, $\mathbf{\sqrt{s} =}$ %s" % \
+                    #                 (particle_type_str, cms_energy_str)).set_fontproperties(FONT_PROPS_SUPTITLE)
 
+                    #axtit = "%s (%s %s)" % (year, particle_type_str, cms_energy_str)
+                    #ax.set_title(axtit, \
+                    #             loc='right',
+                    #             fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                    ax.set_ylabel(r"Total integrated luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
-
                     # Add label, if it exists.
                     if cfg_parser.get("general", "plot_label"):
-                        ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
+                        ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, color='red', fontsize=15)
+                                transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
 
                     # Add the logo.
                     zoom = 1.7
@@ -2046,18 +2208,32 @@ if __name__ == "__main__":
                         extra_head_room = 2
                     elif is_log:
                         extra_head_room = 1
-
                     TweakPlot(fig, ax, (time_plot_begin, time_plot_end),
-                              add_extra_head_room=extra_head_room, headroom_factor=1.5)
+                              add_extra_head_room=extra_head_room, headroom_factor=1.3)
 
                     log_suffix = ""
                     if is_log:
                         log_suffix = "_log"
 
-                    SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s%s" % \
+                    caption = "Cumulative integrated luminosity.\n"
+                    #caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+
+                    #energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                    energystr = cms_energy_str
+                    yamldict = { 'year' : year,
+                                 'date' : "n.a.",
+                                 'particle' : particle_type_str,
+                                 'run' : "Run 3",
+                                 'energystr' :  energystr,
+                                 'log_suffix' : log_suffix,
+                                 'category' : file_suffix2,
+                                 'title' : figtitle,
+                                 'caption' : caption }
+                    SavePlot(fig,
+                             "int_lumi_cumulative_%s_%d%s%s%s" % \
                              (particle_type_str.lower(), mode,
                               log_suffix, file_suffix, file_suffix2),
-                             direc = plot_directory)
+                             direc = plot_directory, yamldict=yamldict)
                     plt.close(fig)
                     
         for mode in [1, 2, 3]:
@@ -2195,35 +2371,43 @@ if __name__ == "__main__":
                             
                         if do_cutouts:
                             leg = ax.legend(loc="upper left", frameon=False,
-                                            bbox_to_anchor=(0.19, 0., 1., 0.92))
+                                            bbox_to_anchor=(0.2, 0., 1., 0.92))
                         else:
                             leg = ax.legend(loc="upper left", frameon=False,
                                             bbox_to_anchor=(0.175, 0., 1., 1.01))
+                        #leg = ax.legend(frameon=False)
 
                         for t in leg.get_texts():
                             t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                         # Set titles and labels.
-                        fig.suptitle(r"CMS Integrated Luminosity, " \
-                                     r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
-                                     (particle_type_str, cms_energy_str)) \
-                           .set_fontproperties(FONT_PROPS_SUPTITLE)
+                        figtitle = "Integrated luminosity, " \
+                            r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
+                            (particle_type_str, cms_energy_str)
+                        #fig.suptitle(r"CMS Integrated Luminosity, " \
+                        #             r"%s, $\mathbf{\sqrt{s} =}$ %s" % \
+                        #             (particle_type_str, cms_energy_str)) \
+                        #   .set_fontproperties(FONT_PROPS_SUPTITLE)
                         ax_kwargs = dict(fontproperties=FONT_PROPS_TITLE)
                         if do_cutouts:
                             ax_kwargs["y"] = 0.95
-                        ax.set_title("Data included from %s to %s UTC \n" % \
-                                     (str_begin, str_end), **ax_kwargs)
+                        #axtit = "(%s %s)" % (particle_type_str, cms_energy_str)
+                        #ax.set_title(axtit, \
+                        #             loc='right',
+                        #             fontproperties=FONT_PROPS_TITLE)
+                        #ax.set_title("Data included from %s to %s UTC \n" % \
+                        #             (str_begin, str_end), **ax_kwargs)
 
                         ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
-                        ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                        ax.set_ylabel(r"Total integrated luminosity (%s)" % \
                                       LatexifyUnits(units),
                                       fontproperties=FONT_PROPS_AX_TITLE)
 
                         # Add label, if it exists.
                         if cfg_parser.get("general", "plot_label"):
-                            ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
+                            ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                     verticalalignment="center", horizontalalignment="left",
-                                    transform = ax.transAxes, color='red', fontsize=15)
+                                    transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
 
                         # Add the logo.
                         zoom = 1.7
@@ -2232,15 +2416,21 @@ if __name__ == "__main__":
                             # We have to add the logo on big_ax because otherwise it gets cut off when
                             # the individual subplots get too small. Unfortunately this changes the positioning
                             # so we have to tweak the offset.
-                            AddLogo(logo_name, ax.big_ax, zoom=zoom, xy_offset=(5., -25.))
+                            AddLogo(logo_name, ax.big_ax, zoom=zoom, xy_offset=(0.0,-0.07)) # x was 5 y offset was -25.
 
                             # A somewhat-reduced version of the code in TweakPlot() to work with
                             # the multiple axes of the brokenaxes object.
+
+                            # This does not work:
+                            # (y_min, y_max) = ax.big_ax.get_ylim()
+                            # y_max_new = y_max * 1.4
+                            # print("sett cutout ylim to ", y_min, y_max)
+                            # ax.big_ax.set_ylim(y_min, y_max_new)
                             
-                            # Add a second vertical axis on the right-hand side.
-                            ax_sec = ax.axs[-1].twinx()
-                            ax_sec.set_ylim(ax.axs[-1].get_ylim())
-                            ax_sec.set_yscale(ax.axs[-1].get_yscale())
+                            ## Add a second vertical axis on the right-hand side.
+                            #ax_sec = ax.axs[-1].twinx()
+                            #ax_sec.set_ylim(ax.axs[-1].get_ylim())
+                            #x_sec.set_yscale(ax.axs[-1].get_yscale())
 
                             # Set fonts on all axis labels
                             for ax_tmp in fig.axes:
@@ -2268,10 +2458,25 @@ if __name__ == "__main__":
                         if do_cutouts:
                             save_kwargs["ax"] = ax.big_ax
 
+                        caption = "Integrated luminosity for multiple years.\n"
+                        caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
+
+                        #energystr = "{:4.1f} TeV".format( 2*beam_energy)
+                        energystr = cms_energy_str
+                        yamldict = { 'year' : year,
+                                     'date' : time_end,
+                                     'particle' : particle_type_str,
+                                     'run' : "Run 3",
+                                     'energystr' :  energystr,
+                                     'log_suffix' : log_suffix,
+                                     'category' : file_suffix2,
+                                     'title' : figtitle,
+                                     'caption' : caption }
+
                         SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s%s%s" % \
                                  (particle_type_str.lower(),
                                   log_suffix, file_suffix, file_suffix2, ("_cert" if do_certification else ""),
-                                  ("_cutout" if do_cutouts else "")), **save_kwargs)
+                                  ("_cutout" if do_cutouts else "")), yamldict=yamldict, **save_kwargs)
                         # CS Should close the figure here, otherwise we get in trouble with memory
                         plt.close( fig )
                     # loop over versions with/without certification
@@ -2372,7 +2577,7 @@ if __name__ == "__main__":
                     num_cols = None
                     num_cols = 1 #len(years) - 2
                     tmp_x = 0.105
-                    tmp_y = 1.01
+                    tmp_y = 1.0
                     #tmp_x = .09
                     #tmp_y = .97
                     leg = ax.legend(loc="upper left",
@@ -2385,19 +2590,26 @@ if __name__ == "__main__":
 
                 # Set titles and labels. If there's only one center-of-mass energy,
                 # put it in the title.
+            
                 if len(cms_energy_strings) > 1:
-                    fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str) \
-                       .set_fontproperties(FONT_PROPS_SUPTITLE)
+                    figtitle = "Peak luminosity per day, %s" % particle_type_str
                 else:
-                    fig.suptitle(r"CMS Peak Luminosity Per Day, %s, $\mathbf{\sqrt{s} =}$ %s " % \
-                                 (particle_type_str, cms_energy_str)).set_fontproperties(FONT_PROPS_SUPTITLE)
+                    figtitle = "Peak luminosity per day, %s, $\mathbf{\sqrt{s} =}$ %s " % \
+                                 (particle_type_str, cms_energy_str)
+
+                #if len(cms_energy_strings) > 1:
+                #    fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str) \
+                #       .set_fontproperties(FONT_PROPS_SUPTITLE)
+                #else:
+                #    fig.suptitle(r"CMS Peak Luminosity Per Day, %s, $\mathbf{\sqrt{s} =}$ %s " % \
+                #                 (particle_type_str, cms_energy_str)).set_fontproperties(FONT_PROPS_SUPTITLE)
                 
                 ax.set_title("Data included from %s to %s UTC \n" % \
 #                             (str_begin, str_end),
                              (str_begin_ultimate, str_end),
                              fontproperties=FONT_PROPS_TITLE)
                 ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
+                ax.set_ylabel(r"Peak delivered luminosity (%s)" % \
                               LatexifyUnits(units),
                               fontproperties=FONT_PROPS_AX_TITLE)
 
@@ -2405,26 +2617,35 @@ if __name__ == "__main__":
                 if cfg_parser.get("general", "plot_label"):
                     ax.text(0.02, 0.65, cfg_parser.get("general", "plot_label"),
                             verticalalignment="center", horizontalalignment="left",
-                            transform = ax.transAxes, color='red', fontsize=15)
+                            transform = ax.transAxes, color='red', fontproperties=FONT_PROPS_PLOT_LABEL)
 
                 # Add the logo.
                 zoom = .97
                 AddLogo(logo_name, ax, zoom=zoom)
-                head_room = 2.
+                head_room = False
                 if is_log:
                     head_room = 2.
 #                TweakPlot(fig, ax, (time_begin, time_end),
                 TweakPlot(fig, ax, (time_begin_ultimate, time_end),
-                          add_extra_head_room=head_room, headroom_factor=1.5)
+                          add_extra_head_room=head_room, headroom_factor=1.2)
 
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
 
+                yamldict = { 'year' : year,
+                             'date' : time_end,
+                             'particle' : particle_type_str,
+                             'run' : "Run 3",
+                             'energystr' : cms_energy_str,
+                             'log_suffix' : log_suffix,
+                             'category' : file_suffix2,
+                             'title' : figtitle,
+                             'caption' : caption }
                 SavePlot(fig, "peak_lumi_%s%s%s%s" % \
                          (particle_type_str.lower(),
                           log_suffix, file_suffix, file_suffix2),
-                         direc = plot_directory)
+                         direc = plot_directory, yamldict=yamldict)
                 plt.close(fig)
     #----------
 

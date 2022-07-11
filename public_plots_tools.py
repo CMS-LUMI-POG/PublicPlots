@@ -18,9 +18,10 @@ import numpy as np
 
 FONT_PROPS_SUPTITLE = FontProperties(size="x-large", weight="bold", stretch="condensed")
 FONT_PROPS_TITLE = FontProperties(size="large", weight="regular")
-FONT_PROPS_AX_TITLE = FontProperties(size="x-large", weight="bold")
-FONT_PROPS_TICK_LABEL = FontProperties(size="large", weight="bold")
+FONT_PROPS_AX_TITLE = FontProperties(size="x-large", weight="regular")
+FONT_PROPS_TICK_LABEL = FontProperties(size="large", weight="regular")
 FONT_PROPS_CMS_LABEL = FontProperties(size=22, weight="bold")
+FONT_PROPS_PLOT_LABEL = FontProperties(size=15, style="italic")
 
 ######################################################################
 
@@ -37,9 +38,10 @@ def InitMatplotlib():
 
 ######################################################################
 
-def AddLogo(logo_name, ax, zoom=1.2, xy_offset=(2., -3.)):
+#def AddLogo(logo_name, ax, zoom=1.2, xy_offset=(2., -3.)):
+def AddLogo(logo_name, ax, zoom=1.2, xy_offset=(0., 0.)):
     """Read logo from PNG file and add it to axes."""
-    ax.text( 0.02,0.93, "CMS",
+    ax.text( 0.02,0.91 + xy_offset[1], "CMS",
              transform = ax.transAxes,
              horizontalalignment="left",
              fontproperties=FONT_PROPS_CMS_LABEL )
@@ -80,18 +82,20 @@ def RoundAwayFromZero(val):
 def LatexifyUnits(units_in):
 
     latex_units = {
-        "b^{-1}" : "$\mathbf{b}^{-1}$",
-        "mb^{-1}" : "$\mathbf{mb}^{-1}$",
-        "ub^{-1}" : "$\mu\mathbf{b}^{-1}$",
-        "nb^{-1}" : "$\mathbf{nb}^{-1}$",
-        "pb^{-1}" : "$\mathbf{pb}^{-1}$",
-        "fb^{-1}" : "$\mathbf{fb}^{-1}$",
-        "Hz/b" : "$\mathbf{Hz/b}$",
-        "Hz/mb" : "$\mathbf{Hz/mb}$",
-        "Hz/ub" : "$\mathbf{Hz/}\mathbf{\mu}\mathbf{b}$",
-        "Hz/nb" : "$\mathbf{Hz/nb}$",
-        "Hz/pb" : "$\mathbf{Hz/pb}$",
-        "Hz/fb" : "$\mathbf{Hz/fb}$"
+        "b^{-1}" : "$b$^{-1}$",
+        "mb^{-1}" : "$mb$^{-1}$",
+        "ub^{-1}" : "$\mu$b$^{-1}$",
+        "nb^{-1}" : "nb$^{-1}$",
+#        "pb^{-1}" : "$\mathbf{pb}^{-1}$",
+        "pb^{-1}" : "pb$^{-1}$",
+        "fb^{-1}" : "fb$^{-1}$",
+        "Hz/b" : "Hz/b",
+        "Hz/mb" : "Hz/mb$",
+        "Hz/ub" : "Hz/$\mu$b",
+#        "Hz/ub" : "$\mathbf{Hz/}\mathbf{\mu}\mathbf{b}$",
+        "Hz/nb" : "Hz/nb",
+        "Hz/pb" : "Hz/pb",
+        "Hz/fb" : "Hz/fb"
         }
 
     res = latex_units[units_in]
@@ -227,7 +231,7 @@ class ColorScheme(object):
 
 ######################################################################
 
-def SavePlot(fig, file_name_base, ax=None, direc="plots"):
+def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
     """Little helper to save plots in various formats."""
     
     if not ax:
@@ -253,8 +257,8 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots"):
     # First save as PNG.
     fig.savefig("%s.png" % file_name_path)
 
-    # Conditional in case we do not use the logo but plain text as requested
-    # in CMS plot guidelines.
+    #Conditional in case we do not use the logo but plain text as requested
+    #in CMS plot guidelines.
     if len(ax.artists) == 1:
         # Then rescale and reposition the logo (which is assumed to be the
         # only artist in the first pair of axes) and save as PDF.
@@ -270,6 +274,41 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots"):
 
     fig.savefig("%s.pdf" % file_name_path, dpi=600)
 
+    if yamldict == {} :
+        return
+
+    # Yamldict contains all we need to crete an unique directory and file name.
+    # year, date, particle, run (run 1,2,3 ... ), energystring, log_suffix,
+    # category(Online, Normtag), title caption
+    
+    run = yamldict['run']
+    particle = yamldict['particle']
+    year = yamldict['year']
+    energystr = yamldict['energystr']
+    log_suffix = yamldict['log_suffix']
+    
+    dirname = os.path.join( direc, run, file_name_base )
+
+    yamlstr = ""
+    yamlstr += "title: '" + yamldict['title'] + "'\n"
+    yamlstr += "date: '" + str(yamldict['date']) + "'\n"
+    yamlstr += "caption: '" + yamldict['caption'] + "'\n"
+    yamlstr += "tags: ["
+    for tag in ['run','particle','year','energystr']:
+        yamlstr += '"' + str(yamldict[tag]) + '",'
+    yamlstr = yamlstr[:-1]
+    yamlstr += "]\n"
+    
+    if not os.path.exists( dirname ):
+        os.makedirs( dirname )
+
+    pathname = os.path.join( dirname, file_name_base)
+    fd = open(pathname + ".yaml", 'w+')
+    fd.write( yamlstr )
+    fd.close()
+
+    fig.savefig("%s.png" % pathname)
+   
     # End of SavePlot().
 
 ######################################################################

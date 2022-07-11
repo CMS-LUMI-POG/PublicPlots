@@ -9,25 +9,27 @@ git pull
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 
 # Make the plots!
+mkdir -p  /eos/user/l/lumipro/www/publicplots/2016
 cd ~/PublicPlots
 
 # 1a) create the plots for this year, online luminosity, and copy them to plot area
-python create_public_lumi_plots.py public_brilcalc_plots_pp_2016_online.cfg
-cp plots/2016/online/*2016*OnlineLumi*png plots/2016/online/*2016*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
+# No online plots for 2016 anymore.
+#python create_public_lumi_plots.py public_brilcalc_plots_pp_2016_online.cfg
+#cp plots/2016/online/*2016*OnlineLumi*png plots/2016/online/*2016*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
 
 # 1b) same, with normtag luminosity
 python create_public_lumi_plots.py public_brilcalc_plots_pp_2016_normtag.cfg
-cp plots/2016/normtag/*2016*NormtagLumi*png plots/2016/normtag/*2016*NormtagLumi*pdf /eos/user/l/lumipro/www/publicplots/
+cp plots/2016/normtag/*2016*Normtag*png plots/2016/normtag/*2016*Normtag*pdf /eos/user/l/lumipro/www/publicplots/2016
 
 # 2) Copy the cache into the cache for the all years plots. Note: uses normtag now!
 cp public_lumi_plots_cache/pp_2016_normtag/* public_lumi_plots_cache/pp_all/
 
 # 3) Copy cache to public location
-cp -R -u public_lumi_plots_cache/pp_2016_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
+# cp -R -u public_lumi_plots_cache/pp_2016_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
 cp -R -u public_lumi_plots_cache/pp_2016_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
 cp -R -u public_lumi_plots_cache/pp_all /afs/cern.ch/user/l/lumipro/public/lumiCache/
 
-#  ===> done in the 2016 script
+#  ===> done in the 2018 script
 #
 # 4) create the plots for all years 
 #python create_public_lumi_plots.py public_lumi_plots_pp_allyears.cfg

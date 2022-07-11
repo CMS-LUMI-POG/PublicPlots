@@ -1132,7 +1132,7 @@ if __name__ == "__main__":
     # Now dump a lot of info to the user. Also create the .csv file with the daily data if we're making
     # the multi-year plot.
     if plot_multiple_years:
-        csv_output = open("lumiByDay.csv", "w")
+        csv_output = open(os.join(plot_directory, "lumiByDay.csv"), "w")
         csv_output.write("Date,Delivered(/ub),Recorded(/ub)\n")
 
     sep_line = 50 * "-"

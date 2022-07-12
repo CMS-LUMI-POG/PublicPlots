@@ -836,7 +836,8 @@ if __name__ == "__main__":
                       2015 : 6500.,
 		      2016 : 6500.,
                       2017 : 6500.,
-                      2018 : 6500.},
+                      2018 : 6500.,
+                      2022 : 6800.},
         "IONPHYS" : {2010 : 3500.,
                      2011 : 3500.,
                      2015 : 6369.,
@@ -1134,6 +1135,8 @@ if __name__ == "__main__":
     # Now dump a lot of info to the user. Also create the .csv file with the daily data if we're making
     # the multi-year plot.
     if plot_multiple_years:
+        if not os.path.isdir(plot_directory):
+            os.makedirs(plot_directory)
         csv_output = open(os.path.join(plot_directory, "lumiByDay.csv"), "w")
         csv_output.write("Date,Delivered(/ub),Recorded(/ub)\n")
 

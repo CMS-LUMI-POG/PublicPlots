@@ -9,25 +9,20 @@ echo Starting script at `date`
 # copy of the git repository which we can pull now! Note: this now has to be done before setting up the
 # environment since the git version in CMSSW_7_4_0 is now no longer compatible.
 cd ~/public/Normtags
-git pull
+git pull 2>&1
 
-# Set up the environment. First we need to set up brilconda and then CMSSW.
-# I want to get rid of the CMSSW dependence but it doesn't quite work yet.
-
+# Set up the environment. First we need to set up brilconda.
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
-cd /afs/cern.ch/user/l/lumipro/CMSSW_7_4_16/src/
-source /cvmfs/cms.cern.ch/cmsset_default.sh
-eval `scramv1 runtime -sh`
 
 # Make the plots!
 cd ~/PublicPlots
 
-# First with online...
-python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_online.cfg
-cp *pbpb_2018*OnlineLumi*png *pbpb_2018*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
-cp -R -u public_lumi_plots_cache/PbPb_2018_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
+# No online plots for 2018 data anymore
+#python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_online.cfg
+#cp *pbpb_2018*OnlineLumi*png *pbpb_2018*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
+#cp -R -u public_lumi_plots_cache/PbPb_2018_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
 
-# ...then with normtag
+# with normtag
 python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_normtag.cfg
-cp *pbpb_2018*NormtagLumi*png *pbpb_2018*NormtagLumi*pdf /eos/user/l/lumipro/www/publicplots/
+cp plots/2022/normtag/*pbpb_2018*Normtag*png plots/2022/normtag/*pbpb_2018*Normtag*pdf /eos/user/l/lumipro/www/publicplots/
 cp -R -u public_lumi_plots_cache/PbPb_2018_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/

@@ -90,7 +90,7 @@ def LatexifyUnits(units_in):
         "pb^{-1}" : "pb$^{-1}$",
         "fb^{-1}" : "fb$^{-1}$",
         "Hz/b" : "Hz/b",
-        "Hz/mb" : "Hz/mb$",
+        "Hz/mb" : "Hz/mb",
         "Hz/ub" : "Hz/$\mu$b",
 #        "Hz/ub" : "$\mathbf{Hz/}\mathbf{\mu}\mathbf{b}$",
         "Hz/nb" : "Hz/nb",

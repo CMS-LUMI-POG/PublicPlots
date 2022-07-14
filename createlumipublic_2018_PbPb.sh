@@ -15,6 +15,7 @@ git pull 2>&1
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 
 # Make the plots!
+mkdir -p  /eos/user/l/lumipro/www/publicplots/2018
 cd ~/PublicPlots
 
 # No online plots for 2018 data anymore

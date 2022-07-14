@@ -9,15 +9,7 @@ git pull 2>&1
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 
 # Make the plots!
-#mkdir -p  /eos/user/l/lumipro/www/publicplots/2016
-
-
-
-
-
-
-
-
+mkdir -p  /eos/user/l/lumipro/www/publicplots/2016
 cd ~/PublicPlots
 
 # 1a) 5TeV with normtag luminosity

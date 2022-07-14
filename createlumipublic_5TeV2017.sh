@@ -15,6 +15,7 @@ git pull 2>&1
 export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 
 # Make the plots!
+mkdir -p  /eos/user/l/lumipro/www/publicplots/2017
 cd ~/PublicPlots
 
 # 1) create the plots for this year, online luminosity, and copy them to plot area

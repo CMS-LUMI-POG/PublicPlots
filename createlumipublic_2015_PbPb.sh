@@ -5,9 +5,6 @@
 
 echo Starting script at `date`
 
-# Update the normtag repository. Since the cvmfs version only updates once a week, we instead keep our own
-# copy of the git repository which we can pull now! Note: this now has to be done before setting up the
-# environment since the git version in CMSSW_7_4_0 is now no longer compatible.
 cd ~/public/Normtags
 git pull 2>&1
 
@@ -17,7 +14,6 @@ export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 # Make the plots!
 mkdir -p  /eos/user/l/lumipro/www/publicplots/2015
 cd ~/PublicPlots
-
 
 # with normtag
 python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2015_normtag.cfg

@@ -16,7 +16,7 @@ cd ~/PublicPlots
 
 # 1) create the plots for this run with normtag luminosity, and copy them to plot area
 python create_public_lumi_plots.py public_brilcalc_plots_pp5TeV_2015_normtag.cfg
-#cp plots/2015/normtag/*2015*5TeV_Normtag*png plots/2015/normtag/*2015*5TeV_Normtag*pdf /eos/user/l/lumipro/www/publicplots/2015
+cp plots/2015/normtag/*2015*5TeV_Normtag*png plots/2015/normtag/*2015*5TeV_Normtag*pdf /eos/user/l/lumipro/www/publicplots/2015
 
 # 2) Copy cache to public location
-#cp -R -u public_lumi_plots_cache/pp5TeV_2015_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
+cp -R -u public_lumi_plots_cache/pp5TeV_2015_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/

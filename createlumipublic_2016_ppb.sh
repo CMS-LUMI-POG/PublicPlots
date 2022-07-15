@@ -19,17 +19,13 @@ python create_public_lumi_plots.py public_brilcalc_plots_ppb5TeV_2016_online.cfg
 python create_public_lumi_plots.py public_brilcalc_plots_ppb8TeV_2016_normtag.cfg
 
 
-# 2) Copy the cache into the cache for the all years plots. Note: uses normtag now!
-cp public_lumi_plots_cache/ppb5TeV_2016_online/* public_lumi_plots_cache/pp_all/
-cp public_lumi_plots_cache/ppb8TeV_2016_normtag/* public_lumi_plots_cache/pp_all/
-
 # 3) Copy cache to public location
-#    the plots:
-cp plots/2016/normtag/*2016*Normtag*png plots/2016/normtag/*2016*Normtag*pdf /eos/user/l/lumipro/www/publicplots/
-cp plots/2016/online/*2016*Online*png plots/2016/online/*2016*Online*pdf /eos/user/l/lumipro/www/publicplots/
+#    The plots:
+cp plots/2016/normtag/*2016*Normtag*png plots/2016/normtag/*2016*Normtag*pdf /eos/user/l/lumipro/www/publicplots/2016/
+cp plots/2016/online/*2016*Online*png plots/2016/online/*2016*Online*pdf /eos/user/l/lumipro/www/publicplots/2016/
 
-
+#    The lumi_cache
 cp -R -u public_lumi_plots_cache/ppb5TeV_2016_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
 cp -R -u public_lumi_plots_cache/ppb8TeV_2016_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
-cp -R -u public_lumi_plots_cache/pp_all /afs/cern.ch/user/l/lumipro/public/lumiCache/
+
 

@@ -26,4 +26,15 @@ cd ~/PublicPlots
 # with normtag
 python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_normtag.cfg
 cp plots/2018/normtag/*pbpb_2018*Normtag*png plots/2018/normtag/*pbpb_2018*Normtag*pdf /eos/user/l/lumipro/www/publicplots/2018/
+cp -R -u public_lumi_plots_cache/PbPb_2018_normtag/* public_lumi_plots_cache/pbpb_all/
 cp -R -u public_lumi_plots_cache/PbPb_2018_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
+
+# Now the plots for all Run 2 years
+# It is important that the public_lumi_plots_cache/pbpb_all/ has been filled
+# beforehand (by generating the 2015 and 2018 PbPb plots)
+python create_public_lumi_plots.py public_lumi_plots_pbpb_run2.cfg
+
+# plots with proton equivalent luminosity
+python create_public_lumi_plots.py public_lumi_plots_ions_run2.cfg
+
+cp plots/allYears/*pbpb*run2.png plots/2018/normtag/*pbpb*run2.pdf /eos/user/l/lumipro/www/publicplots/

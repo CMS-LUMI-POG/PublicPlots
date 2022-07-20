@@ -18,4 +18,5 @@ cd ~/PublicPlots
 # with normtag
 python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2015_normtag.cfg
 cp plots/2015/normtag/*pbpb_2015*Normtag*png plots/2015/normtag/*pbpb_2015*Normtag*pdf /eos/user/l/lumipro/www/publicplots/2015/
+cp public_lumi_plots_cache/PbPb_2015_normtag/* public_lumi_plots_cache/pbpb_all/
 cp -R -u public_lumi_plots_cache/PbPb_2015_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/

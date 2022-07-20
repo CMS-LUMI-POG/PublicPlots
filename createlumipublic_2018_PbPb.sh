@@ -18,16 +18,13 @@ export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 mkdir -p  /eos/user/l/lumipro/www/publicplots/2018
 cd ~/PublicPlots
 
-# No online plots for 2018 data anymore
-#python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_online.cfg
-#cp *pbpb_2018*OnlineLumi*png *pbpb_2018*OnlineLumi*pdf /eos/user/l/lumipro/www/publicplots/
-#cp -R -u public_lumi_plots_cache/PbPb_2018_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
 
-# with normtag
-python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_normtag.cfg
-cp plots/2018/normtag/*pbpb_2018*Normtag*png plots/2018/normtag/*pbpb_2018*Normtag*pdf /eos/user/l/lumipro/www/publicplots/2018/
-cp -R -u public_lumi_plots_cache/PbPb_2018_normtag/* public_lumi_plots_cache/pbpb_all/
-cp -R -u public_lumi_plots_cache/PbPb_2018_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
+#  # with normtag
+#  python create_public_lumi_plots.py public_brilcalc_plots_PbPb_2018_normtag.cfg
+#  cp plots/2018/normtag/*pbpb_2018*Normtag*png plots/2018/normtag/*pbpb_2018*Normtag*pdf /eos/user/l/lumipro/www/publicplots/2018/
+#  cp -R -u public_lumi_plots_cache/PbPb_2018_normtag/* public_lumi_plots_cache/pbpb_all/
+#  cp -R -u public_lumi_plots_cache/PbPb_2018_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
+
 
 # Now the plots for all Run 2 years
 # It is important that the public_lumi_plots_cache/pbpb_all/ has been filled
@@ -37,4 +34,4 @@ python create_public_lumi_plots.py public_lumi_plots_pbpb_run2.cfg
 # plots with proton equivalent luminosity
 python create_public_lumi_plots.py public_lumi_plots_ions_run2.cfg
 
-cp plots/allYears/*pbpb*run2.png plots/2018/normtag/*pbpb*run2.pdf /eos/user/l/lumipro/www/publicplots/
+cp plots/allYears/*pbpb*run2.png plots/allYears/*pbpb*run2.pdf /eos/user/l/lumipro/www/publicplots/

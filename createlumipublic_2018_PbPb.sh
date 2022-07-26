@@ -34,4 +34,4 @@ python create_public_lumi_plots.py public_lumi_plots_pbpb_run2.cfg
 # plots with proton equivalent luminosity
 python create_public_lumi_plots.py public_lumi_plots_ions_run2.cfg
 
-cp plots/allYears/*pbpb*run2.png plots/allYears/*pbpb*run2.pdf /eos/user/l/lumipro/www/publicplots/
+cp plots/allYears/*pbpb*run2.png plots/allYears/*pbpb*run2.pdf /eos/user/l/lumipro/www/publicplots/multiYear/

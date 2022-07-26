@@ -39,9 +39,9 @@ cd ~/PublicPlots
 python create_public_pileup_plots.py public_pileup_plots_pp_2015_80000.cfg 
 python create_public_pileup_plots.py public_pileup_plots_pp_2015_69200.cfg 
 
-cp plots/2015/normtag/pileup_pp_2015* /eos/user/l/lumipro/www/publicplots/
+cp plots/2015/normtag/pileup_pp_2015* /eos/user/l/lumipro/www/publicplots/2015
 
 # Now make sure that the same rootfile is in both cache directories.
-cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2015/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-goldenJSON-13tev-2015.root
+#cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2015/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-goldenJSON-13tev-2015.root
 
 # The all year pileup plots are created when running the script for 2018

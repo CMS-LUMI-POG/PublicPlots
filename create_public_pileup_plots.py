@@ -38,6 +38,7 @@ from public_plots_tools import FONT_PROPS_SUPTITLE
 from public_plots_tools import FONT_PROPS_TITLE
 from public_plots_tools import FONT_PROPS_AX_TITLE
 from public_plots_tools import FONT_PROPS_TICK_LABEL
+from public_plots_tools import FONT_PROPS_PLOT_LABEL
 
 try:
     import debug_hook
@@ -106,8 +107,10 @@ if __name__ == "__main__":
 
     cfg_defaults = {
         "color_schemes" : "Joe, Greg",
-        "verbose" : False
-        }
+        "verbose" : False,
+        "plot_label" : "",
+        "file_suffix" : ""
+    }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
         print("ERROR Config file '%s' does not exist" % config_file_name, file=sys.stderr)
@@ -122,6 +125,8 @@ if __name__ == "__main__":
     color_scheme_names = [i.strip() for i in color_scheme_names_tmp.split(",")]
     # Flag to turn on verbose output.
     verbose = cfg_parser.getboolean("general", "verbose")
+    # Suffix to append to all file names.
+    file_suffix2 = cfg_parser.get("general", "file_suffix")
 
     # Some things needed for titles etc.
     particle_type_str = cfg_parser.get("general", "particle_type_str")
@@ -246,6 +251,11 @@ if __name__ == "__main__":
                      fontproperties=FONT_PROPS_AX_TITLE,
                      fontsize=9)
 
+            if cfg_parser.get("general", "plot_label"):
+                ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
+                        verticalalignment="center", horizontalalignment="left",
+                        transform = ax.transAxes, fontproperties=FONT_PROPS_PLOT_LABEL)
+
             # Add the logo.
             AddLogo(logo_name, ax)
             TweakPlot(fig, ax, True)
@@ -255,9 +265,9 @@ if __name__ == "__main__":
             if is_log:
                 log_suffix = "_log"
             fn_particle_type_str = particle_type_str.replace(' ','_')
-            SavePlot(fig, "pileup_%s_%d%s%s%s" % \
+            SavePlot(fig, "pileup_%s_%d%s%s%s%s" % \
                      (fn_particle_type_str, year,
-                      log_suffix, file_suffix, xsec_suffix),
+                      log_suffix, file_suffix, xsec_suffix,file_suffix2),
                      direc = plot_directory)
 
         plt.close()

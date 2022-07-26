@@ -45,8 +45,8 @@ python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017_H_69200.cf
 python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017_H_80000.cfg
 python create_public_pileup_plots.py public_pileup_plots_pplowpu_2017_G_65000.cfg 
 
-cp plots/2017/normtag/pileup_pp_2017* /eos/user/l/lumipro/www/publicplots/
-cp plots/2017/normtag_lowPU/pileup_pp* /eos/user/l/lumipro/www/publicplots/
+cp plots/2017/normtag/pileup_pp_2017* /eos/user/l/lumipro/www/publicplots/2017
+cp plots/2017/normtag_lowPU/pileup_pp* /eos/user/l/lumipro/www/publicplots/2017
 
 # Now make sure that the same rootfile is in both cache directories.
 cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2017/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-goldenJSON-13tev-2017.root

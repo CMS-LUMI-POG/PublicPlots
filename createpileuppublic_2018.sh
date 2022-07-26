@@ -20,7 +20,7 @@ export PYTHONPATH=/afs/cern.ch/cms/lumi/brilconda-1.1.7-cc7/root/lib:$PYTHONPATH
 # The separation of running pileupCalc and the creation of the plots nicely factors out
 # the dependency on CMSSW and makes it easier to move to a new release if necessary. 
 (
-    cd /afs/cern.ch/user/l/lumipro/CMSSW_7_4_16/src/
+    cd /afs/cern.ch/user/l/lumipro/CMSSW/CMSSW_7_4_16/src/
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     eval `scramv1 runtime -sh`
     cd ~/PublicPlots
@@ -39,7 +39,7 @@ cd ~/PublicPlots
 python create_public_pileup_plots.py public_pileup_plots_pp_2018_80000.cfg 
 python create_public_pileup_plots.py public_pileup_plots_pp_2018_69200.cfg 
 
-cp plots/2018/normtag/pileup_pp_2018* /eos/user/l/lumipro/www/publicplots/
+cp plots/2018/normtag/pileup_pp_2018* /eos/user/l/lumipro/www/publicplots/2018
 
 # Now make sure that the same rootfile is in both cache directories.
 cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2018/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-goldenJSON-13tev-2018.root

@@ -212,15 +212,16 @@ if __name__ == "__main__":
                     edgecolor=color_line_pileup,
                     facecolor=color_fill_pileup)
 
+            # No title according to CMS plot guidelines
             # Set titles and labels.
             # Due to a bug in matplotlib 1.5.3 we cannot directly set the
             # fontproperties in the call but need to use the method
             # set_fontproperties. This might disapear with a new version of
             # matplotlib
-            fig.suptitle(r"CMS Average Pileup, " \
-                         "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                         (particle_type_str, year, cms_energy_str)) \
-               .set_fontproperties(FONT_PROPS_SUPTITLE)
+            # fig.suptitle(r"CMS Average Pileup, " \
+            #              "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+            #              (particle_type_str, year, cms_energy_str)) \
+            #    .set_fontproperties(FONT_PROPS_SUPTITLE)
             ax.set_xlabel(r"Mean number of interactions per crossing",
                           fontproperties=FONT_PROPS_AX_TITLE)
             # The labelpad is necessary since otherwise the label goes

@@ -8,16 +8,18 @@ python create_public_lumi_plots.py [cfg file]
 ```
 where the config file is hopefully self-explanatory (but see below for further documentation).
 
-However, be aware that many of the config files are out of date. The following config files should work and reproduce the plots currently on the page:
+Be aware there are many special config files which might be out of date. 
+However all runs and data taking periods of run 2 and the ongoing run 3 period are up to date and reproduce the plots on the page. The results should be consistent with the Twiki results page and the values in that page:
 
 * 2018 pp 13 TeV (online & normtag)
+* 2018 PbPb 5TeV (normtag)
 * 2017 pp 13 TeV (online & normtag)
 * 2017 pp 5 TeV (online & normtag)
 * 2016 pPb 5 TeV (online)
 * 2016 pPb 8 TeV (online & normtag)
 * 2015 pp 5 TeV (normtag)
-
-The rest are in progress.
+* 2015 PbPb 5TeV (normtag)
+* 2015 pp 13TeV (normtag)
 
 There are also various run scripts which perform the task of setting up the environment, running the actual script, copying the plots to the final plot location, etc. Check out createlumipublic_2017.sh for an example.
 
@@ -26,12 +28,8 @@ A new addition is `public_animated_lumi_plot_run2.py`, which will create an anim
 **IMPORTANT NOTE**: In order to produce the all-years cumulative plots with broken axes, the `brokenaxes` package needs to be installed. You can install it with `pip install --user brokenaxes`. If not installed, the script will still work; it will just skip making those plots.
 
 ## Todo list
-* Figure out disrepancies in 2016 pp run
-* Update 2015 pp 13 TeV and 2015 PbPb runs
 * Restore beamenergy and accelerator mode filters in brilcalc invocation
-* Clean up other year-dependent hacks
-* Remove dependence on CMSSW
-
+* Clean up other year-dependent hacks if possible
 ## Config file
 
 Here are the various variables you can set in the config file. All of these are in the "general" category.
@@ -80,6 +78,10 @@ It is recommended to periodically rebuild the cache a few times throughout the y
 
 ## Current setup on lxplus
 
-During run 2, these scripts were run automatically by an acron job on the lumipro account. The public plots script was run every half hour, and the pileup plots script was run every week after the pileup JSON was updated. Now that we are in LS2, there is of course no reason to keep running these scripts continuously, so the cron jobs have been stopped. To see the current acron setup use `acrontab -l` and to edit it you can use `acrontab -e`.
+For the ongoing run3 an acron job on the lumipro account as been set up to run 4 times a day. The corresponding acrontab entry is 
 
-The crontab is configured so that it invokes the scripts `~lumipro/run_public_plots.sh` and `~lumipro/run_pileup_plots.sh`. These are set up as symlinks to the actual scripts which should be run (for 2018, `~lumipro/PublicPlots/createlumipublic_2018.sh` and `~lumipro/PublicPlots/createpileuppublic_2018.sh`), so that if you need to change the script when entering a different run period, you can just alter the symlink to point to the desired script.
+00 0,6,12,18 * * * lxplus.cern.ch /afs/cern.ch/user/l/lumipro/run_public_plots.sh >> /afs/cern.ch/user/l/lumipro/cron_logs/PublicPlots_2022.log
+
+To see the current acron setup use `acrontab -l` and to edit it you can use `acrontab -e`.
+
+The crontab is configured so that it invokes the scripts `~lumipro/run_public_plots.sh`. This is set up as symlink to the actual scripts which should be run (for 2022, `~lumipro/PublicPlots/createlumipublic_2022.sh`), so that if you need to change the script when entering a different run period, you can just alter the symlink to point to the desired script.

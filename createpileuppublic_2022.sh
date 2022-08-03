@@ -28,7 +28,7 @@ CMSSWPATH=~/CMSSW/CMSSW_7_4_16
     cd ~/PublicPlots
     
     # you can specify --ignore-cache here to force the re-sun of pileupCalc:
-    python run_pileupCalc.py public_pileup_plots_pp_2022_80000.cfg 
+    python run_pileupCalc.py public_pileup_plots_pp_2022_80000.cfg --ignore-cache
 )
 
 

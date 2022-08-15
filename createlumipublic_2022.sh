@@ -18,9 +18,10 @@ export PATH=$HOME/.local/bin:/afs/cern.ch/cms/lumi/brilconda-1.1.7/bin:$PATH
 cd ~/PublicPlots
 
 # 1a) create the plots for this year, online luminosity, and copy them to plot area
-python create_public_lumi_plots.py public_brilcalc_plots_pp_2022_online.cfg
-mkdir -p /eos/user/l/lumipro/www/publicplots/2022
-cp plots/2022/online/*2022*Online*png plots/2022/online/*2022*Online*pdf /eos/user/l/lumipro/www/publicplots/2022
+# We directly produce Normtag plots, no online plots anymore. The certification is fast enough
+#python create_public_lumi_plots.py public_brilcalc_plots_pp_2022_online.cfg
+#mkdir -p /eos/user/l/lumipro/www/publicplots/2022
+#cp plots/2022/online/*2022*Online*png plots/2022/online/*2022*Online*pdf /eos/user/l/lumipro/www/publicplots/2022
 # 
 # 1b) same, with normtag luminosity
 python create_public_lumi_plots.py public_brilcalc_plots_pp_2022_normtag.cfg
@@ -30,7 +31,7 @@ cp plots/2022/normtag/*2022*Normtag*png plots/2022/normtag/*2022*Normtag*pdf /eo
 cp public_lumi_plots_cache/pp_2022_normtag/* public_lumi_plots_cache/pp_all/
 # 
 # 3) Copy cache to public location
-cp -R -u public_lumi_plots_cache/pp_2022_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
+#cp -R -u public_lumi_plots_cache/pp_2022_online /afs/cern.ch/user/l/lumipro/public/lumiCache/
 cp -R -u public_lumi_plots_cache/pp_2022_normtag /afs/cern.ch/user/l/lumipro/public/lumiCache/
 cp -R -u public_lumi_plots_cache/pp_all /afs/cern.ch/user/l/lumipro/public/lumiCache/
 # 

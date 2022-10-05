@@ -29,7 +29,7 @@ YEARSTR = "2022"
 SCRIPTDIR = "/afs/cern.ch/user/l/lumipro/PublicPlots"
 
 # The directory containing the certification json files to be processed
-CERTIFICATION_BASE = "/eos/user/c/cmsdqm/www/CAF/certification/Collisions22"
+CERTIFICATION_BASE = "/eos/user/c/cmsdqm/www/CAF/certification/Collisions22/DCSOnly_JSONS"
 
 # A regular expression for the file name of the certificatoin json. 
 # The filename with the largest number for the last processed run will be 

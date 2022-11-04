@@ -20,7 +20,7 @@ import sys
 ##################################################################################
 
 # Directory where intermediate files and log files are stored
-WORKDIR = "/afs/cern.ch/user/l/lumipro/Pileup"
+WORKDIR = "/afs/cern.ch/work/l/lumipro/Pileup"
 
 # Will be used for the destination directory of the the intermediate pileup_latest.json
 YEARSTR = "2022"

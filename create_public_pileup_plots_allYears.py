@@ -75,18 +75,19 @@ def TweakPlot(fig, ax, add_extra_head_room=False):
                 label.set_font_properties(FONT_PROPS_TICK_LABEL)
 
     if is_log:
-        fig.subplots_adjust(top=.89, bottom=.125, left=.12, right=.925)
+        fig.subplots_adjust(top=.95, bottom=.125, left=.12, right=.925)
     else:
-        fig.subplots_adjust(top=.89, bottom=.125, left=.11, right=.925)
+        fig.subplots_adjust(top=.95, bottom=.125, left=.11, right=.925)
 
     # End of TweakPlot().
 
 ######################################################################
 
-def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
+def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, is_run2and3=False):
 
     print "Selected is_stacked = ", is_stacked
     print "Selected only_run2 = ", only_run2
+    print "Selected is_run2and3 = ", is_run2and3
     if is_stacked & only_run2:
         print "Selected both is_stacked and only_run2, which is not expected. Exit!"
         return
@@ -112,8 +113,11 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
         histo_type="stepfilled"
         run2_suffix = "_run2"
         run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 TeV)"
-        
-    ax.hist(xvalues, bins=bin_edges, 
+    if is_run2and3:
+        run2_suffix = "_run2and3"
+        run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 and 13.6 TeV)"
+
+    ax.hist(xvalues, bins=bin_edges,
             weights=yvalues,
             log=log_setting,
             histtype=histo_type, stacked=is_stacked,
@@ -122,9 +126,9 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
             label=labels
             )
     ax.legend(prop=FONT_PROPS_AX_TITLE, frameon=False)
-    
-    fig.suptitle(r"CMS Average Pileup %s" % run2_label, 
-                 fontproperties=FONT_PROPS_SUPTITLE)
+
+    # fig.suptitle(r"CMS Average Pileup %s" % run2_label,
+    #              fontproperties=FONT_PROPS_SUPTITLE)
     ax.set_xlabel(r"Mean number of interactions per crossing",
                   fontproperties=FONT_PROPS_AX_TITLE)
     ax.set_ylabel(r"Recorded Luminosity (%s/%.2f)" % \
@@ -134,23 +138,39 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False):
 
     # Add the inelastic pp cross section employed
     if only_run2:
-        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,TeV) ="+str(xsection13)+"\,mb$",
+        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,\mathrm{TeV}) ="+str(xsection13)+"\,\mathrm{mb}$",
+                 transform = ax.transAxes,
+                 horizontalalignment="right",
+                 fontproperties=FONT_PROPS_AX_TITLE,
+                 fontsize=9)
+    elif is_run2and3:
+        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13.6\,\mathrm{TeV}) ="+str(xsection13p6)+"\,\mathrm{mb}$",
+                 transform = ax.transAxes,
+                 horizontalalignment="right",
+                 fontproperties=FONT_PROPS_AX_TITLE,
+                 fontsize=9)
+        ax.text(.95, .29, r"$\sigma_{in}^{pp}(13\,\mathrm{TeV}) ="+str(xsection13)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     else:
-        ax.text(.95, .40, r"$\sigma_{in}^{pp}(13\,TeV) ="+str(xsection13)+"\,mb$",
+        ax.text(.95, .40, r"$\sigma_{in}^{pp}(13.6\,\mathrm{TeV}) ="+str(xsection13p6)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .34, r"$\sigma_{in}^{pp}(8\,TeV) ="+str(xsection8)+"\,mb$",
+        ax.text(.95, .34, r"$\sigma_{in}^{pp}(13\,\mathrm{TeV}) ="+str(xsection13)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .28, r"$\sigma_{in}^{pp}(7\,TeV) ="+str(xsection7)+"\,mb$",
+        ax.text(.95, .28, r"$\sigma_{in}^{pp}(8\,\mathrm{TeV}) ="+str(xsection8)+"\,\mathrm{mb}$",
+                 transform = ax.transAxes,
+                 horizontalalignment="right",
+                 fontproperties=FONT_PROPS_AX_TITLE,
+                 fontsize=9)
+        ax.text(.95, .22, r"$\sigma_{in}^{pp}(7\,\mathrm{TeV}) ="+str(xsection7)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
@@ -225,6 +245,7 @@ if __name__ == "__main__":
 
     # Location of the cached ROOT file.
     cachedir = cfg_parser.get("general", "cache_dir")
+    rootfile2022 = cfg_parser.get("general", "rootfile2022")
     rootfile2018 = cfg_parser.get("general", "rootfile2018")
     rootfile2017 = cfg_parser.get("general", "rootfile2017")
     rootfile2016 = cfg_parser.get("general", "rootfile2016")
@@ -232,10 +253,11 @@ if __name__ == "__main__":
     rootfile2012 = cfg_parser.get("general", "rootfile2012")
     rootfile2011 = cfg_parser.get("general", "rootfile2011")
 
+    xsection13p6 = float(cfg_parser.get("general", "xsection13p6"))/1000
     xsection13 = float(cfg_parser.get("general", "xsection13"))/1000
     xsection8 = float(cfg_parser.get("general", "xsection8"))/1000
     xsection7 = float(cfg_parser.get("general", "xsection7"))/1000
-    print "Inelastic x-sections:", xsection13, "mb at 13 TeV,", xsection8, "mb at 8 TeV, and", xsection7, "mb at 7 TeV"
+    print "Inelastic x-sections:", xsection13p6, "mb at 13.6 TeV,", xsection13, "mb at 13 TeV,", xsection8, "mb at 8 TeV, and", xsection7, "mb at 7 TeV"
 
     # get the directory where to put the plots
     plot_directory_tmp = cfg_parser.get("general", "plot_directory")
@@ -257,6 +279,7 @@ if __name__ == "__main__":
     ##########
 
     # open pileup files
+    (pileup_hist2022,weights2022) = LoadHistogram(cachedir,rootfile2022)
     (pileup_hist2018,weights2018) = LoadHistogram(cachedir,rootfile2018)
     (pileup_hist2017,weights2017) = LoadHistogram(cachedir,rootfile2017)
     (pileup_hist2016,weights2016) = LoadHistogram(cachedir,rootfile2016)
@@ -265,10 +288,10 @@ if __name__ == "__main__":
     (pileup_hist2011,weights2011) = LoadHistogram(cachedir,rootfile2011)
 
     # take the bins from the most recent histogram
-    bin_edges = [pileup_hist2018.GetBinLowEdge(i) \
-                     for i in xrange(1, pileup_hist2018.GetNbinsX() + 1)]
-    vals = [pileup_hist2018.GetBinCenter(i) \
-                for i in xrange(1, pileup_hist2018.GetNbinsX() + 1)]
+    bin_edges = [pileup_hist2022.GetBinLowEdge(i) \
+                     for i in xrange(1, pileup_hist2022.GetNbinsX() + 1)]
+    vals = [pileup_hist2022.GetBinCenter(i) \
+                for i in xrange(1, pileup_hist2022.GetNbinsX() + 1)]
 
 
     # And this is where the plotting starts.
@@ -279,18 +302,33 @@ if __name__ == "__main__":
 
     # Plot all years in the same plot, first stacked and then superimposed:
 
-    xvalues=[vals,vals,vals,vals,vals,vals]
-    yvalues=[weights2011,weights2012,weights2015,weights2016,weights2017,weights2018]
-    color_fill_histos = [color_scheme.color_by_year[2011], color_scheme.color_by_year[2012], color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018]]
+    xvalues=[vals,vals,vals,vals,vals,vals,vals]
+    yvalues=[weights2011,weights2012,weights2015,weights2016,weights2017,weights2018,weights2022]
+    color_fill_histos = [color_scheme.color_by_year[2011], color_scheme.color_by_year[2012], color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], color_scheme.color_by_year[2022]]
     labels = ["2011 (7 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2011.GetMean()),
               "2012 (8 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2012.GetMean()),
               "2015 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
               "2016 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
               "2017 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
-              "2018 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean())]
+              "2018 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean()),
+              "2022 (13.6 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2022.GetMean())]
 
-    MakePlot(xvalues,yvalues,labels,True,False)
-    MakePlot(xvalues,yvalues,labels,False,False)
+    MakePlot(xvalues,yvalues,labels,True,False,False)
+    MakePlot(xvalues,yvalues,labels,False,False,False)
+
+    # Now make a Run-II + Run-III plot:
+
+    xvalues=[vals,vals,vals,vals,vals]
+    yvalues=[weights2015,weights2016,weights2017,weights2018,weights2022]
+    color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], color_scheme.color_by_year[2022]]
+    labels = ["2015: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
+              "2016: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
+              "2017: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
+              "2018: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean()),
+              "2022: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2022.GetMean())]
+
+    MakePlot(xvalues,yvalues,labels,True,False,True)
+    MakePlot(xvalues,yvalues,labels,False,False,True)
 
     # Now make a Run-II only plot:
 
@@ -311,7 +349,7 @@ if __name__ == "__main__":
               "Run II: <$\mathbf{\mu}$> = %.0f" % round(pileup_histRun2.GetMean())]
 
 
-    MakePlot(xvalues,yvalues,labels,False,True)
+    MakePlot(xvalues,yvalues,labels,False,True,False)
 
     ##########
 

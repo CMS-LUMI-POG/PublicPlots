@@ -18,7 +18,7 @@ export PYTHONPATH=/afs/cern.ch/cms/lumi/brilconda-1.1.7-cc7/root/lib:$PYTHONPATH
 # We run pileupCalc in a subshell since the environment of CMSSW is not compatible with the
 # python and matplotlib we are useing to produce the plots later.
 # The separation of running pileupCalc and the creation of the plots nicely factors out
-# the dependency on CMSSW and makes it easier to move to a new release if necessary. 
+# the dependency on CMSSW and makes it easier to move to a new release if necessary.
 CMSSWPATH=~/CMSSW/CMSSW_7_4_16
 (
     cd $CMSSWPATH
@@ -26,7 +26,7 @@ CMSSWPATH=~/CMSSW/CMSSW_7_4_16
     # equivalent to `cmsenv`:
     eval `scramv1 runtime -sh`
     cd ~/PublicPlots
-    
+
     # you can specify --ignore-cache here to force the re-sun of pileupCalc:
     python run_pileupCalc.py public_pileup_plots_pp_2022_80000.cfg --ignore-cache
 )
@@ -37,7 +37,7 @@ cd ~/PublicPlots
 
 # Create and copy the pileup plots for this year.
 # The following commands requires the pileupCalc results to be in the cache.
-python create_public_pileup_plots.py public_pileup_plots_pp_2022_80000.cfg 
+python create_public_pileup_plots.py public_pileup_plots_pp_2022_80000.cfg
 
 cp plots/2022/normtag/pileup_pp_2022* /eos/user/l/lumipro/www/publicplots/2022
 
@@ -45,5 +45,5 @@ cp plots/2022/normtag/pileup_pp_2022* /eos/user/l/lumipro/www/publicplots/2022
 cp /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_2022/pileup_calc_80000_tmp.root /afs/cern.ch/user/l/lumipro/PublicPlots/public_lumi_plots_cache/pileup_all/PileupHistogram-Online-136tev-2022.root
 
 # Create and copy the all-year pileup plots.
-# python create_public_pileup_plots_allYears.py public_pileup_plots_pp_allyears.cfg
-#cp plots/allYears/pileup_allYears* /eos/user/l/lumipro/www/publicplots/
+python create_public_pileup_plots_allYears.py public_pileup_plots_pp_allyears.cfg
+cp plots/allYears/pileup_allYears* /eos/user/l/lumipro/www/publicplots/

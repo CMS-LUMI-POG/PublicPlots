@@ -38,7 +38,7 @@ cp -R -u public_lumi_plots_cache/pp_all /afs/cern.ch/user/l/lumipro/public/lumiC
 # # 4) create the plots for all years and Run 3 only. Do the Run 3 first because that way we get the lumiByDay.csv file correct.
 mkdir -p /eos/user/l/lumipro/www/publicplots/multiYear
 #python create_public_lumi_plots.py public_lumi_plots_pp_run3.cfg
-python create_public_lumi_plots.py public_lumi_plots_pp_run3and3.cfg
+python create_public_lumi_plots.py public_lumi_plots_pp_run2and3.cfg
 python create_public_lumi_plots.py public_lumi_plots_pp_allyears.cfg
 cp plots/allYears/peak_lumi_pp* plots/allYears/int_lumi_cumulative_pp* plots/allYears/int_lumi_allcumulative_pp* plots/allYears/lumiByDay.csv /eos/user/l/lumipro/www/publicplots/multiYear/
 #

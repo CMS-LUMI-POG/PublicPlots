@@ -35,7 +35,9 @@ CERTIFICATION_BASE = "/eos/user/c/cmsdqm/www/CAF/certification/Collisions22/DCSO
 # The filename with the largest number for the last processed run will be 
 # chosen (the second sub-pattern)
 # This pattern needs to be changed every year (at least)
-JSON_PATTERN = "Cert_Collisions2022_(\d+)_(\d+)_13p6TeV_DCSOnly_TkPx.json"
+#JSON_PATTERN = "Cert_Collisions2022_(\d+)_(\d+)_13p6TeV_DCSOnly_TkPx.json"
+# JK: Fixed for 2022, revert to automatic detection for 2023 plots
+JSON_PATTERN = "Cert_Collisions2022_(\d+)_(\d+)_eraABCDEFG_DCSOnly_TkPx.json"
 
 NORMTAG = "/cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json"
 
@@ -168,7 +170,6 @@ def launchBrilcalc( certificationJson ):
 
     return True
     
-
 # This function launches a script ot produce the "pileup_latest.json" file which 
 # is the base for the production of the pileup plots. The file is transfered to the 
 # public area of the lumipro account. Since the production of this file is done with

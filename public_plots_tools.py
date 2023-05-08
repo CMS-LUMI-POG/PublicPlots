@@ -46,8 +46,8 @@ def AddLogo(logo_name, ax, zoom=1.2, xy_offset=(0., 0.)):
              horizontalalignment="left",
              fontproperties=FONT_PROPS_CMS_LABEL )
 
-    # 
-    # 
+    #
+    #
     # logo_data = read_png(logo_name)
     # fig_dpi = ax.get_figure().dpi
     # fig_size = ax.get_figure().get_size_inches()
@@ -151,7 +151,7 @@ class ColorScheme(object):
         ColorScheme.cms_green = (60./255., 177./255., 110./255.)
         ColorScheme.cms_orange2 = (227./255., 136./255., 36./255.)
         ColorScheme.cms_lighttblue = (30./255., 144./255., 255./255.)
-        ColorScheme.cms_lightyellow = (255./255., 235./255., 215./255.) 
+        ColorScheme.cms_lightyellow = (255./255., 235./255., 215./255.)
 
         # End of InitColors().
 
@@ -172,13 +172,14 @@ class ColorScheme(object):
             2010 : "green",
             2011 : "red",
             2012 : "blue",
-	    2013 : "orange",
-	    2014 : "orange",
-	    2015 : "purple",
+	        2013 : "orange",
+	        2014 : "orange",
+	        2015 : "purple",
             2016 : "orange",
             2017 : "deepskyblue",
             2018 : "navy",
-            2022 : "brown"
+            2022 : "brown",
+            2023 : "mediumorchid"
             }
         self.color_line_pileup = "black"
         self.color_fill_pileup = "blue"
@@ -233,14 +234,14 @@ class ColorScheme(object):
 
 def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
     """Little helper to save plots in various formats."""
-    
+
     if not ax:
         ax = fig.axes[0]
     # Check some assumptions.
     # assert len(fig.axes) == 2 # this is a little excessively paranoid --
     # just be sure that if it's not fig.axes[0] that you pass the correct axis
     # assert len(ax.artists) == 1
-    
+
     assert file_name_base.find(".") < 0
 
     # CS : added the direc option to have the results in a sub-directory
@@ -250,7 +251,7 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
             os.makedirs(direc)
     else:
         direc = ""
-    
+
     file_name_path = os.path.join( direc, file_name_base )
 
 
@@ -266,10 +267,10 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
         tmp_offsetbox = tmp_annbox.offsetbox
         fig_dpi = fig.dpi
         tmp_offsetbox.set_zoom(tmp_offsetbox.get_zoom() * 72. / fig_dpi)
-        # CS: tmp = tmp_annbox.xytext ==> The api seems to have changed: 
+        # CS: tmp = tmp_annbox.xytext ==> The api seems to have changed:
         tmp = tmp_annbox.xyann
-        # CS tmp_annbox.xytext = (tmp[0] + 1., tmp[1] - 1.) 
-        #                             ==> The api seems to have changed: 
+        # CS tmp_annbox.xytext = (tmp[0] + 1., tmp[1] - 1.)
+        #                             ==> The api seems to have changed:
         tmp_annbox.xyann = (tmp[0] + 1., tmp[1] - 1.)
 
     fig.savefig("%s.pdf" % file_name_path, dpi=600)
@@ -280,13 +281,13 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
     # Yamldict contains all we need to crete an unique directory and file name.
     # year, date, particle, run (run 1,2,3 ... ), energystring, log_suffix,
     # category(Online, Normtag), title caption
-    
+
     run = yamldict['run']
     particle = yamldict['particle']
     year = yamldict['year']
     energystr = yamldict['energystr']
     log_suffix = yamldict['log_suffix']
-    
+
     dirname = os.path.join( direc, run, file_name_base )
 
     yamlstr = ""
@@ -298,7 +299,7 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
         yamlstr += '"' + str(yamldict[tag]) + '",'
     yamlstr = yamlstr[:-1]
     yamlstr += "]\n"
-    
+
     if not os.path.exists( dirname ):
         os.makedirs( dirname )
 
@@ -308,7 +309,7 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
     fd.close()
 
     fig.savefig("%s.png" % pathname)
-   
+
     # End of SavePlot().
 
 ######################################################################

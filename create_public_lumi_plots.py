@@ -15,8 +15,8 @@ import copy
 import math
 import optparse
 import ConfigParser
-# CS : This funky module is in CMSSW but we want to be independent of 
-#      CMSSW also if this costs some performance. We go for the 
+# CS : This funky module is in CMSSW but we want to be independent of
+#      CMSSW also if this costs some performance. We go for the
 #      standard json decoder...
 #      Introduced plt.close(fig) calls to release memory that was getting
 #                 a bit tight...
@@ -30,14 +30,14 @@ import numpy as np
 import six
 import matplotlib
 
-# CS : To be compliant with the code below: 
+# CS : To be compliant with the code below:
 cjson = json.JSONDecoder()
 
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
-# CS : This fix was for the old matplotlib version in CMSSW. We now 
-#      go for the brilconda version which today (26/1/2022) features 
+# CS : This fix was for the old matplotlib version in CMSSW. We now
+#      go for the brilconda version which today (26/1/2022) features
 #      matplotlib 1.5.3. The sources reveal that the bug has been fixed.
 
 # FIX FIX FIX
@@ -91,7 +91,7 @@ NUM_SEC_IN_LS = 2**18 / 11246.
 
 KNOWN_ACCEL_MODES = ["PROTPHYS", "IONPHYS", "PAPHYS", "ALLIONS",
                      "2013_amode_bug_workaround"]
-LEAD_SCALE_FACTOR = 82. / 208. 
+LEAD_SCALE_FACTOR = 82. / 208.
 
 ######################################################################
 
@@ -506,7 +506,7 @@ def FormatCMSEnergy(beam_energy, accel_mode, year, include_units=True):
             except:
                 print("Error: accelerator mode for year",year,"not specified in accel_mode_by_year parameter in config file")
                 return cms_energy_str
-            
+
         cms_energy_str = "%.2f" % \
                          (1.e-3 * GetEnergyPerNucleonScaleFactor(this_accel_mode) * cms_energy)
 
@@ -536,7 +536,7 @@ def GetXLocator(ax):
     (x_lo, x_hi) = ax.get_xlim()
     num_days = x_hi - x_lo
     min_num_ticks = min(num_days, 5)
-    max_num_ticks = min(num_days, 20) 
+    max_num_ticks = min(num_days, 20)
     locator = matplotlib.dates.AutoDateLocator(minticks=min_num_ticks,
                                                maxticks=max_num_ticks)
     # End of GetLocator().
@@ -571,7 +571,7 @@ def TweakPlot(fig, ax, time_range,
         ax.set_ylim(y_min, y_max_new)
 
     ## Add a second vertical axis on the right-hand side.
-    # CS: Even though useful, not CMS standard therefore commented out. 
+    # CS: Even though useful, not CMS standard therefore commented out.
     #ax_sec = ax.twinx()
     #ax_sec.set_ylim(ax.get_ylim())
     #ax_sec.set_yscale(ax.get_yscale())
@@ -735,7 +735,7 @@ if __name__ == "__main__":
     else:
         plot_directory = plot_directory_tmp
         print("Plots will be stored in directory '%s'." % plot_directory)
-        
+
     # Overall begin and end dates of all data to include.
     tmp = cfg_parser.get("general", "date_begin")
     date_begin = datetime.datetime.strptime(tmp, DATE_FMT_STR_CFG).date()
@@ -797,7 +797,7 @@ if __name__ == "__main__":
             if "integrated" not in display_scale_factor[year] or "peak" not in display_scale_factor[year]:
                 print("Error in display_scale_factor for "+year+": dictionary does not contain integrated and peak keys", file=sys.stderr)
                 sys.exit(1)
-                
+
     # If a JSON file is specified, use the JSON file to add in the
     # plot data certified as good for physics.
     json_file_name = cfg_parser.get("general", "json_file")
@@ -834,10 +834,11 @@ if __name__ == "__main__":
                       2012 : 4000.,
                       2013 : 1380.1,
                       2015 : 6500.,
-		      2016 : 6500.,
+		              2016 : 6500.,
                       2017 : 6500.,
                       2018 : 6500.,
-                      2022 : 6800.},
+                      2022 : 6800.,
+                      2023 : 6800.},
         "IONPHYS" : {2010 : 3500.,
                      2011 : 3500.,
                      2015 : 6369.,
@@ -868,7 +869,7 @@ if __name__ == "__main__":
             print("Normtag file selected:", normtag_file)
         else:
             print("No normtag file selected, online luminosity will be used")
-    
+
     if json_file_name:
         print("Using JSON file '%s' for certified data" % json_file_name)
     else:
@@ -1018,7 +1019,7 @@ if __name__ == "__main__":
     #The above check only works for LumiCalc not for brilcalc or lcr2.py
                 if year >= 2015 and (not os.path.exists(cache_file_tmp)):
                     dummy_file = open(cache_file_tmp, "w")
-                    dummy_file.close()		
+                    dummy_file.close()
 
                 # BUG BUG BUG
                 # This works around a bug in lumiCalc where sometimes not
@@ -1223,14 +1224,14 @@ if __name__ == "__main__":
     # Create the per-day delivered-lumi plots.
     #------------------------------
 
-    for year in years: 
+    for year in years:
       if not plot_multiple_years:
         print("  daily lumi plots for %d" % year)
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][year]
         cms_energy_str = FormatCMSEnergy(beam_energy, accel_mode, year)
-        
+
         lumi_data = lumi_data_by_day_per_year[year]
         lumi_data.sort()
 
@@ -1314,7 +1315,7 @@ if __name__ == "__main__":
                         exp = math.floor(math.log10(min_val))
                         log_setting = True
                         bottom = math.pow(10., exp)
-                        
+
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1367,7 +1368,7 @@ if __name__ == "__main__":
                                  fontproperties=FONT_PROPS_TITLE)
                     if cfg_parser.get("general", "plot_label"):
                         plot_label = cfg_parser.get("general", "plot_label")
-                        
+
                     if plot_label == "Online":
                         datatime = "Data up to %s" % date_end
                         ax.set_title(datatime, \
@@ -1377,7 +1378,7 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Peak delivered luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
-                    
+
                     if cfg_parser.get("general", "plot_label"):
                         ax.text(0.02, 0.85, cfg_parser.get("general", "plot_label"),
                                 verticalalignment="center", horizontalalignment="left",
@@ -1406,12 +1407,12 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-                
+
                 SavePlot(fig, "peak_lumi_per_day_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
-            
+
             #----------
 
             # The lumi-per-day plot.
@@ -1425,7 +1426,7 @@ if __name__ == "__main__":
                           exp = math.floor(math.log10(min_val))
                           log_setting = True
                           bottom = math.pow(10., exp)
-                          
+
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1492,7 +1493,7 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                    
+
                 caption = "Integrated luminosity per day.\n"
                 caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
 
@@ -1506,13 +1507,13 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-               
+
                 SavePlot(fig, "int_lumi_per_day_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
 
-            
+
             #----------
 
             # Now for the cumulative plot.
@@ -1536,7 +1537,7 @@ if __name__ == "__main__":
                         exp = math.floor(math.log10(min_val))
                         log_setting = True
                         bottom = math.pow(10., exp)
-                        
+
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1549,7 +1550,7 @@ if __name__ == "__main__":
                             facecolor=color_fill_del, edgecolor=color_line_del,
                             label="LHC Delivered: %.2f %s" % \
                             (tot_del, LatexifyUnits(units)))
-                        
+
                     ax.hist(times, bin_edges, weights=weights_rec_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
@@ -1575,7 +1576,7 @@ if __name__ == "__main__":
                     figtitle = "Integrated luminosity, " \
                         "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                         (particle_type_str, year, cms_energy_str)
-                    
+
                     #fig.suptitle(r"CMS Integrated Luminosity, " \
                     #             r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                     #             (particle_type_str, year, cms_energy_str)) \
@@ -1585,7 +1586,7 @@ if __name__ == "__main__":
                                  fontproperties=FONT_PROPS_TITLE)
                     if cfg_parser.get("general", "plot_label"):
                         plot_label = cfg_parser.get("general", "plot_label")
-                        
+
                     if plot_label == "Online":
                         datatime = "Data up to %s" % date_end
                         ax.set_title(datatime, \
@@ -1627,7 +1628,7 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-                
+
                 SavePlot(fig, "int_lumi_per_day_cumulative_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
@@ -1637,7 +1638,7 @@ if __name__ == "__main__":
     # Create the per-week delivered-lumi plots.
     #------------------------------
 
-    for year in years: 
+    for year in years:
       if not plot_multiple_years:
         print("  weekly lumi plots for %d" % year)
 
@@ -1714,7 +1715,7 @@ if __name__ == "__main__":
                         exp = math.floor(math.log10(min_val))
                         log_setting = True
                         bottom = math.pow(10., exp)
-                        
+
                 fig.clear()
                 ax = fig.add_subplot(111)
 
@@ -1776,7 +1777,7 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                    
+
                 caption = "Peak luminosity per week.\n"
                 caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
 
@@ -1790,7 +1791,7 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-               
+
                 SavePlot(fig, "peak_lumi_per_week_%s_%d%s%s%s" % \
                         (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
@@ -1877,7 +1878,7 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                    
+
                 caption = "Integrated luminosity per week.\n"
                 caption += "Data included from %s to %s UTC.\n" % (str_begin, str_end)
 
@@ -1891,7 +1892,7 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-               
+
                 SavePlot(fig, "int_lumi_per_week_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
@@ -1991,7 +1992,7 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-               
+
                 SavePlot(fig, "int_lumi_per_week_cumulative_%s_%d%s%s%s" % \
                          (particle_type_str.lower(), year,
                           log_suffix, file_suffix, file_suffix2),
@@ -2238,7 +2239,7 @@ if __name__ == "__main__":
                               log_suffix, file_suffix, file_suffix2),
                              direc = plot_directory, yamldict=yamldict)
                     plt.close(fig)
-                    
+
         for mode in [1, 2, 3]:
             print("    mode %d (%s)" % (mode, mode_description[mode]))
             PlotAllYears(lumi_data_by_day_per_year, mode)
@@ -2328,7 +2329,7 @@ if __name__ == "__main__":
                     cutout_settings.append(True)
                 for do_cutouts in cutout_settings:
 
-                    # and one last loop to make the versions with/without certification. 
+                    # and one last loop to make the versions with/without certification.
                     certification_settings = [False]
                     if json_file_name:
                         certification_settings.append(True)
@@ -2371,7 +2372,7 @@ if __name__ == "__main__":
                                     facecolor=color_fill_cert, edgecolor=color_line_cert,
                                     label="CMS Certified for Physics: %.2f %s" % \
                                     (tot_cert, LatexifyUnits(units)))
-                            
+
                         if do_cutouts:
                             leg = ax.legend(loc="upper left", frameon=False,
                                             bbox_to_anchor=(0.2, 0., 1., 0.92))
@@ -2429,7 +2430,7 @@ if __name__ == "__main__":
                             # y_max_new = y_max * 1.4
                             # print("sett cutout ylim to ", y_min, y_max)
                             # ax.big_ax.set_ylim(y_min, y_max_new)
-                            
+
                             ## Add a second vertical axis on the right-hand side.
                             #ax_sec = ax.axs[-1].twinx()
                             #ax_sec.set_ylim(ax.axs[-1].get_ylim())
@@ -2440,7 +2441,7 @@ if __name__ == "__main__":
                                 for sub_ax in [ax_tmp.xaxis, ax_tmp.yaxis]:
                                     for label in sub_ax.get_ticklabels():
                                         label.set_font_properties(FONT_PROPS_TICK_LABEL)
- 
+
                             # Format and set rotation for x-axis labels
                             for a in ax.axs:
                                 a.xaxis.set_major_formatter(formatter)
@@ -2593,7 +2594,7 @@ if __name__ == "__main__":
 
                 # Set titles and labels. If there's only one center-of-mass energy,
                 # put it in the title.
-            
+
                 if len(cms_energy_strings) > 1:
                     figtitle = "Peak luminosity per day, %s" % particle_type_str
                 else:
@@ -2606,7 +2607,7 @@ if __name__ == "__main__":
                 #else:
                 #    fig.suptitle(r"CMS Peak Luminosity Per Day, %s, $\mathbf{\sqrt{s} =}$ %s " % \
                 #                 (particle_type_str, cms_energy_str)).set_fontproperties(FONT_PROPS_SUPTITLE)
-                
+
                 ax.set_title("Data included from %s to %s UTC \n" % \
 #                             (str_begin, str_end),
                              (str_begin_ultimate, str_end),

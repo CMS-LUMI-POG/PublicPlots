@@ -349,7 +349,7 @@ if __name__ == "__main__":
     # Now make a Run-III only plot:
 
     pileup_histRun3 = pileup_hist2023.Clone()
-    pileup_histRun3.Add(pileup_hist2023)
+    pileup_histRun3.Add(pileup_hist2022)
 
     weightsRun3 = ConvertROOTtoMatplotlib(pileup_histRun3)
 

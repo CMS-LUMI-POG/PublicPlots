@@ -316,7 +316,7 @@ if __name__ == "__main__":
 
     # Plot all years in the same plot, first stacked and then superimposed:
 
-    xvalues=[vals,vals,vals,vals,vals,vals,vals]
+    xvalues=[vals,vals,vals,vals,vals,vals,vals,vals]
     yvalues=[weights2011,weights2012,weights2015,weights2016,weights2017,weights2018,weights2022,weights2023]
     color_fill_histos = [color_scheme.color_by_year[2011], color_scheme.color_by_year[2012], color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], color_scheme.color_by_year[2022]]
     labels = ["2011 (7 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2011.GetMean()),

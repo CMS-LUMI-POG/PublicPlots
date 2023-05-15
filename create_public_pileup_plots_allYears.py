@@ -137,45 +137,45 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
 
     # Add the inelastic pp cross section employed
     if only_run2:
-        ax.text(.95, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$ ="+str(xsection13)+" mb",
+        ax.text(.97, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$ = "+str(xsection13)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     elif only_run3:
-        ax.text(.95, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$ = "+str(xsection13p6)+" mb",
+        ax.text(.97, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$ = "+str(xsection13p6)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     elif is_run2and3:
-        ax.text(.95, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13.6 TeV) ="+str(xsection13p6)+" mb",
+        ax.text(.97, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13.6 TeV) = "+str(xsection13p6)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .29, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13 TeV) ="+str(xsection13)+" mb",
+        ax.text(.97, .28, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13 TeV) = "+str(xsection13)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     else:
-        ax.text(.95, .38, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13.6 TeV) ="+str(xsection13p6)+" mb",
+        ax.text(.97, .38, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13.6 TeV) = "+str(xsection13p6)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .32, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13 TeV) ="+str(xsection13)+" mb",
+        ax.text(.97, .31, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13 TeV) = "+str(xsection13)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .26, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(8 TeV) ="+str(xsection8)+" mb",
+        ax.text(.97, .24, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(8 TeV) = "+str(xsection8)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .20, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(7 TeV) ="+str(xsection7)+" mb",
+        ax.text(.97, .17, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(7 TeV) = "+str(xsection7)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,

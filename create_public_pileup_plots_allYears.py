@@ -104,7 +104,6 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
     histo_type="step"
     stack_suffix = ""
     run2_suffix = ""
-    run2_label = ""
     transparency = 1
     if is_stacked:
         histo_type="stepfilled"
@@ -113,13 +112,10 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
         transparency = 0.5
         histo_type="stepfilled"
         run2_suffix = "_run2"
-        run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 TeV)"
     if only_run3:
         run2_suffix = "_run3"
-        run2_label = "(pp, $\mathbf{\sqrt{s}}$=13.6 TeV)"
     if is_run2and3:
         run2_suffix = "_run2and3"
-        run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 and 13.6 TeV)"
 
     ax.hist(xvalues, bins=bin_edges,
             weights=yvalues,
@@ -131,24 +127,22 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
             )
     ax.legend(prop=FONT_PROPS_AX_TITLE, frameon=False)
 
-    # fig.suptitle(r"CMS Average Pileup %s" % run2_label,
-    #              fontproperties=FONT_PROPS_SUPTITLE)
     ax.set_xlabel(r"Mean number of interactions per crossing",
                   fontproperties=FONT_PROPS_AX_TITLE)
-    ax.set_ylabel(r"Recorded Luminosity (%s/%.2f)" % \
+    ax.set_ylabel(r"Recorded luminosity (%s/%.2f)" % \
                       (LatexifyUnits("pb^{-1}"),
                        pileup_hist2018.GetBinWidth(1)),
                   fontproperties=FONT_PROPS_AX_TITLE)
 
     # Add the inelastic pp cross section employed
     if only_run2:
-        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13\,\mathrm{TeV}) ="+str(xsection13)+"\,\mathrm{mb}$",
+        ax.text(.95, .35, r"$\sigma_{in}^{pp} ="+str(xsection13)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     elif only_run3:
-        ax.text(.95, .35, r"$\sigma_{in}^{pp}(13.6\,\mathrm{TeV}) ="+str(xsection13p6)+"\,\mathrm{mb}$",
+        ax.text(.95, .35, r"$\sigma_{in}^{pp} ="+str(xsection13p6)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
@@ -165,22 +159,22 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     else:
-        ax.text(.95, .40, r"$\sigma_{in}^{pp}(13.6\,\mathrm{TeV}) ="+str(xsection13p6)+"\,\mathrm{mb}$",
+        ax.text(.95, .38, r"$\sigma_{in}^{pp}(13.6\,\mathrm{TeV}) ="+str(xsection13p6)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .34, r"$\sigma_{in}^{pp}(13\,\mathrm{TeV}) ="+str(xsection13)+"\,\mathrm{mb}$",
+        ax.text(.95, .32, r"$\sigma_{in}^{pp}(13\,\mathrm{TeV}) ="+str(xsection13)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .28, r"$\sigma_{in}^{pp}(8\,\mathrm{TeV}) ="+str(xsection8)+"\,\mathrm{mb}$",
+        ax.text(.95, .26, r"$\sigma_{in}^{pp}(8\,\mathrm{TeV}) ="+str(xsection8)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-        ax.text(.95, .22, r"$\sigma_{in}^{pp}(7\,\mathrm{TeV}) ="+str(xsection7)+"\,\mathrm{mb}$",
+        ax.text(.95, .20, r"$\sigma_{in}^{pp}(7\,\mathrm{TeV}) ="+str(xsection7)+"\,\mathrm{mb}$",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,

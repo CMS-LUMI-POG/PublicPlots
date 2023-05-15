@@ -231,21 +231,21 @@ if __name__ == "__main__":
                           fontproperties=FONT_PROPS_AX_TITLE)
             # The labelpad is necessary since otherwise the label goes
             # out of the picture frame and is cut.
-            ax.set_ylabel(r"Recorded Luminosity (%s/%.2f)" % \
+            ax.set_ylabel(r"Recorded luminosity (%s/%.1f)" % \
                           (LatexifyUnits("pb^{-1}"),
                            pileup_hist.GetBinWidth(1)),
                           labelpad = 0,
                           fontproperties=FONT_PROPS_AX_TITLE)
 
             # Add the average pileup number to the top right.
-            ax.text(.95, .925, r"<$\mathbf{\mu}$> = %.0f" % \
+            ax.text(.95, .925, u"<μ> = %.0f" % \
                     round(pileup_hist.GetMean()),
                     transform = ax.transAxes,
                     horizontalalignment="right",
                     fontproperties=FONT_PROPS_AX_TITLE)
 
             # Add the inelastic pp cross section employed
-            ax.text(.95, .7, r"$\sigma_{in}^{pp} ="+str(xsection)+"\,mb$",
+            ax.text(.95, .7, u"σ"+r"$\mathregular{{}_{in}^{pp}}$ = "+str(xsection)+" mb",
                      transform = ax.transAxes,
                      horizontalalignment="right",
                      fontproperties=FONT_PROPS_AX_TITLE,

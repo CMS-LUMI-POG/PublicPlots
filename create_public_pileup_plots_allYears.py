@@ -115,7 +115,6 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
         run2_suffix = "_run2"
         run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 TeV)"
     if only_run3:
-        transparency = 0.5
         histo_type="stepfilled"
         run2_suffix = "_run3"
         run2_label = "(pp, $\mathbf{\sqrt{s}}$=13.6 TeV)"
@@ -348,19 +347,13 @@ if __name__ == "__main__":
 
     # Now make a Run-III only plot:
 
-    pileup_histRun3 = pileup_hist2023.Clone()
-    pileup_histRun3.Add(pileup_hist2022)
-
-    weightsRun3 = ConvertROOTtoMatplotlib(pileup_histRun3)
-
-    xvalues=[vals,vals,vals]
-    yvalues=[weights2022,weights2023,weightsRun3]
-    color_fill_histos = [color_scheme.color_by_year[2022], color_scheme.color_by_year[2023], "black"]
+    xvalues=[vals,vals]
+    yvalues=[weights2022,weights2023]
+    color_fill_histos = [color_scheme.color_by_year[2022], color_scheme.color_by_year[2023]]
     labels = ["2022: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2022.GetMean()),
-              "2023: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2023.GetMean()),
-              "Run 3: <$\mathbf{\mu}$> = %.0f" % round(pileup_histRun3.GetMean())]
+              "2023: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2023.GetMean())]
 
-
+    MakePlot(xvalues,yvalues,labels,is_stacked=True,only_run3=True)
     MakePlot(xvalues,yvalues,labels,only_run3=True)
 
     # Now make a Run-II only plot:

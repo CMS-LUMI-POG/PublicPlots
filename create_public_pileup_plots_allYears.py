@@ -143,7 +143,7 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
     elif only_run3:
-        ax.text(.95, .35, r"$\sigma_{in}^{pp} ="+str(xsection13p6)+"\,\mathrm{mb}$",
+        ax.text(.95, .35, u"σ"+r"$\mathregular{_{in}^{pp}}$ = "+str(xsection13p6)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
@@ -312,14 +312,14 @@ if __name__ == "__main__":
     xvalues=[vals,vals,vals,vals,vals,vals,vals,vals]
     yvalues=[weights2011,weights2012,weights2015,weights2016,weights2017,weights2018,weights2022,weights2023]
     color_fill_histos = [color_scheme.color_by_year[2011], color_scheme.color_by_year[2012], color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], color_scheme.color_by_year[2022], color_scheme.color_by_year[2023]]
-    labels = ["2011 (7 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2011.GetMean()),
-              "2012 (8 TeV):   <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2012.GetMean()),
-              "2015 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
-              "2016 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
-              "2017 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
-              "2018 (13 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean()),
-              "2022 (13.6 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2022.GetMean()),
-              "2023 (13.6 TeV): <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2023.GetMean())]
+    labels = [u"2011 (7 TeV): <μ> = %.0f" % round(pileup_hist2011.GetMean()),
+              u"2012 (8 TeV): <μ> = %.0f" % round(pileup_hist2012.GetMean()),
+              u"2015 (13 TeV): <μ> = %.0f" % round(pileup_hist2015.GetMean()),
+              u"2016 (13 TeV): <μ> = %.0f" % round(pileup_hist2016.GetMean()),
+              u"2017 (13 TeV): <μ> = %.0f" % round(pileup_hist2017.GetMean()),
+              u"2018 (13 TeV): <μ> = %.0f" % round(pileup_hist2018.GetMean()),
+              u"2022 (13.6 TeV): <μ> = %.0f" % round(pileup_hist2022.GetMean()),
+              u"2023 (13.6 TeV): <μ> = %.0f" % round(pileup_hist2023.GetMean())]
 
     MakePlot(xvalues,yvalues,labels,is_stacked=True)
     MakePlot(xvalues,yvalues,labels)
@@ -329,12 +329,12 @@ if __name__ == "__main__":
     xvalues=[vals,vals,vals,vals,vals,vals]
     yvalues=[weights2015,weights2016,weights2017,weights2018,weights2022,weights2023]
     color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], color_scheme.color_by_year[2022], color_scheme.color_by_year[2023]]
-    labels = ["2015: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
-              "2016: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
-              "2017: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
-              "2018: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean()),
-              "2022: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2022.GetMean()),
-              "2023: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2023.GetMean())]
+    labels = [u"2015: <μ> = %.0f" % round(pileup_hist2015.GetMean()),
+              u"2016: <μ> = %.0f" % round(pileup_hist2016.GetMean()),
+              u"2017: <μ> = %.0f" % round(pileup_hist2017.GetMean()),
+              u"2018: <μ> = %.0f" % round(pileup_hist2018.GetMean()),
+              u"2022: <μ> = %.0f" % round(pileup_hist2022.GetMean()),
+              u"2023: <μ> = %.0f" % round(pileup_hist2023.GetMean())]
 
     MakePlot(xvalues,yvalues,labels,is_stacked=True,is_run2and3=True)
     MakePlot(xvalues,yvalues,labels,is_run2and3=True)
@@ -362,11 +362,11 @@ if __name__ == "__main__":
     xvalues=[vals,vals,vals,vals,vals]
     yvalues=[weights2015,weights2016,weights2017,weights2018,weightsRun2]
     color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], "black"]
-    labels = ["2015: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2015.GetMean()),
-              "2016: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2016.GetMean()),
-              "2017: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2017.GetMean()),
-              "2018: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2018.GetMean()),
-              "Run 2: <$\mathbf{\mu}$> = %.0f" % round(pileup_histRun2.GetMean())]
+    labels = [u"2015: <μ> = %.0f" % round(pileup_hist2015.GetMean()),
+              u"2016: <μ> = %.0f" % round(pileup_hist2016.GetMean()),
+              u"2017: <μ> = %.0f" % round(pileup_hist2017.GetMean()),
+              u"2018: <μ> = %.0f" % round(pileup_hist2018.GetMean()),
+              u"Run 2: <μ> = %.0f" % round(pileup_histRun2.GetMean())]
 
 
     MakePlot(xvalues,yvalues,labels,only_run2=True)

@@ -84,15 +84,12 @@ def TweakPlot(fig, ax, add_extra_head_room=False):
 
 ######################################################################
 
-def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_run3=False, is_run2and3=False):
+def MakePlot(xvalues, yvalues, labels, is_stacked=False, has_run1=False, has_run2=False, has_run3=False):
 
     print "Selected is_stacked = ", is_stacked
-    print "Selected only_run2 = ", only_run2
-    print "Selected only_run3 = ", only_run3
-    print "Selected is_run2and3 = ", is_run2and3
-    if is_stacked & only_run2:
-        print "Selected both is_stacked and only_run2, which is not expected. Exit!"
-        return
+    print "Selected has_run1 = ", has_run1
+    print "Selected has_run2 = ", has_run2
+    print "Selected has_run3 = ", has_run3
 
     print "Drawing things..."
 
@@ -104,22 +101,20 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
 
     histo_type="step"
     stack_suffix = ""
-    run2_suffix = ""
+    run_suffix = ""
     transparency = 1
     add_extra_head_room = True
     if is_stacked:
         histo_type="stepfilled"
         stack_suffix = "_stack"
-    if only_run2:
-        transparency = 0.5
-        histo_type="stepfilled"
-        run2_suffix = "_run2"
-    if only_run3:
-        run2_suffix = "_run3"
-    if is_run2and3:
-        run2_suffix = "_run2and3"
-    if (not only_run2) and (not only_run3) and (not is_run2and3):
+    if has_run1 and has_run2 and has_run3:
         add_extra_head_room = 2
+    elif (not has_run1) and has_run2 and has_run3:
+        run_suffix = "_run2and3"
+    elif (not has_run1) and has_run2 and (not has_run3):
+        run_suffix = "_run2"
+    elif (not has_run1) and (not has_run2) and has_run3:
+        run_suffix = "_run3"
 
     ax.hist(xvalues, bins=bin_edges,
             weights=yvalues,
@@ -139,19 +134,19 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
                   fontproperties=FONT_PROPS_AX_TITLE)
 
     # Add the inelastic pp cross section employed
-    if only_run2:
+    if (not has_run1) and has_run2 and (not has_run3):
         ax.text(.97, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$ = "+str(xsection13)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-    elif only_run3:
+    elif (not has_run1) and (not has_run2) and has_run3:
         ax.text(.97, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$ = "+str(xsection13p6)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
                  fontproperties=FONT_PROPS_AX_TITLE,
                  fontsize=9)
-    elif is_run2and3:
+    elif (not has_run1) and has_run2 and has_run3:
         ax.text(.97, .35, u"σ"+r"$\mathregular{{}_{in}^{pp}}$(13.6 TeV) = "+str(xsection13p6)+" mb",
                  transform = ax.transAxes,
                  horizontalalignment="right",
@@ -188,7 +183,7 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
     AddLogo(logo_name, ax)
     TweakPlot(fig, ax, add_extra_head_room)
 
-    SavePlot(fig, "pileup_allYears%s%s" % (stack_suffix,run2_suffix), direc=plot_directory)
+    SavePlot(fig, "pileup_allYears%s%s" % (stack_suffix,run_suffix), direc=plot_directory)
 
     plt.close()
 
@@ -311,7 +306,6 @@ if __name__ == "__main__":
     logo_name = color_scheme.logo_name
 
     # Plot all years in the same plot, first stacked and then superimposed:
-
     xvalues=[vals,vals,vals,vals,vals,vals,vals,vals]
     yvalues=[weights2011,weights2012,weights2015,weights2016,weights2017,weights2018,weights2022,weights2023]
     color_fill_histos = [color_scheme.color_by_year[2011], color_scheme.color_by_year[2012], color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], color_scheme.color_by_year[2022], color_scheme.color_by_year[2023]]
@@ -323,12 +317,10 @@ if __name__ == "__main__":
               u"2018 (13 TeV): <μ> = %.0f" % round(pileup_hist2018.GetMean()),
               u"2022 (13.6 TeV): <μ> = %.0f" % round(pileup_hist2022.GetMean()),
               u"2023 (13.6 TeV): <μ> = %.0f" % round(pileup_hist2023.GetMean())]
+    MakePlot(xvalues,yvalues,labels,is_stacked=True,has_run1=True,has_run2=True,has_run3=True)
+    MakePlot(xvalues,yvalues,labels,has_run1=True,has_run2=True,has_run3=True)
 
-    MakePlot(xvalues,yvalues,labels,is_stacked=True)
-    MakePlot(xvalues,yvalues,labels)
-
-    # Now make a Run-II + Run-III plot:
-
+    # Now make a Run-2 + Run-3 plot:
     xvalues=[vals,vals,vals,vals,vals,vals]
     yvalues=[weights2015,weights2016,weights2017,weights2018,weights2022,weights2023]
     color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], color_scheme.color_by_year[2022], color_scheme.color_by_year[2023]]
@@ -338,30 +330,28 @@ if __name__ == "__main__":
               u"2018: <μ> = %.0f" % round(pileup_hist2018.GetMean()),
               u"2022: <μ> = %.0f" % round(pileup_hist2022.GetMean()),
               u"2023: <μ> = %.0f" % round(pileup_hist2023.GetMean())]
+    MakePlot(xvalues,yvalues,labels,is_stacked=True,has_run2=True,has_run3=True)
+    MakePlot(xvalues,yvalues,labels,has_run2=True,has_run3=True)
 
-    MakePlot(xvalues,yvalues,labels,is_stacked=True,is_run2and3=True)
-    MakePlot(xvalues,yvalues,labels,is_run2and3=True)
-
-    # Now make a Run-III only plot:
-
-    xvalues=[vals,vals]
-    yvalues=[weights2022,weights2023]
-    color_fill_histos = [color_scheme.color_by_year[2022], color_scheme.color_by_year[2023]]
+    # Now make a Run-3 only plot:
+    pileup_histRun3 = pileup_hist2023.Clone()
+    pileup_histRun3.Add(pileup_hist2022)
+    weightsRun3 = ConvertROOTtoMatplotlib(pileup_histRun3)
+    xvalues=[vals,vals,vals]
+    yvalues=[weights2022,weights2023,weightsRun3]
+    color_fill_histos = [color_scheme.color_by_year[2022], color_scheme.color_by_year[2023], "black"]
     labels = [u"2022: <μ> = %.0f" % round(pileup_hist2022.GetMean()),
-              u"2023: <μ> = %.0f" % round(pileup_hist2023.GetMean())]
+              u"2023: <μ> = %.0f" % round(pileup_hist2023.GetMean()),
+              u"Run 3: <μ> = %.0f" % round(pileup_histRun3.GetMean())]
+    MakePlot(xvalues,yvalues,labels,has_run3=True)
+    MakePlot(xvalues[:-1],yvalues[:-1],labels[:-1],is_stacked=True,has_run3=True)
 
-    MakePlot(xvalues,yvalues,labels,is_stacked=True,only_run3=True)
-    MakePlot(xvalues,yvalues,labels,only_run3=True)
-
-    # Now make a Run-II only plot:
-
+    # Now make a Run-2 only plot:
     pileup_histRun2 = pileup_hist2018.Clone()
     pileup_histRun2.Add(pileup_hist2017)
     pileup_histRun2.Add(pileup_hist2016)
     pileup_histRun2.Add(pileup_hist2015)
-
     weightsRun2 = ConvertROOTtoMatplotlib(pileup_histRun2)
-
     xvalues=[vals,vals,vals,vals,vals]
     yvalues=[weights2015,weights2016,weights2017,weights2018,weightsRun2]
     color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], "black"]
@@ -370,9 +360,8 @@ if __name__ == "__main__":
               u"2017: <μ> = %.0f" % round(pileup_hist2017.GetMean()),
               u"2018: <μ> = %.0f" % round(pileup_hist2018.GetMean()),
               u"Run 2: <μ> = %.0f" % round(pileup_histRun2.GetMean())]
-
-
-    MakePlot(xvalues,yvalues,labels,only_run2=True)
+    MakePlot(xvalues,yvalues,labels,has_run2=True)
+    MakePlot(xvalues[:-1],yvalues[:-1],labels[:-1],is_stacked=True,has_run2=True)
 
     ##########
 

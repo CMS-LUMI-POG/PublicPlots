@@ -1548,7 +1548,7 @@ if __name__ == "__main__":
                             log=log_setting,
                             bottom = bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered: %.2f %s" % \
+                            label="LHC delivered: %.2f %s" % \
                             (tot_del, LatexifyUnits(units)))
 
                     ax.hist(times, bin_edges, weights=weights_rec_for_cum,
@@ -1556,7 +1556,7 @@ if __name__ == "__main__":
                             log=log_setting,
                             bottom = bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                            label="CMS Recorded: %.2f %s" % \
+                            label="CMS recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
 
                     if sum(weights_cert_for_cum) > 0.:
@@ -1827,14 +1827,14 @@ if __name__ == "__main__":
                             log=log_setting,
                             bottom = bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered, max: %.1f %s/week" % \
+                            label="LHC delivered, max: %.1f %s/week" % \
                             (max_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec,
                             histtype="stepfilled",
                             log=log_setting,
                             bottom = bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                            label="CMS Recorded, max: %.1f %s/week" % \
+                            label="CMS recorded, max: %.1f %s/week" % \
                             (max_rec, LatexifyUnits(units)))
                     leg = ax.legend(frameon=False)
                     for t in leg.get_texts():
@@ -1929,14 +1929,14 @@ if __name__ == "__main__":
                             log=log_setting,
                             bottom = bottom,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered: %.2f %s" % \
+                            label="LHC delivered: %.2f %s" % \
                             (tot_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
                             bottom = bottom,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                            label="CMS Recorded: %.2f %s" % \
+                            label="CMS recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
                     leg = ax.legend(frameon=False)
                     for t in leg.get_texts():
@@ -2355,14 +2355,14 @@ if __name__ == "__main__":
                                 log=log_setting,
                                 bottom = bottom,
                                 facecolor=color_fill_del, edgecolor=color_line_del,
-                                label="LHC Delivered: %.2f %s" % \
+                                label="LHC delivered: %.2f %s" % \
                                 (tot_del, LatexifyUnits(units)))
                         ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_rec,
                                 histtype="stepfilled", cumulative=True,
                                 log=log_setting,
                                 bottom = bottom,
                                 facecolor=color_fill_rec, edgecolor=color_line_rec,
-                                label="CMS Recorded: %.2f %s" % \
+                                label="CMS recorded: %.2f %s" % \
                                 (tot_rec, LatexifyUnits(units)))
                         if do_certification:
                             ax.hist(times, bins=(time_end - time_begin).days + 1, weights=weights_cert,

@@ -348,22 +348,22 @@ if __name__ == "__main__":
     MakePlot(xvalues[:-1],yvalues[:-1],labels[:-1],is_stacked=True,has_run3=True)
 
     # Now make a Run-2 only plot:
-    pileup_histRun2 = pileup_hist2018.Clone()
-    pileup_histRun2.Add(pileup_hist2017)
-    pileup_histRun2.Add(pileup_hist2016)
-    pileup_histRun2.Add(pileup_hist2015)
-    weightsRun2 = ConvertROOTtoMatplotlib(pileup_histRun2)
-    xvalues=[vals,vals,vals,vals,vals]
-    yvalues=[weights2015,weights2016,weights2017,weights2018,weightsRun2]
-    color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], "black"]
-    labels = [u"2015: <μ> = %.0f" % round(pileup_hist2015.GetMean()),
-              u"2016: <μ> = %.0f" % round(pileup_hist2016.GetMean()),
-              u"2017: <μ> = %.0f" % round(pileup_hist2017.GetMean()),
-              u"2018: <μ> = %.0f" % round(pileup_hist2018.GetMean()),
-              u"Run 2: <μ> = %.0f" % round(pileup_histRun2.GetMean())]
-    MakePlot(xvalues,yvalues,labels,has_run2=True)
-    color_fill_histos=color_fill_histos[:-1]
-    MakePlot(xvalues[:-1],yvalues[:-1],labels[:-1],is_stacked=True,has_run2=True)
+    # pileup_histRun2 = pileup_hist2018.Clone()
+    # pileup_histRun2.Add(pileup_hist2017)
+    # pileup_histRun2.Add(pileup_hist2016)
+    # pileup_histRun2.Add(pileup_hist2015)
+    # weightsRun2 = ConvertROOTtoMatplotlib(pileup_histRun2)
+    # xvalues=[vals,vals,vals,vals,vals]
+    # yvalues=[weights2015,weights2016,weights2017,weights2018,weightsRun2]
+    # color_fill_histos = [color_scheme.color_by_year[2015], color_scheme.color_by_year[2016], color_scheme.color_by_year[2017], color_scheme.color_by_year[2018], "black"]
+    # labels = [u"2015: <μ> = %.0f" % round(pileup_hist2015.GetMean()),
+    #           u"2016: <μ> = %.0f" % round(pileup_hist2016.GetMean()),
+    #           u"2017: <μ> = %.0f" % round(pileup_hist2017.GetMean()),
+    #           u"2018: <μ> = %.0f" % round(pileup_hist2018.GetMean()),
+    #           u"Run 2: <μ> = %.0f" % round(pileup_histRun2.GetMean())]
+    # MakePlot(xvalues,yvalues,labels,has_run2=True)
+    # color_fill_histos=color_fill_histos[:-1]
+    # MakePlot(xvalues[:-1],yvalues[:-1],labels[:-1],is_stacked=True,has_run2=True)
 
     ##########
 

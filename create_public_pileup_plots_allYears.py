@@ -134,7 +134,7 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
     ax.set_xlabel(r"Mean number of interactions per crossing",
                   fontproperties=FONT_PROPS_AX_TITLE)
     ax.set_ylabel(r"Recorded luminosity (%s)" % \
-                      (LatexifyUnits("fb^{-1}"),
+                      (LatexifyUnits("fb^{-1}")),
                   fontproperties=FONT_PROPS_AX_TITLE)
     # ax.set_ylabel(r"Recorded luminosity (%s/%.2f)" % \
     #                   (LatexifyUnits("fb^{-1}"),

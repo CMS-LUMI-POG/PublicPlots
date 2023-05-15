@@ -17,12 +17,14 @@ import numpy as np
 ######################################################################
 
 FONT_PATH = '/usr/share/fonts/gnu-free/FreeSans.ttf'
-FONT_PROPS_SUPTITLE = FontProperties(fname=FONT_PATH, size="x-large", weight="bold", stretch="condensed")
-FONT_PROPS_TITLE = FontProperties(fname=FONT_PATH, size="large", weight="regular")
-FONT_PROPS_AX_TITLE = FontProperties(fname=FONT_PATH, size="x-large", weight="regular")
-FONT_PROPS_TICK_LABEL = FontProperties(fname=FONT_PATH, size="large", weight="regular")
-FONT_PROPS_CMS_LABEL = FontProperties(fname=FONT_PATH, size=22, weight="bold")
-FONT_PROPS_PLOT_LABEL = FontProperties(fname=FONT_PATH, size=15, style="italic")
+FONT_PATH_BOLD = '/usr/share/fonts/gnu-free/FreeSansBold.ttf'
+FONT_PATH_ITALIC = '/usr/share/fonts/gnu-free/FreeSansOblique.ttf'
+FONT_PROPS_SUPTITLE = FontProperties(fname=FONT_PATH_BOLD, size="16", stretch="condensed")
+FONT_PROPS_TITLE = FontProperties(fname=FONT_PATH, size="14", weight="regular")
+FONT_PROPS_AX_TITLE = FontProperties(fname=FONT_PATH, size="16", weight="regular")
+FONT_PROPS_TICK_LABEL = FontProperties(fname=FONT_PATH, size="14", weight="regular")
+FONT_PROPS_CMS_LABEL = FontProperties(fname=FONT_PATH_BOLD, size=24)
+FONT_PROPS_PLOT_LABEL = FontProperties(fname=FONT_PATH_ITALIC, size=17)
 
 ######################################################################
 

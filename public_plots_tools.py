@@ -87,17 +87,15 @@ def RoundAwayFromZero(val):
 def LatexifyUnits(units_in):
 
     latex_units = {
-        "b^{-1}" : "$b$^{-1}$",
-        "mb^{-1}" : "$mb$^{-1}$",
-        "ub^{-1}" : "$\mu$b$^{-1}$",
-        "nb^{-1}" : "nb$^{-1}$",
-#        "pb^{-1}" : "$\mathbf{pb}^{-1}$",
+        "b^{-1}" : u"b⁻¹",
+        "mb^{-1}" : u"mb⁻¹",
+        "ub^{-1}" : u"μb⁻¹",
+        "nb^{-1}" : u"nb⁻¹",
         "pb^{-1}" : u"pb⁻¹",
-        "fb^{-1}" : "fb$^{-1}$",
+        "fb^{-1}" : u"fb⁻¹",
         "Hz/b" : "Hz/b",
         "Hz/mb" : "Hz/mb",
-        "Hz/ub" : "Hz/$\mu$b",
-#        "Hz/ub" : "$\mathbf{Hz/}\mathbf{\mu}\mathbf{b}$",
+        "Hz/ub" : u"Hz/μb",
         "Hz/nb" : "Hz/nb",
         "Hz/pb" : "Hz/pb",
         "Hz/fb" : "Hz/fb"

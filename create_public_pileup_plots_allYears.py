@@ -344,6 +344,7 @@ if __name__ == "__main__":
               u"2023: <μ> = %.0f" % round(pileup_hist2023.GetMean()),
               u"Run 3: <μ> = %.0f" % round(pileup_histRun3.GetMean())]
     MakePlot(xvalues,yvalues,labels,has_run3=True)
+    color_fill_histos=color_fill_histos[:-1]
     MakePlot(xvalues[:-1],yvalues[:-1],labels[:-1],is_stacked=True,has_run3=True)
 
     # Now make a Run-2 only plot:
@@ -361,6 +362,7 @@ if __name__ == "__main__":
               u"2018: <μ> = %.0f" % round(pileup_hist2018.GetMean()),
               u"Run 2: <μ> = %.0f" % round(pileup_histRun2.GetMean())]
     MakePlot(xvalues,yvalues,labels,has_run2=True)
+    color_fill_histos=color_fill_histos[:-1]
     MakePlot(xvalues[:-1],yvalues[:-1],labels[:-1],is_stacked=True,has_run2=True)
 
     ##########

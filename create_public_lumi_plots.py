@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 ######################################################################
 ## File: create_public_lumi_plots.py

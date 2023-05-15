@@ -16,12 +16,13 @@ import numpy as np
 
 ######################################################################
 
-FONT_PROPS_SUPTITLE = FontProperties(size="x-large", weight="bold", stretch="condensed")
-FONT_PROPS_TITLE = FontProperties(size="large", weight="regular")
-FONT_PROPS_AX_TITLE = FontProperties(size="x-large", weight="regular")
-FONT_PROPS_TICK_LABEL = FontProperties(size="large", weight="regular")
-FONT_PROPS_CMS_LABEL = FontProperties(size=22, weight="bold")
-FONT_PROPS_PLOT_LABEL = FontProperties(size=15, style="italic")
+FONT_PATH = '/usr/share/fonts/gnu-free/FreeSans.ttf'
+FONT_PROPS_SUPTITLE = FontProperties(fname=FONT_PATH, size="x-large", weight="bold", stretch="condensed")
+FONT_PROPS_TITLE = FontProperties(fname=FONT_PATH, size="large", weight="regular")
+FONT_PROPS_AX_TITLE = FontProperties(fname=FONT_PATH, size="x-large", weight="regular")
+FONT_PROPS_TICK_LABEL = FontProperties(fname=FONT_PATH, size="large", weight="regular")
+FONT_PROPS_CMS_LABEL = FontProperties(fname=FONT_PATH, size=22, weight="bold")
+FONT_PROPS_PLOT_LABEL = FontProperties(fname=FONT_PATH, size=15, style="italic")
 
 ######################################################################
 

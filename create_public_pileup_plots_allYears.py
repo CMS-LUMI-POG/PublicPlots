@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 ######################################################################
 ## File: create_public_pileup_plots_allYears.py
@@ -343,8 +344,8 @@ if __name__ == "__main__":
     xvalues=[vals,vals]
     yvalues=[weights2022,weights2023]
     color_fill_histos = [color_scheme.color_by_year[2022], color_scheme.color_by_year[2023]]
-    labels = ["2022: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2022.GetMean()),
-              "2023: <$\mathbf{\mu}$> = %.0f" % round(pileup_hist2023.GetMean())]
+    labels = [u"2022: <μ> = %.0f" % round(pileup_hist2022.GetMean()),
+              u"2023: <μ> = %.0f" % round(pileup_hist2023.GetMean())]
 
     MakePlot(xvalues,yvalues,labels,is_stacked=True,only_run3=True)
     MakePlot(xvalues,yvalues,labels,only_run3=True)

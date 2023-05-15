@@ -106,6 +106,7 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
     stack_suffix = ""
     run2_suffix = ""
     transparency = 1
+    add_extra_head_room = True
     if is_stacked:
         histo_type="stepfilled"
         stack_suffix = "_stack"
@@ -117,6 +118,8 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
         run2_suffix = "_run3"
     if is_run2and3:
         run2_suffix = "_run2and3"
+    if not only_run2 and not only_run3 and not is_run2and3:
+        add_extra_head_room = 2
 
     ax.hist(xvalues, bins=bin_edges,
             weights=yvalues,

@@ -92,7 +92,7 @@ def LatexifyUnits(units_in):
         "ub^{-1}" : "$\mu$b$^{-1}$",
         "nb^{-1}" : "nb$^{-1}$",
 #        "pb^{-1}" : "$\mathbf{pb}^{-1}$",
-        "pb^{-1}" : "pb⁻¹",
+        u"pb^{-1}" : "pb⁻¹",
         "fb^{-1}" : "fb$^{-1}$",
         "Hz/b" : "Hz/b",
         "Hz/mb" : "Hz/mb",

@@ -115,7 +115,6 @@ def MakePlot(xvalues, yvalues, labels, is_stacked=False, only_run2=False, only_r
         run2_suffix = "_run2"
         run2_label = "(pp, $\mathbf{\sqrt{s}}$=13 TeV)"
     if only_run3:
-        histo_type="stepfilled"
         run2_suffix = "_run3"
         run2_label = "(pp, $\mathbf{\sqrt{s}}$=13.6 TeV)"
     if is_run2and3:

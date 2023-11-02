@@ -308,7 +308,7 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
 
     pathname = os.path.join( dirname, file_name_base)
     fd = open(pathname + ".yaml", 'w+')
-    fd.write( yamlstr )
+    fd.write( yamlstr.encode('utf-8') )
     fd.close()
 
     fig.savefig("%s.png" % pathname)

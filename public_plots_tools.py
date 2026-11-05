@@ -24,7 +24,7 @@ FONT_PATH_ITALIC = '/usr/share/fonts/gnu-free/FreeSansOblique.ttf'
 FONT_PROPS_SUPTITLE = FontProperties(fname=FONT_PATH_BOLD, size="16", stretch="condensed")
 FONT_PROPS_TITLE = FontProperties(fname=FONT_PATH, size="14", weight="regular")
 FONT_PROPS_AX_TITLE = FontProperties(fname=FONT_PATH, size="16", weight="regular")
-FONT_PROPS_TICK_LABEL = FontProperties(fname=FONT_PATH, size="14", weight="regular")
+FONT_PROPS_TICK_LABEL = FontProperties(fname=FONT_PATH, size="12", weight="regular")
 FONT_PROPS_CMS_LABEL = FontProperties(fname=FONT_PATH_BOLD, size=24)
 FONT_PROPS_PLOT_LABEL = FontProperties(fname=FONT_PATH_ITALIC, size=17)
 
@@ -172,17 +172,20 @@ class ColorScheme(object):
         self.color_line_cert = DarkenColor(self.color_fill_cert)
         self.color_line_peak = DarkenColor(self.color_fill_peak)
         self.color_by_year = {
-            2010 : "green",
+            2010 : "lightgreen",
             2011 : "red",
             2012 : "blue",
-	        2013 : "orange",
-	        2014 : "orange",
-	        2015 : "purple",
+	    2013 : "orange",
+	    2014 : "orange",
+	    2015 : "purple",
             2016 : "orange",
             2017 : "deepskyblue",
             2018 : "navy",
             2022 : "brown",
-            2023 : "mediumorchid"
+            2023 : "mediumorchid",
+            2024 : "black",
+            2025 : "pink",
+            2026 : "darkgreen"
             }
         self.color_line_pileup = "black"
         self.color_fill_pileup = "blue"
@@ -308,7 +311,7 @@ def SavePlot(fig, file_name_base, ax=None, direc="plots", yamldict={}):
 
     pathname = os.path.join( dirname, file_name_base)
     fd = open(pathname + ".yaml", 'w+')
-    fd.write( yamlstr )
+    fd.write( yamlstr.encode('utf8') )
     fd.close()
 
     fig.savefig("%s.png" % pathname)

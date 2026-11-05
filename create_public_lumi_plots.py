@@ -30,6 +30,7 @@ import numpy as np
 
 import six
 import matplotlib
+print(matplotlib.__version__)
 
 # CS : To be compliant with the code below:
 cjson = json.JSONDecoder()
@@ -86,7 +87,8 @@ except ImportError:
 DATE_FMT_STR_LUMICALC = "%m/%d/%y %H:%M:%S"
 DATE_FMT_STR_LUMICALC_DAY = "%m/%d/%y"
 DATE_FMT_STR_OUT = "%Y-%m-%d %H:%M"
-DATE_FMT_STR_AXES = "%-d %b"
+#DATE_FMT_STR_AXES = "%-d %b"
+DATE_FMT_STR_AXES = "%Y-%b"
 DATE_FMT_STR_CFG = "%Y-%m-%d"
 NUM_SEC_IN_LS = 2**18 / 11246.
 
@@ -100,7 +102,7 @@ class LumiDataPoint(object):
     """Holds info from one line of lumiCalc lumibyls output."""
 
     def __init__(self, line, json_file_name=None, data_scale_factor=1):
-
+        #print(line)
         # Decode the comma-separated line from lumiCalc.
         line_split = line.split(",")
         tmp = line_split[0].split(":")
@@ -428,6 +430,30 @@ def GetUnits(year, accel_mode, mode):
         "cum_week" : "ub^{-1}",
         "cum_year" : "ub^{-1}",
         "max_inst" : "Hz/mb",
+        },
+        2023 : {
+        "cum_day" : "ub^{-1}",
+        "cum_week" : "ub^{-1}",
+        "cum_year" : "ub^{-1}",
+        "max_inst" : "Hz/mb",
+        },
+        2024 : {
+        "cum_day" : "ub^{-1}",
+        "cum_week" : "ub^{-1}",
+        "cum_year" : "ub^{-1}",
+        "max_inst" : "Hz/mb",
+        },
+        2025 : {
+        "cum_day" : "ub^{-1}",
+        "cum_week" : "ub^{-1}",
+        "cum_year" : "ub^{-1}",
+        "max_inst" : "Hz/mb",
+        },
+        2026 : {
+        "cum_day" : "ub^{-1}",
+        "cum_week" : "ub^{-1}",
+        "cum_year" : "ub^{-1}",
+        "max_inst" : "Hz/mb",
         }
         },
         "PAPHYS" : {
@@ -546,7 +572,7 @@ def GetXLocator(ax):
 ######################################################################
 
 def TweakPlot(fig, ax, time_range,
-              add_extra_head_room=False, headroom_factor=1.3):
+              add_extra_head_room=False, headroom_factor=1.4):
 
     # Fiddle with axes ranges etc.
     (time_begin, time_end) = time_range
@@ -554,7 +580,7 @@ def TweakPlot(fig, ax, time_range,
     ax.autoscale_view(False, True, True)
     for label in ax.get_xticklabels():
         label.set_ha("right")
-        label.set_rotation(30.)
+        label.set_rotation(20.)
 
     # Bit of magic here: increase vertical scale by one tick to make
     # room for the legend.
@@ -569,6 +595,7 @@ def TweakPlot(fig, ax, time_range,
         else:
             tmp = y_ticks[-1] - y_ticks[-2]
             y_max_new = y_max + add_extra_head_room * (headroom_factor*tmp)
+        #print("Y LIMITS:",fig,y_min,y_max_new)
         ax.set_ylim(y_min, y_max_new)
 
     ## Add a second vertical axis on the right-hand side.
@@ -721,8 +748,7 @@ if __name__ == "__main__":
     beam_energy = None
     beam_energy_from_cfg = None
     if not beam_energy_tmp:
-        print("No beam energy specified --> using defaults for '%s'" % \
-              accel_mode)
+        print("No beam energy specified --> using defaults for '%s'" % accel_mode)
         beam_energy_from_cfg = False
     else:
         beam_energy_from_cfg = True
@@ -835,15 +861,22 @@ if __name__ == "__main__":
                       2012 : 4000.,
                       2013 : 1380.1,
                       2015 : 6500.,
-		              2016 : 6500.,
+		      2016 : 6500.,
                       2017 : 6500.,
                       2018 : 6500.,
                       2022 : 6800.,
-                      2023 : 6800.},
+                      2023 : 6800.,
+                      2024 : 6800.,
+                      2025 : 6800.,
+                      2026 : 6800.},
         "IONPHYS" : {2010 : 3500.,
                      2011 : 3500.,
                      2015 : 6369.,
-                     2018 : 6370.},
+                     2018 : 6370.,
+                     2023 : 6800.,
+                     2024 : 6800.,
+                     2025 : 6800.,
+                     2026 : 6800.},
         "PAPHYS" : {2013 : 4000.,
                     2016 : 2500},
         "ALLIONS": {2015 : 6369.,
@@ -980,7 +1013,8 @@ if __name__ == "__main__":
                 else:
                     lumicalc_flags = lumicalc_flags_from_cfg
                     if filter_brilcalc_results:
-                        lumicalc_flags += " --beamenergy %.0f --amodetag %s" % (beam_energy, accel_mode)
+                        #lumicalc_flags += " --beamenergy %.0f --amodetag %s" % (beam_energy, accel_mode)
+                        lumicalc_flags += " --amodetag %s" % (accel_mode)
 
                 if normtag_file:
                     lumicalc_flags += " --normtag "+normtag_file
@@ -1060,7 +1094,7 @@ if __name__ == "__main__":
                     print("    skipping empty file for %s" % day.isoformat())
             else:
                 # DEBUG DEBUG DEBUG
-		istart=0
+                istart=0
                 if lumicalc_script.split()[0] != "brilcalc" and year<2015:
                     #assert lines[0] == "Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n"
 		#if year==2015:
@@ -1077,7 +1111,7 @@ if __name__ == "__main__":
                             ldp = LumiDataPoint(line, json_file_name, data_scale_factor[str(day.year)])
                         else:
                             ldp = LumiDataPoint(line, json_file_name)
-                    	lumi_data_day.add(ldp)
+                            lumi_data_day.add(ldp)
 
             in_file.close()
         except IOError as err:
@@ -1375,7 +1409,7 @@ if __name__ == "__main__":
                         ax.set_title(datatime, \
                                      loc='left', \
                                      fontproperties=FONT_PROPS_TITLE)
-                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Peak delivered luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
@@ -1388,7 +1422,8 @@ if __name__ == "__main__":
                     # Add the logo.
                     AddLogo(logo_name, ax)
                     TweakPlot(fig, ax, (time_begin, time_end), True)
-
+                    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y-%m-%d"))
+                    
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
@@ -1408,10 +1443,9 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-
+                print("SavePlot: peak_lumi_per_day_%s_%d%s%s%s" % (particle_type_str.lower(), year, log_suffix, file_suffix, file_suffix2))
                 SavePlot(fig, "peak_lumi_per_day_%s_%d%s%s%s" % \
-                         (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2),
+                         (particle_type_str.lower(), year, log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
 
             #----------
@@ -1423,7 +1457,7 @@ if __name__ == "__main__":
                 bottom = 0.0
                 if is_log:
                     min_val = min(weights_rec)
-		    if min_val>0.0 :
+                    if min_val>0.0 :
                           exp = math.floor(math.log10(min_val))
                           log_setting = True
                           bottom = math.pow(10., exp)
@@ -1477,7 +1511,7 @@ if __name__ == "__main__":
                         ax.set_title(datatime, \
                                      loc='left', \
                                      fontproperties=FONT_PROPS_TITLE)
-                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Integrated luminosity (%s/day)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
@@ -1490,7 +1524,8 @@ if __name__ == "__main__":
                     # Add the logo.
                     AddLogo(logo_name, ax)
                     TweakPlot(fig, ax, (time_begin, time_end), True)
-
+                    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y-%m-%d"))
+                    
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
@@ -1509,9 +1544,9 @@ if __name__ == "__main__":
                              'title' : figtitle,
                              'caption' : caption }
 
+                print("int_lumi_per_day_%s_%d%s%s%s" % (particle_type_str.lower(), year,log_suffix, file_suffix, file_suffix2))
                 SavePlot(fig, "int_lumi_per_day_%s_%d%s%s%s" % \
-                         (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2),
+                         (particle_type_str.lower(), year,log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
 
 
@@ -1593,7 +1628,7 @@ if __name__ == "__main__":
                         ax.set_title(datatime, \
                                      loc='left', \
                                      fontproperties=FONT_PROPS_TITLE)
-                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Total integrated luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
@@ -1610,6 +1645,7 @@ if __name__ == "__main__":
 #                              add_extra_head_room=is_log)
                     TweakPlot(fig, ax, (time_begin, time_end),
                               add_extra_head_room=True)
+                    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y-%m-%d"))
 
                 log_suffix = ""
                 if is_log:
@@ -1629,10 +1665,9 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-
+                print("int_lumi_per_day_cumulative_%s_%d%s%s%s" % (particle_type_str.lower(), year,log_suffix, file_suffix, file_suffix2))
                 SavePlot(fig, "int_lumi_per_day_cumulative_%s_%d%s%s%s" % \
-                         (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2),
+                         (particle_type_str.lower(), year,log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
             plt.close(fig)
     #------------------------------
@@ -1760,7 +1795,7 @@ if __name__ == "__main__":
                         ax.set_title(datatime, \
                                      loc='left', \
                                      fontproperties=FONT_PROPS_TITLE)
-                    ax.set_xlabel(r"Date (UTC)",
+                    ax.set_xlabel(r"Date",
                                   fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Peak delivered luminosity (%s)" % \
                                   LatexifyUnits(units),
@@ -1774,7 +1809,8 @@ if __name__ == "__main__":
                     # Add the logo.
                     AddLogo(logo_name, ax)
                     TweakPlot(fig, ax, (week_lo, week_hi), True)
-
+                    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y-%m-%d"))
+                    
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
@@ -1792,10 +1828,9 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-
+                print("peak_lumi_per_week_%s_%d%s%s%s" % (particle_type_str.lower(), year,log_suffix, file_suffix, file_suffix2))
                 SavePlot(fig, "peak_lumi_per_week_%s_%d%s%s%s" % \
-                        (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2),
+                        (particle_type_str.lower(), year,log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
             #----------
 
@@ -1863,7 +1898,7 @@ if __name__ == "__main__":
                         ax.set_title(datatime, \
                                      loc='left', \
                                      fontproperties=FONT_PROPS_TITLE)
-                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Integrated luminosity (%s/week)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
@@ -1875,7 +1910,8 @@ if __name__ == "__main__":
                     # Add the logo.
                     AddLogo(logo_name, ax)
                     TweakPlot(fig, ax, (week_lo, week_hi), True)
-
+                    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y-%m-%d"))
+                    
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
@@ -1893,10 +1929,9 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-
+                print("int_lumi_per_week_%s_%d%s%s%s" % (particle_type_str.lower(), year, log_suffix, file_suffix, file_suffix2))
                 SavePlot(fig, "int_lumi_per_week_%s_%d%s%s%s" % \
-                         (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2),
+                         (particle_type_str.lower(), year, log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
             #----------
 
@@ -1960,7 +1995,7 @@ if __name__ == "__main__":
                         ax.set_title(datatime, \
                                      loc='left', \
                                      fontproperties=FONT_PROPS_TITLE)
-                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Total integrated luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
@@ -1975,7 +2010,8 @@ if __name__ == "__main__":
 #                              add_extra_head_room=is_log)
                     TweakPlot(fig, ax, (week_lo, week_hi),
                               add_extra_head_room=True)
-
+                    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y-%m-%d"))
+                    
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
@@ -1993,10 +2029,9 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
-
+                print("int_lumi_per_week_cumulative_%s_%d%s%s%s" % (particle_type_str.lower(), year, log_suffix, file_suffix, file_suffix2))
                 SavePlot(fig, "int_lumi_per_week_cumulative_%s_%d%s%s%s" % \
-                         (particle_type_str.lower(), year,
-                          log_suffix, file_suffix, file_suffix2),
+                         (particle_type_str.lower(), year, log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
         plt.close(fig)
     #----------
@@ -2193,7 +2228,7 @@ if __name__ == "__main__":
                     #ax.set_title(axtit, \
                     #             loc='right',
                     #             fontproperties=FONT_PROPS_TITLE)
-                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Total integrated luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
@@ -2214,8 +2249,18 @@ if __name__ == "__main__":
                     elif is_log:
                         extra_head_room = 1
                     TweakPlot(fig, ax, (time_plot_begin, time_plot_end),
-                              add_extra_head_room=extra_head_room, headroom_factor=1.3)
+                              add_extra_head_room=extra_head_room, headroom_factor=1.5)
 
+                    ##for plot with years overlaped labels should only show the month 
+                    if mode == 2:
+                        #ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%b"))
+                        ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%b-%d"))
+                        for label in ax.get_xticklabels():
+                            label.set_ha("right")
+                            label.set_rotation(0)
+                    if mode == 3:
+	                ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%Y"))
+                            
                     log_suffix = ""
                     if is_log:
                         log_suffix = "_log"
@@ -2234,10 +2279,9 @@ if __name__ == "__main__":
                                  'category' : file_suffix2,
                                  'title' : figtitle,
                                  'caption' : caption }
-                    SavePlot(fig,
-                             "int_lumi_cumulative_%s_%d%s%s%s" % \
-                             (particle_type_str.lower(), mode,
-                              log_suffix, file_suffix, file_suffix2),
+                    print("int_lumi_cumulative_%s_%d%s%s%s" % (particle_type_str.lower(), mode, log_suffix, file_suffix, file_suffix2))
+                    SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s%s" % \
+                             (particle_type_str.lower(), mode, log_suffix, file_suffix, file_suffix2),
                              direc = plot_directory, yamldict=yamldict)
                     plt.close(fig)
 
@@ -2416,7 +2460,8 @@ if __name__ == "__main__":
 
                         # Add the logo.
                         zoom = 1.7
-                        formatter = matplotlib.dates.DateFormatter("%b '%y")
+                        formatter = matplotlib.dates.DateFormatter("%Y")
+                        #formatter = matplotlib.dates.DateFormatter(DATE_FMT_STR_AXES)
                         if do_cutouts:
                             # We have to add the logo on big_ax because otherwise it gets cut off when
                             # the individual subplots get too small. Unfortunately this changes the positioning
@@ -2427,10 +2472,13 @@ if __name__ == "__main__":
                             # the multiple axes of the brokenaxes object.
 
                             # This does not work:
-                            # (y_min, y_max) = ax.big_ax.get_ylim()
-                            # y_max_new = y_max * 1.4
-                            # print("sett cutout ylim to ", y_min, y_max)
-                            # ax.big_ax.set_ylim(y_min, y_max_new)
+                            #(y_min, y_max) = ax.big_ax.get_ylim()
+                            #y_max_new = y_max * 1.4
+                            #print("sett cutout ylim to ", y_min, y_max)
+                            #ax.big_ax.set_ylim(y_min, y_max_new)
+
+                            (y_min, y_max) = ax.axs[0].get_ylim()
+                            ax.set_ylim(y_min, y_max*1.1)
 
                             ## Add a second vertical axis on the right-hand side.
                             #ax_sec = ax.axs[-1].twinx()
@@ -2447,14 +2495,16 @@ if __name__ == "__main__":
                             for a in ax.axs:
                                 a.xaxis.set_major_formatter(formatter)
                                 a.xaxis.set_ticks_position("both")
+                                a.xaxis.set_major_locator(matplotlib.dates.MonthLocator(bymonth=(8)))
                                 for label in a.get_xticklabels():
                                     label.set_ha("right")
-                                    label.set_rotation(30.0)
+                                    label.set_rotation(20.0)
                         else:
                             AddLogo(logo_name, ax, zoom=zoom)
                             TweakPlot(fig, ax, (time_begin, time_end), add_extra_head_room=0)
                             ax.xaxis.set_major_formatter(formatter)
-
+                            
+                            
                         log_suffix = ""
                         if type == "log":
                             log_suffix = "_log"
@@ -2477,10 +2527,14 @@ if __name__ == "__main__":
                                      'category' : file_suffix2,
                                      'title' : figtitle,
                                      'caption' : caption }
-
+                        
+                        print("int_lumi_allcumulative_%s%s%s%s%s%s" %
+                              (particle_type_str.lower(), log_suffix, file_suffix, file_suffix2,
+                               ("_cert" if do_certification else ""),
+                               ("_cutout" if do_cutouts else "")))
                         SavePlot(fig, "int_lumi_allcumulative_%s%s%s%s%s%s" % \
-                                 (particle_type_str.lower(),
-                                  log_suffix, file_suffix, file_suffix2, ("_cert" if do_certification else ""),
+                                 (particle_type_str.lower(), log_suffix, file_suffix, file_suffix2,
+                                  ("_cert" if do_certification else ""),
                                   ("_cutout" if do_cutouts else "")), yamldict=yamldict, **save_kwargs)
                         # CS Should close the figure here, otherwise we get in trouble with memory
                         plt.close( fig )
@@ -2515,7 +2569,7 @@ if __name__ == "__main__":
                 str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                 for (year_index, year) in enumerate(years):
                     if year in skip_years:
-			continue
+                        continue
                     lumi_data = lumi_data_by_day_per_year[year]
                     lumi_data.sort()
                     times_tmp = [AtMidnight(i) for i in lumi_data.times()]
@@ -2613,7 +2667,7 @@ if __name__ == "__main__":
 #                             (str_begin, str_end),
                              (str_begin_ultimate, str_end),
                              fontproperties=FONT_PROPS_TITLE)
-                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                ax.set_xlabel(r"Date", fontproperties=FONT_PROPS_AX_TITLE)
                 ax.set_ylabel(r"Peak delivered luminosity (%s)" % \
                               LatexifyUnits(units),
                               fontproperties=FONT_PROPS_AX_TITLE)
@@ -2632,7 +2686,7 @@ if __name__ == "__main__":
                     head_room = 2.
 #                TweakPlot(fig, ax, (time_begin, time_end),
                 TweakPlot(fig, ax, (time_begin_ultimate, time_end),
-                          add_extra_head_room=head_room, headroom_factor=1.2)
+                          add_extra_head_room=head_room, headroom_factor=1.3)
 
                 log_suffix = ""
                 if is_log:
@@ -2647,9 +2701,9 @@ if __name__ == "__main__":
                              'category' : file_suffix2,
                              'title' : figtitle,
                              'caption' : caption }
+                print("peak_lumi_%s%s%s%s" % (particle_type_str.lower(),log_suffix, file_suffix, file_suffix2))
                 SavePlot(fig, "peak_lumi_%s%s%s%s" % \
-                         (particle_type_str.lower(),
-                          log_suffix, file_suffix, file_suffix2),
+                         (particle_type_str.lower(),log_suffix, file_suffix, file_suffix2),
                          direc = plot_directory, yamldict=yamldict)
                 plt.close(fig)
     #----------
